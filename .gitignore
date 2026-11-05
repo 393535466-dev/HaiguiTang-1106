@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.*
+!.env.example
+miniprogram/config.local.js
+project.private.config.json
+.DS_Store
+coverage/
+test-results/
+.preview-data/
+*.log
+*.pem
+*.key

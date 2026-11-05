@@ -1,0 +1,130 @@
+{
+  "generator": "eSpeak NG",
+  "version": "1.52.0",
+  "voice": "cmn",
+  "voiceKind": "formant synthesis",
+  "speed": 160,
+  "pitch": 48,
+  "amplitude": 100,
+  "buildSources": [
+    {
+      "url": "https://github.com/espeak-ng/espeak-ng/archive/refs/tags/1.52.0.tar.gz",
+      "sha256": "bb4338102ff3b49a81423da8a1a158b420124b055b60fa76cfb4b18677130a23"
+    },
+    {
+      "url": "https://github.com/waywardgeek/sonic/archive/fbf75c3d6d846bad3bb3d456cbc5d07d9fd8c104.tar.gz",
+      "sha256": "715827b5a39b79e56e44397d7b845910df996d4cca74777b3b61629b1ddc98c1"
+    }
+  ],
+  "files": [
+    {
+      "text": "是。",
+      "file": "yes.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.6505,
+      "bytes": 28730,
+      "peak": 14061,
+      "activeSampleFraction": 0.3106,
+      "sha256": "caa030acfa046e921f447d0f112c3ea5c8342254b452f979d3d3940d426bc14d"
+    },
+    {
+      "text": "否。",
+      "file": "no.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.6775,
+      "bytes": 29920,
+      "peak": 18148,
+      "activeSampleFraction": 0.354,
+      "sha256": "198f8141c5fe394fc82ffd7885281b370407750c5bd38c7c2917c8f4a5c19d55"
+    },
+    {
+      "text": "无关。",
+      "file": "irrelevant.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.9649,
+      "bytes": 42598,
+      "peak": 19924,
+      "activeSampleFraction": 0.5233,
+      "sha256": "c6d4b735f2fdac7eaba3f22c001ef40c1595da4f5a5934ad416e0a37136316b4"
+    },
+    {
+      "text": "题目未设定。",
+      "file": "unspecified.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.6524,
+      "bytes": 72914,
+      "peak": 21594,
+      "activeSampleFraction": 0.5663,
+      "sha256": "58b8f2a4d2defb53b1b9bea1dfed18e50281c2a5af33f7ae29183925be9dbad4"
+    },
+    {
+      "text": "请澄清。",
+      "file": "clarify.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.5133,
+      "bytes": 66782,
+      "peak": 20073,
+      "activeSampleFraction": 0.5697,
+      "sha256": "51c90aea5d525c7702c142279b8ca304e1c93e181e180c387be6cec9bdf3787e"
+    },
+    {
+      "text": "猜中了。",
+      "file": "solved.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.2534,
+      "bytes": 55318,
+      "peak": 28290,
+      "activeSampleFraction": 0.551,
+      "sha256": "8126db450f4b5669dcd0e3187a4f090d57740d274d60782fe4b158f2e5e9f1ea"
+    },
+    {
+      "text": "还差一点。",
+      "file": "incomplete.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.5105,
+      "bytes": 66658,
+      "peak": 23951,
+      "activeSampleFraction": 0.5633,
+      "sha256": "47a92856cd9de490d88b78d36c5733cbb6ef700781f2a7d74fab424873c5d3f6"
+    },
+    {
+      "text": "方向不对。",
+      "file": "incorrect.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.5468,
+      "bytes": 68258,
+      "peak": 32606,
+      "activeSampleFraction": 0.5443,
+      "sha256": "92d2def10e8c008850a0a3546501b8bd5f8137d16af84391d87120bd531701e3"
+    },
+    {
+      "text": "暂无法判定。",
+      "file": "uncertain.wav",
+      "sampleRate": 22050,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.832,
+      "bytes": 80836,
+      "peak": 23085,
+      "activeSampleFraction": 0.6062,
+      "sha256": "e86e09d946e663d0e3c3fd9160fd5db29a54d613bdc6debef596b23aced12770"
+    }
+  ],
+  "verification": "WAV format, duration, non-silence and clipping checks; device listening test still required"
+}

@@ -1,0 +1,8 @@
+<view class="privacy-page"><view class="eyebrow">BEFORE YOU SPEAK</view><view class="privacy-page-title serif">你的声音，<text>由你决定。</text></view><view class="privacy-intro">第一版采用「按住说话 → 转成文字 → 你确认 → AI判题」。不持续监听，也不会把未经确认的转写直接当成问题。</view>
+  <view class="privacy-section"><view class="privacy-no">01</view><view class="privacy-section-title serif">什么时候会录音</view><view class="privacy-paragraph">只有你主动按住录音按钮时才录制。松手结束，上滑后松手取消。每段最长约20秒；你可以拒绝麦克风授权，继续用文字提问。</view></view>
+  <view class="privacy-section"><view class="privacy-no">02</view><view class="privacy-section-title serif">录音会送到哪里</view><view class="privacy-paragraph">录音先上传到本项目的私有云存储，再由服务端发送给阿里云百炼语音识别服务。确认后的问题、当前故事与必要的历史会发送给文字裁判模型。</view><view class="privacy-paragraph">请不要在录音或问题里提供身份证号、联系方式、住址等与游戏无关的信息。</view></view>
+  <view class="privacy-section"><view class="privacy-no">03</view><view class="privacy-section-title serif">保存与删除</view><view class="privacy-paragraph">成功转写后删除原始录音；其余录音在清理任务正常运行时，目标24小时内删除。问答和含正文的请求记录7天到期并结束该局，在下一轮小时清理任务中删除。你也可以在局内主动清空。</view><view class="privacy-paragraph">未提交草稿和待确认操作仅存本机，主动清空时删除；7天过期数据在下次打开时清理。用于核账的去标识计量保留30天后定期清理，不含问题正文。第三方服务的数据处理遵循其服务条款，不能承诺其绝不留存。</view></view>
+  <view class="privacy-section"><view class="privacy-no">04</view><view class="privacy-section-title serif">费用与异常</view><view class="privacy-paragraph">检查已有结果不会重新调用识别或裁判。超时不代表厂商没有执行；如果你主动确认重试，可能再次产生服务调用费用。模型出错时会显示异常，不伪装成「否」或「无关」。</view></view>
+  <view class="privacy-note">这是体验版功能说明。运营方在开放给真实玩家前，还需在微信后台补齐主体、联系与隐私处理信息，核验录音权限和清理任务。</view>
+  <button class="secondary" bindtap="openPlatformPrivacy">查看微信隐私保护指引</button><button class="primary" bindtap="back">知道了，回到故事</button>
+</view>

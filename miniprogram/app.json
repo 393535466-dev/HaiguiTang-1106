@@ -1,0 +1,15 @@
+{
+  "pages": ["pages/home/index", "pages/game/index", "pages/privacy/index"],
+  "window": {
+    "navigationBarTitleText": "一碗海龟汤",
+    "navigationBarBackgroundColor": "#f4f1e9",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f4f1e9",
+    "backgroundTextStyle": "dark"
+  },
+  "permission": {
+    "scope.record": { "desc": "将你主动录制的问题转成文字，确认后交给AI裁判" }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

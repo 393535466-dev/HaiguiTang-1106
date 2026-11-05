@@ -1,0 +1,4 @@
+{
+  "permissions": { "openapi": ["security.msgSecCheck"] },
+  "triggers": [{ "name": "cleanup-hourly", "type": "timer", "config": "0 0 * * * * *" }]
+}

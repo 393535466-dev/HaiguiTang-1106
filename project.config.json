@@ -1,0 +1,16 @@
+{
+  "appid": "touristappid",
+  "projectname": "海龟汤单人语音版",
+  "description": "按住说话 单人推理 AI裁判",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "minified": true,
+    "urlCheck": true,
+    "postcss": true
+  },
+  "libVersion": "3.7.12"
+}
