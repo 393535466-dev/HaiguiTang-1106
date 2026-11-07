@@ -220,6 +220,10 @@
   };
   requireMini('/app.js'); if (app.onLaunch) app.onLaunch();
   navigate({ url: location.hash.slice(1) || '/pages/home/index' }, 'push');
+  fetch('/preview-status').then(r => r.json()).then(status => {
+    document.querySelector('#preview-mode').textContent = unconfigured ? '未配置界面检查 · 无模型调用' : status.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : status.textReady ? '真实文字 AI · 本机体验' : '真实 AI 待接入 · 请配置服务端密钥';
+    if (status.mode === 'fixture') document.querySelector('#preview-description').textContent = '这是显式开启的开发测试模式，只匹配测试问句，不代表真实 AI 能力。默认启动方式使用真实模型。';
+  }).catch(() => { document.querySelector('#preview-mode').textContent = '本机服务未连接'; });
   // Read-only diagnostics for UI acceptance; this never contains the private puzzle bank.
   window.__preview = { get page() { return topPage(); }, get route() { return topPage().route; }, get renderCount() { return renderSequence; }, unconfigured };
 })();

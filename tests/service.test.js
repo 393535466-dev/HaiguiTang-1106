@@ -25,6 +25,31 @@ function fixture(options = {}) {
     advance(ms) { time += ms; } };
 }
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
+test('tutorial uses private server facts, charges the same judge quota, and leaves the real game intact', async () => {
+  const original = require('../cloudfunctions/game/data/tutorial');
+  let selected;
+  const f = fixture({ provider: { judge: async input => { selected = input.puzzle; return { answer: 'clarify', clarifyReason: 'open_ended', explanation: 'do not expose' }; } } });
+  const real = await f.start();
+  const start = await f.handle('startTutorial', { puzzleId: 'attacker-selected' });
+  const s = start.data.session;
+  assert.equal(s.puzzleId, original.id); assert.notEqual(s.id, real.id);
+  assert.equal(s.expiresAt, real.expiresAt - 7 * DAY + 3600000);
+  assert.ok(!JSON.stringify(s).includes(original.solution));
+  assert.equal((await f.handle('listPuzzles')).data.puzzles.length, 1);
+  const answer = await f.handle('askQuestion', { sessionId: s.id, requestId: 'tutorial-request', text: '为什么？' });
+  assert.equal(selected.solution, original.solution);
+  assert.equal(answer.data.session.messages[0].clarifyReason, 'open_ended');
+  assert.equal(answer.data.session.messages[0].explanation, undefined);
+  assert.equal((await f.store.scan('usage')).find(v => v.id.startsWith('global-')).judge, 1);
+  await f.handle('clearSession', { sessionId: s.id });
+  assert.equal((await f.handle('getSession', { sessionId: real.id })).data.session.state, 'playing');
+});
+test('unconfigured tutorial cannot create a session or consume quota', async () => {
+  const f = fixture({ provider: { ready: () => ({ textReady: false, voiceReady: false }) } });
+  assert.equal((await f.handle('startTutorial')).error.code, 'CONFIG_REQUIRED');
+  assert.equal((await f.store.scan('sessions')).length, 0);
+  assert.equal((await f.store.scan('usage')).length, 0);
+});
 test('voice practice is owned, short-lived, metered and isolated from the real game', async () => {
   const f = fixture(), real = await f.start();
   const s = (await f.handle('startVoicePractice')).data.session;

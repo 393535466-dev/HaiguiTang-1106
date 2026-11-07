@@ -49,13 +49,13 @@
 
 在微信云开发选择受支持的 Node.js 20 或更高运行时，部署 `cloudfunctions/game`，函数名保持 `game`，使用「云端安装依赖」。服务端锁定 `wx-server-sdk` 版本，具体见 `package-lock.json`。
 
-将 `cloudfunctions/game/.env.example` 作为控制台填写参考。它不会由小程序加载，也不会自动把本机环境变量同步到云端。
+本机文字 AI 已可通过 `.env.preview.local` 联调；该 Key 配置不会自动部署。将 `cloudfunctions/game/.env.example` 作为控制台填写参考。它不会由小程序加载，也不会自动把本机环境变量同步到云端。
 
 | 云端环境变量 | 填写内容 |
 |---|---|
 | `DASHSCOPE_API_KEY` | 北京地域的百炼 API Key，由用户自行写入云端受控配置 |
 | `DASHSCOPE_BASE_URL` | 默认 `https://dashscope.aliyuncs.com/compatible-mode/v1`；使用业务空间域名时按该地域官方地址填写 |
-| `LLM_MODEL` | `qwen-flash`，真实回归不通过时再评估替换 |
+| `LLM_MODEL` | `qwen-plus`，非思考模式；更换模型或提示词后重新执行真实回归 |
 | `ASR_MODEL` | `qwen3-asr-flash`，同步短录音识别 |
 | `GAME_ENABLED` | 首次保持 `false`；完成权限、内容处理和基础测试后才显式设为 `true` |
 | `DAILY_USER_LIMIT` | 初期 `100`，每名用户每类外呼每日上限 |

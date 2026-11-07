@@ -1,68 +1,49 @@
 <view class="tutorial-page">
   <view class="tutorial-header"><view><view class="eyebrow">第一次喝汤</view><view class="tutorial-title serif">跟着玩一遍</view></view><button class="skip-button" bindtap="exit">{{returnToGame ? '回到游戏' : '跳过练习'}} ↗</button></view>
-  <view class="practice-label">输入练习 · 判词为预设示例</view>
+  <view class="practice-label">{{judgeMode === 'fixture' ? '开发测试 · 固定测试裁判' : 'AI 主持 · 用你自己的话来问'}}</view>
   <view class="step-list"><view wx:for="{{steps}}" wx:key="*this" class="step-item {{index === step ? 'current' : ''}} {{step > index ? 'complete' : ''}}"><text class="step-no">{{index + 1}}</text><text>{{item}}</text></view></view>
   <scroll-view class="tutorial-scroll" scroll-y scroll-into-view="{{scrollTarget}}">
     <view class="tutorial-content">
       <view id="practice-top-{{step}}"></view>
       <view class="practice-story"><view class="story-label">练习题 · 雨中的小周</view><view class="practice-surface serif">窗外下着雨。小周没带伞就出门了，回来时身上却没湿。为什么？</view></view>
-      <block wx:if="{{step === 0}}">
-        <view class="instruction-title serif">先找出哪里不寻常</view>
-        <view class="instruction-copy">短短的故事叫「汤面」，藏起来的真相叫「汤底」。你要一点点提问，把故事补完整。</view>
-        <view class="teaching-note">这道题值得追问的地方是：下雨、没带伞，为什么却没淋湿？</view>
-        <view class="instruction-copy">接下来，先用一个小问题缩小范围。</view>
+      <view wx:if="{{!judgeReady}}" class="teaching-note"><view>{{judgeChecking ? '正在准备 AI 主持…' : 'AI 主持还没准备好，暂时不能开局。'}}</view><view wx:if="{{judgeError}}">{{judgeError}}</view><button class="text-link" bindtap="connect" disabled="{{judgeChecking}}">{{judgeChecking ? '检查中' : '重新检查连接'}}</button></view>
+      <block wx:if="{{sessionEnded}}">
+        <view id="practice-ending" class="practice-answer solved"><text class="answer-tag">{{guessResult === 'solved' ? '猜中了' : '故事已揭晓'}}</text><view class="solution-title serif">原来，是这样。</view><view>{{solution}}</view><view class="voice-note">你已经走过一次完整推理。接下来，可以挑一碗新的汤。</view></view>
+      </block>
+      <block wx:elif="{{step === 0}}">
+        <view class="instruction-title serif">先找出哪里不寻常</view><view class="instruction-copy">短短的故事叫「汤面」，藏起来的真相叫「汤底」。你要一点点提问，把故事补完整。</view>
+        <view class="teaching-note">这道题值得追问的地方是：下雨、没带伞，为什么却没淋湿？</view><view class="instruction-copy">AI 会理解你的问法。先用一个能回答「是 / 不是」的问题缩小范围。</view>
       </block>
       <block wx:elif="{{step === 1}}">
-        <view class="instruction-title serif">一次只问一件事</view>
-        <view class="instruction-copy">轮到你开口了。打字或按住说话，确认文字后再发送。例如「小周出门时还在下雨吗？」</view>
-        <view class="practice-draft"><view class="draft-heading"><text>你的问题</text><text>{{question.length}} / 200</text></view><textarea class="practice-input" value="{{question}}" bindinput="onQuestionInput" placeholder="在这里写下你的问题…" maxlength="200" disabled="{{recording}}" adjust-position="true" cursor-spacing="24" show-confirm-bar="false"></textarea><view class="practice-actions"><button class="voice-button {{recording ? 'active' : ''}}" bindtouchstart="recordStart" catchtouchmove="recordMove" bindtouchend="recordEnd" bindtouchcancel="recordCancel" disabled="{{voicePending}}">{{recording ? (cancelling ? '松手取消' : '录音 ' + recordSeconds + 's · 上滑取消') : '按住说话'}}</button><button class="primary practice-send" bindtap="confirmQuestion" disabled="{{recording || voiceBusy || !question || !!questionResult}}">确认提问 ↑</button></view><button class="example-link" bindtap="fillExample" disabled="{{recording || voiceBusy}}">没想好？填入示例，再改改</button></view>
-        <view id="practice-question-feedback">
-          <view wx:if="{{submittedQuestion}}" class="player-message"><text class="story-label">你 · 提问</text><view>{{submittedQuestion}}</view></view>
-          <view wx:if="{{questionResult === 'clarify'}}" class="teaching-note">请换一种问法。试着问一个能用「是 / 不是」回答的问题。正式游戏中，澄清不会扣有效提问次数。</view>
-          <view wx:elif="{{questionResult === 'yes' || questionResult === 'no'}}" class="practice-answer"><text class="story-label">主持人 · 示例回复</text><text class="answer-tag">{{questionResult === 'yes' ? '是' : '不是'}}</text><view>收到回答后，可以继续提问，也可以查看提示。</view></view>
-          <view wx:elif="{{questionResult === 'unsupported'}}" class="teaching-note">问题已收到。这句话超出了练习的预设回答，暂不判断对错。正式游戏会交给 AI；现在可以改问示例，或继续下一步。</view>
-          <view class="voice-note">正式游戏可按住说话，也可打字。语音先转成文字，核对「没」「不」、人名和数字，点「确认提问」后才交给 AI。</view>
-        </view>
+        <view class="instruction-title serif">一次只问一件事</view><view class="instruction-copy">轮到你开口了。打字或按住说话，核对文字后再发送。不用照着示例一字不差地问。</view>
+        <view class="practice-draft"><view class="draft-heading"><text>你的问题</text><text>{{question.length}} / 200</text></view><textarea class="practice-input" value="{{question}}" bindinput="onQuestionInput" placeholder="例如：他出去的时候还下雨吗？" maxlength="200" disabled="{{recording || !judgeReady}}" adjust-position="true" cursor-spacing="24" show-confirm-bar="false"></textarea><view class="practice-actions"><button class="voice-button {{recording ? 'active' : ''}}" bindtouchstart="recordStart" catchtouchmove="recordMove" bindtouchend="recordEnd" bindtouchcancel="recordCancel" disabled="{{voicePending || judgeBusy || judgePending || !judgeReady}}">{{recording ? (cancelling ? '松手取消' : '录音 ' + recordSeconds + 's · 上滑取消') : '按住说话'}}</button><button class="primary practice-send" bindtap="confirmQuestion" disabled="{{recording || voiceBusy || judgeBusy || judgePending || !judgeReady || !question}}">确认提问 ↑</button></view><button class="example-link" bindtap="fillExample" disabled="{{recording || voiceBusy || judgeBusy || judgePending}}">没想好？填入一个问题，再改改</button></view>
+        <view id="practice-question-feedback"><view wx:if="{{submittedQuestion}}" class="player-message"><text class="story-label">你 · 提问</text><view>{{submittedQuestion}}</view></view><view wx:if="{{questionResult}}" class="practice-answer"><text class="story-label">AI 主持</text><text class="answer-tag">{{questionLabel}}</text><view>{{questionNote}}</view></view></view>
+        <view class="voice-note">可以继续追问，也可以进入下一步看看提示。问题有歧义时，AI 会请你补充。</view>
       </block>
       <block wx:elif="{{step === 2}}">
-        <view class="instruction-title serif">卡住时，借一点线索</view>
-        <view class="instruction-copy">正式游戏有 3 条逐步展开的提示。你可以继续问，也可以主动查看。</view>
-        <button class="hint-action secondary" bindtap="showHint" disabled="{{hintShown}}">✦ {{hintShown ? '已查看这条提示' : '试着看一条提示'}}</button>
-        <view wx:if="{{hintShown}}" id="practice-hint-feedback" class="practice-answer"><text class="answer-tag">提示</text><view>窗外下雨的时候，小周还在家里。</view></view>
-        <view class="voice-note">提示会留在推理记录里，随时可以回看。练习不会消耗正式游戏的次数。</view>
+        <view class="instruction-title serif">卡住时，借一点线索</view><view class="instruction-copy">正式游戏有 3 条逐步展开的提示。你可以继续问，也可以主动查看。</view>
+        <button class="hint-action secondary" bindtap="showHint" disabled="{{hintShown || judgeBusy || judgePending || !judgeReady}}">✦ {{hintShown ? '已查看这条提示' : '试着看一条提示'}}</button>
+        <view wx:if="{{hintShown}}" id="practice-hint-feedback" class="practice-answer"><text class="answer-tag">提示</text><view>{{hintText}}</view></view><view class="voice-note">提示由题目作者提前准备，帮助你换一个思路。</view>
       </block>
       <block wx:elif="{{step === 3}}">
-        <view class="instruction-title serif">想通了，就讲完整</view>
-        <view class="instruction-copy">正式游戏切换到「我猜到了」。现在请亲自写下或说出你的解释，讲清发生了什么、为什么。</view>
-        <block wx:if="{{guessResult !== 'solved'}}">
-          <view class="practice-draft"><view class="draft-heading"><text>你的完整猜底</text><text>{{guess.length}} / 500</text></view><textarea class="practice-input guess-input" value="{{guess}}" bindinput="onGuessInput" placeholder="小周没有淋湿，是因为…" maxlength="500" disabled="{{recording}}" adjust-position="true" cursor-spacing="24" show-confirm-bar="false"></textarea><view class="practice-actions"><button class="voice-button {{recording ? 'active' : ''}}" bindtouchstart="recordStart" catchtouchmove="recordMove" bindtouchend="recordEnd" bindtouchcancel="recordCancel" disabled="{{voicePending}}">{{recording ? (cancelling ? '松手取消' : '录音 ' + recordSeconds + 's · 上滑取消') : '按住说话'}}</button><button class="primary practice-send" bindtap="confirmGuess" disabled="{{recording || voiceBusy || !guess || !!guessResult}}">提交猜底 ↑</button></view><button class="example-link" bindtap="fillExample" disabled="{{recording || voiceBusy}}">看看示例，再用自己的话改改</button></view>
-        </block>
-        <view id="practice-guess-feedback">
-          <view wx:if="{{submittedGuess}}" class="player-message"><text class="story-label">你 · 猜底</text><view>{{submittedGuess}}</view></view>
-          <view wx:if="{{guessResult === 'incomplete'}}" class="teaching-note">还差一点。只重复「没带伞」，还没有解释为什么没淋湿。换一个更完整的答案试试。</view>
-          <view wx:elif="{{guessResult === 'solved'}}" class="practice-answer solved"><text class="answer-tag">猜中了</text><view class="solution-title serif">原来，是雨停了。</view><view>小周等到雨停才出门，在再次下雨前回到家。没有带伞，也没有淋湿。</view><view class="voice-note">正式游戏由 AI 按题目事实判断，意思正确即可，不要求逐字背答案。不确定时会请你补充。</view></view>
-          <view wx:elif="{{guessResult === 'unsupported'}}" class="teaching-note">你的猜底已提交。这道练习只演示预设答案，不代表你的解释错误。可以修改文字继续练习，或直接去正式游戏。</view>
-        </view>
-        <view wx:if="{{guessResult !== 'solved'}}" class="voice-note">正式游戏顶部显示剩余提问次数。用完会自动揭底；你也可以选择「放弃揭底」，确认后结束。</view>
+        <view class="instruction-title serif">想通了，就讲完整</view><view class="instruction-copy">现在用自己的话说出解释。AI 按关键原因判断，不要求你背出标准答案。</view>
+        <view class="practice-draft"><view class="draft-heading"><text>你的完整猜底</text><text>{{guess.length}} / 500</text></view><textarea class="practice-input guess-input" value="{{guess}}" bindinput="onGuessInput" placeholder="小周没有淋湿，是因为…" maxlength="500" disabled="{{recording || !judgeReady}}" adjust-position="true" cursor-spacing="24" show-confirm-bar="false"></textarea><view class="practice-actions"><button class="voice-button {{recording ? 'active' : ''}}" bindtouchstart="recordStart" catchtouchmove="recordMove" bindtouchend="recordEnd" bindtouchcancel="recordCancel" disabled="{{voicePending || judgeBusy || judgePending || !judgeReady}}">{{recording ? (cancelling ? '松手取消' : '录音 ' + recordSeconds + 's · 上滑取消') : '按住说话'}}</button><button class="primary practice-send" bindtap="confirmGuess" disabled="{{recording || voiceBusy || judgeBusy || judgePending || !judgeReady || !guess}}">提交猜底 ↑</button></view><button class="example-link" bindtap="fillExample" disabled="{{recording || voiceBusy || judgeBusy || judgePending}}">填入句式，自己补上原因</button></view>
+        <view id="practice-guess-feedback"><view wx:if="{{submittedGuess}}" class="player-message"><text class="story-label">你 · 猜底</text><view>{{submittedGuess}}</view></view><view wx:if="{{guessResult}}" class="practice-answer"><text class="story-label">AI 主持</text><text class="answer-tag">{{guessLabel}}</text><view>{{guessNote}}</view></view></view>
       </block>
       <view wx:if="{{step === 1 || step === 3}}" id="practice-input-status" class="input-status">
-        <view wx:if="{{inputError}}" class="teaching-note">{{inputError}}</view>
-        <view wx:if="{{voiceStatus}}" class="voice-note">{{voiceStatus}}</view>
-        <view wx:if="{{voiceError}}" class="teaching-note">{{voiceError}}</view>
-        <button wx:if="{{voicePending}}" class="text-link" bindtap="checkVoice">检查已有转写结果</button>
-        <view wx:if="{{recoveredTranscript}}" class="voice-note">识别文字：{{recoveredTranscript}}<button class="text-link" bindtap="useTranscript">使用识别文字</button></view>
-        <view class="voice-note">{{voiceSupported ? '松手后先核对文字。语音会使用云端识别服务；未配置时仍可打字。' : '浏览器预览可直接打字。语音转文字请在微信体验版使用。'}}</view>
+        <view wx:if="{{inputError}}" class="teaching-note">{{inputError}}</view><view wx:if="{{voiceStatus}}" class="voice-note">{{voiceStatus}}</view><view wx:if="{{voiceError}}" class="teaching-note">{{voiceError}}</view><button wx:if="{{voicePending}}" class="text-link" bindtap="checkVoice">检查已有转写结果</button><view wx:if="{{recoveredTranscript}}" class="voice-note">识别文字：{{recoveredTranscript}}<button class="text-link" bindtap="useTranscript">使用识别文字</button></view>
+        <view wx:if="{{!sessionEnded}}" class="voice-note">{{voiceSupported ? '语音先转文字。核对人名、数字和否定词后，再确认发送。' : '本机网页可使用真实文字 AI。语音转写请在微信体验版使用。'}}</view>
       </view>
     </view>
   </scroll-view>
   <view class="tutorial-footer">
-    <button wx:if="{{step === 0}}" class="primary" bindtap="next">读懂了，试着提问 →</button>
-    <button wx:elif="{{step === 1}}" class="primary" bindtap="next" disabled="{{recording || voiceBusy || !questionResult || questionResult === 'clarify'}}">{{questionResult && questionResult !== 'clarify' ? '下一步，试试提示 →' : '先写下问题，再确认发送'}}</button>
-    <button wx:elif="{{step === 2}}" class="primary" bindtap="next" disabled="{{!hintShown}}">{{hintShown ? '有想法了，试着猜底 →' : '先点上面的提示按钮'}}</button>
-    <button wx:elif="{{guessResult === 'solved'}}" class="primary" bindtap="finish">{{returnToGame ? '回到这一局 ↗' : '去选一碗汤 ↗'}}</button>
-    <button wx:elif="{{guessResult === 'unsupported'}}" class="primary" bindtap="finish">{{returnToGame ? '回到原来的游戏 ↗' : '已学会输入，去正式游戏 ↗'}}</button>
+    <view wx:if="{{judgeReady && judgeStatus}}" class="judge-status">{{judgeStatus}}</view><view wx:if="{{judgeReady && judgeError}}" class="judge-error">{{judgeError}}</view><button wx:if="{{judgePending}}" class="text-link" bindtap="checkJudge">检查已有判题结果</button><button wx:if="{{judgeCanRetry && !judgeBusy}}" class="text-link" bindtap="retryJudge">重新提交这句话</button>
+    <button wx:if="{{sessionEnded}}" class="primary" bindtap="finish">{{returnToGame ? '回到这一局 ↗' : '去选一碗汤 ↗'}}</button>
+    <button wx:elif="{{step === 0}}" class="primary" bindtap="next" disabled="{{!judgeReady || judgeChecking}}">{{judgeReady ? '读懂了，试着提问 →' : '等待 AI 主持就绪'}}</button>
+    <button wx:elif="{{step === 1}}" class="primary" bindtap="next" disabled="{{recording || voiceBusy || judgeBusy || judgePending || !questionResult || questionResult === 'clarify'}}">{{questionResult && questionResult !== 'clarify' ? '下一步，试试提示 →' : '先问一个是非问题'}}</button>
+    <button wx:elif="{{step === 2}}" class="primary" bindtap="next" disabled="{{!hintShown || judgeBusy || judgePending}}">{{hintShown ? '有想法了，试着猜底 →' : '先点上面的提示按钮'}}</button>
     <view wx:else class="footer-reminder">写好或说完后，核对文字再提交</view>
-    <view class="footer-links"><button wx:if="{{step > 0 && guessResult !== 'solved'}}" bindtap="previous" disabled="{{recording || voiceBusy}}">← 上一步</button><button wx:elif="{{guessResult === 'solved'}}" bindtap="restart">重新练习</button><text>第 {{step + 1}} / 4 步</text></view>
+    <view class="footer-links"><button wx:if="{{step > 0 && !sessionEnded}}" bindtap="previous" disabled="{{recording || voiceBusy || judgeBusy || judgePending}}">← 上一步</button><button wx:elif="{{sessionEnded}}" bindtap="restart">重新练习</button><text>第 {{step + 1}} / 4 步</text></view>
   </view>
 </view>
 <view wx:if="{{privacyNeeded}}" class="privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">只在你主动按住时录音。录音将发送到云端及第三方识别服务，转成文字供你确认。你也可以用文字继续。</view><button class="text-link" bindtap="privacy">阅读录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>

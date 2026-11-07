@@ -3,7 +3,7 @@
   <view class="privacy-section"><view class="privacy-no">02</view><view class="privacy-section-title serif">录音会送到哪里</view><view class="privacy-paragraph">录音先上传到本项目的私有云存储，再由服务端发送给阿里云百炼语音识别服务。确认后的问题、当前故事与必要的历史会发送给文字裁判模型。</view><view class="privacy-paragraph">请不要在录音或问题里提供身份证号、联系方式、住址等与游戏无关的信息。</view></view>
   <view class="privacy-section"><view class="privacy-no">03</view><view class="privacy-section-title serif">保存与删除</view><view class="privacy-paragraph">成功转写后删除原始录音；其余录音在清理任务正常运行时，目标24小时内删除。问答和含正文的请求记录7天到期并结束该局，在下一轮小时清理任务中删除。你也可以在局内主动清空。</view><view class="privacy-paragraph">未提交草稿和待确认操作仅存本机，主动清空时删除；7天过期数据在下次打开时清理。用于核账的去标识计量保留30天后定期清理，不含问题正文。第三方服务的数据处理遵循其服务条款，不能承诺其绝不留存。</view></view>
   <view class="privacy-section"><view class="privacy-no">04</view><view class="privacy-section-title serif">费用与异常</view><view class="privacy-paragraph">检查已有结果不会重新调用识别或裁判。超时不代表厂商没有执行；如果你主动确认重试，可能再次产生服务调用费用。模型出错时会显示异常，不伪装成「否」或「无关」。</view></view>
-  <view class="privacy-section"><view class="privacy-section-title serif">上手练习也由你确认</view><view class="privacy-paragraph">文字练习保留在当前页面，使用预设示例回复。主动使用语音时，仍会上传录音并调用识别服务，产生识别费用。转写只填入可编辑草稿，不自动发送。练习语音会话独立于正式游戏，退出时尝试清理；异常退出的会话1小时到期，在下一轮小时清理中删除。</view></view>
+  <view class="privacy-section"><view class="privacy-section-title serif">上手练习也由你确认</view><view class="privacy-paragraph">练习中的文字只有在你确认提交后，才发送至服务端及第三方模型进行判题。与正式局分开保存，不影响原局。主动使用语音时，仍会上传录音并调用识别服务，产生识别费用。转写只填入可编辑草稿，不自动发送。练习文字与语音会话独立于正式游戏，退出时尝试清理；异常退出的会话1小时到期，在下一轮小时清理中删除。</view></view>
   <view class="privacy-note">这是体验版功能说明。运营方在开放给真实玩家前，还需在微信后台补齐主体、联系与隐私处理信息，核验录音权限和清理任务。</view>
   <button class="secondary" bindtap="openPlatformPrivacy">查看微信隐私保护指引</button><button class="primary" bindtap="back">知道了，回到故事</button>
 </view>

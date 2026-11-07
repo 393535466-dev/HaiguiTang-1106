@@ -1,10 +1,12 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const tutorialPuzzle = require('../data/tutorial');
 const DAY = 86400000;
 const QUESTION = new Set(['yes', 'no', 'irrelevant', 'unspecified', 'clarify']);
 const EFFECTIVE_ANSWERS = new Set(['yes', 'no', 'irrelevant']);
 const GUESS = new Set(['solved', 'incomplete', 'incorrect', 'uncertain']);
+const CLARIFY_REASONS = new Set(['person', 'time', 'multiple', 'open_ended', 'guess', 'instruction']);
 const UNCERTAIN_ERRORS = new Set(['UPSTREAM_TIMEOUT', 'TIMEOUT', 'NETWORK_ERROR', 'RESULT_UNKNOWN', 'AbortError']);
 const KNOWN_ERRORS = {
   CONTENT_CHECK_UNAVAILABLE: '内容检查暂不可用，请联系维护人员',
@@ -41,7 +43,8 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
     const result = {
       id: s.id, puzzleId: s.puzzleId, puzzleVersion: s.puzzleVersion,
       title: s.title, difficulty: s.difficulty, surface: s.surface, state: s.state,
-      messages: (s.messages || []).map(m => ({ id: m.id, type: m.type, text: m.text, answer: m.answer, createdAt: m.createdAt })),
+      messages: (s.messages || []).map(m => ({ id: m.id, type: m.type, text: m.text, answer: m.answer, createdAt: m.createdAt,
+        ...(m.answer === 'clarify' && CLARIFY_REASONS.has(m.clarifyReason) ? { clarifyReason: m.clarifyReason } : {}) })),
       hints: (p.hints || []).slice(0, s.hintCount || 0), hintCount: s.hintCount || 0, maxHints: 3,
       questionCount: s.questionCount || 0, maxQuestions: s.maxQuestions ?? null, guessFailures: s.guessFailures || 0,
       maxGuessFailures: config.guessFailures, attempts: s.attempts || 0,
@@ -153,7 +156,8 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
         if (request.kind === 'asr') r.transcript = output.text;
         else {
           r.answer = output.answer;
-          s.messages.push({ id: request.requestId, type: request.kind, text: request.text, answer: output.answer, createdAt: now() });
+          s.messages.push({ id: request.requestId, type: request.kind, text: request.text, answer: output.answer, createdAt: now(),
+            ...(output.clarifyReason ? { clarifyReason: output.clarifyReason } : {}) });
           if (request.kind === 'question' && EFFECTIVE_ANSWERS.has(output.answer)) {
             s.questionCount++;
             if (s.maxQuestions && s.questionCount >= s.maxQuestions) s.state = 'revealed';
@@ -207,16 +211,18 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       return { configured: !!(state.textReady && state.voiceReady), textReady: !!state.textReady, voiceReady: !!state.voiceReady, environment: 'cloud', ownerKey: HASH(uid).slice(0,24) };
     }
     if (action === 'listPuzzles') return { puzzles: puzzles.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty, teaser: p.teaser })) };
-    if (action === 'startSolo' || action === 'startVoicePractice') {
+    if (action === 'startSolo' || action === 'startVoicePractice' || action === 'startTutorial') {
       const practice = action === 'startVoicePractice';
+      const tutorial = action === 'startTutorial';
       if (practice) await ready('asr');
-      const p = practice ? { id: 'voice-practice', version: 1, title: '语音输入练习', difficulty: '练习', surface: '', hints: [] } : puzzles.find(p => p.id === args.puzzleId);
+      if (tutorial) await ready('text');
+      const p = practice ? { id: 'voice-practice', version: 1, title: '语音输入练习', difficulty: '练习', surface: '', hints: [] } : tutorial ? tutorialPuzzle : puzzles.find(p => p.id === args.puzzleId);
       if (!p) throw fail('INVALID_PUZZLE', '请选择有效题目');
       const s = { id: idFactory(), userId: uid, puzzleId: p.id, puzzleVersion: p.version,
         puzzle: structuredClone(p), title: p.title, difficulty: p.difficulty, surface: p.surface,
-        mode: practice ? 'voice-practice' : 'solo',
+        mode: practice ? 'voice-practice' : tutorial ? 'tutorial' : 'solo',
         state: 'playing', version: 1, messages: [], hintCount: 0, questionCount: 0, maxQuestions: practice ? null : config.questionLimit,
-        guessFailures: 0, attempts: 0, activeRequestId: null, createdAt: now(), expiresAt: now() + (practice ? 3600000 : config.sessionDays * DAY) };
+        guessFailures: 0, attempts: 0, activeRequestId: null, createdAt: now(), expiresAt: now() + (practice || tutorial ? 3600000 : config.sessionDays * DAY) };
       await store.transaction(async tx => {
         await usage(tx, uid, now(), 'starts');
         await tx.set('sessions', s.id, s);
@@ -343,7 +349,8 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
           return { text: o.text.trim(), usage: { audioSeconds: recording.durationSeconds } };
         }
         if (!o || !(kind === 'guess' ? GUESS : QUESTION).has(o.answer)) throw fail('INVALID_MODEL_OUTPUT', 'invalid output');
-        return { answer: o.answer, usage: { inputTokens: finite(o.usage?.inputTokens), outputTokens: finite(o.usage?.outputTokens) } };
+        return { answer: o.answer, ...(o.answer === 'clarify' && CLARIFY_REASONS.has(o.clarifyReason) ? { clarifyReason: o.clarifyReason } : {}),
+          usage: { inputTokens: finite(o.usage?.inputTokens), outputTokens: finite(o.usage?.outputTokens) } };
       });
     } catch (error) { externalError = error; }
     const response = await finish(uid, reserved.request, result, externalError);

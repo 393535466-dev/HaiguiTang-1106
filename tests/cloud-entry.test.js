@@ -33,7 +33,7 @@ function setup({ uid = 'trusted-openid', suggest = 'pass' } = {}) {
   const cloud = { database: () => db, getWXContext: () => context,
     openapi: { security: { msgSecCheck: async data => { checks.push(data); return { result: { suggest } }; } } } };
   const handler = createHandler({ cloud, env: { DASHSCOPE_API_KEY: 'server-only-secret', GAME_ENABLED: 'true' },
-    fetchFn: async () => { fetches++; return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: '{"answer":"yes"}' } }] }) }; }
+    fetchFn: async () => { fetches++; return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content: '{"intent":"yes_no","answer":"yes"}' } }] }) }; }
   });
   return { handler, db, context, checks, fetches: () => fetches };
 }

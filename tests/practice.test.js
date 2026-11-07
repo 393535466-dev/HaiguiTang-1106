@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const examples = require('../miniprogram/utils/practice-input');
+const presentation = require('../miniprogram/utils/presentation');
 const read = name => fs.readFileSync(path.join(__dirname, '../miniprogram', name), 'utf8');
 const tick = () => new Promise(setImmediate);
 function voiceFixture(customCall, uploadFile) {
@@ -38,24 +38,16 @@ function voiceFixture(customCall, uploadFile) {
 }
 const touch = { touches: [{ clientY: 200 }] };
 
-test('practice examples never invent answers for arbitrary input or reversed negation', () => {
-  assert.equal(examples.question('小周出门时还在下雨吗？'), 'no');
-  assert.equal(examples.question('他出门时没有下雨吗？'), 'yes');
-  assert.equal(examples.question('他出门时并不是没有下雨吗？'), 'unsupported');
-  assert.equal(examples.question('小周为什么没淋湿？'), 'clarify');
-  assert.equal(examples.guess('小周等雨停了再出门，回家前也没再下雨，所以没有淋湿。'), 'solved');
-  assert.equal(examples.guess('小周并没有等雨停了再出门，回家前也没再下雨，所以没有淋湿。'), 'unsupported');
-});
-
 test('practice transcripts fill an editable draft and never submit; newer typing is preserved', () => {
   let definition;
   class FakeVoice { constructor(options) { this.options = options; this.supported = true; } }
+  class FakeJudge { connect() {} async submit() {} }
   vm.runInNewContext(read('pages/tutorial/index.js'), {
-    require: name => name.endsWith('practice-voice') ? FakeVoice : examples,
+    require: name => name.endsWith('practice-voice') ? FakeVoice : name.endsWith('tutorial-judge') ? FakeJudge : presentation,
     Page: value => { definition = value; }, getCurrentPages: () => [], wx: {}
   });
   const page = { ...definition, data: structuredClone(definition.data), setData(p) { Object.assign(this.data, p); } };
-  page.onLoad(); page.next();
+  page.onLoad(); page.setData({ judgeReady: true }); page.next();
   const context = { step: 1, revision: page._draftRevision };
   page.receiveTranscript('小周出门时还在下雨吗？', context);
   assert.equal(page.data.question, '小周出门时还在下雨吗？');
@@ -68,7 +60,7 @@ test('practice transcripts fill an editable draft and never submit; newer typing
   assert.equal(page.data.recoveredTranscript, '迟到的转写');
   page.confirmQuestion();
   assert.equal(page.data.submittedQuestion, '保留我新写的问题');
-  assert.equal(page.data.questionResult, 'unsupported');
+  assert.equal(page.data.questionResult, '', 'the answer must come from the server, never from local phrase matching');
 });
 
 test('recording cancellation deletes local audio without an upload or transcription', async () => {

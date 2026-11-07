@@ -8,6 +8,8 @@
     "test": "node --test tests/*.test.js",
     "check": "node scripts/check.js",
     "preview": "node scripts/preview-server.js",
+    "preview:fixture": "PREVIEW_MODE=fixture node scripts/preview-server.js",
+    "eval:ai": "node scripts/evaluate-ai.js",
     "preflight": "node scripts/preflight.js"
   }
 }

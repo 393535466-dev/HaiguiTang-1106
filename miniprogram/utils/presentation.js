@@ -5,6 +5,14 @@ const notes = {
   incomplete: '你的方向成立，请补充完整因果。', incorrect: '请重新整理故事里的关键关系。',
   uncertain: '这次无法可靠判断，可以换一种表述。', solved: '故事的另一面，被你发现了。'
 }
+const clarificationNotes = {
+  person: '你说的是哪一位人物？把名字补上再问。',
+  time: '你指的是哪个时间点？补充一下先后顺序。',
+  multiple: '这句里有几个判断，先选其中一件事问吧。',
+  open_ended: '先说出一个猜测，再问它是否成立。想讲完整解释，可以切到猜底。',
+  guess: '这听起来是完整猜底。切到「我猜到了」提交，就能判断是否通关。',
+  instruction: '请围绕故事提问；想知道真相，可以使用揭底功能。'
+}
 function session(value) {
   if (!value) return null
   return Object.assign({}, value, {
@@ -12,7 +20,7 @@ function session(value) {
     messages: (value.messages || []).map((m, index) => Object.assign({}, m, {
       displayOrder: String(index + 1).padStart(2, '0'),
       answerLabel: labels[m.answer] || '待判定',
-      answerNote: notes[m.answer] || '',
+      answerNote: m.answer === 'clarify' && clarificationNotes[m.clarifyReason] ? clarificationNotes[m.clarifyReason] : notes[m.answer] || '',
       isPositive: m.answer === 'yes' || m.answer === 'solved',
       isQuestionPrompt: m.answer === 'unspecified' || m.answer === 'clarify'
     })),

@@ -19,7 +19,8 @@ test('three authored puzzles provide complete private facts and independently au
     assert.ok(puzzle.facts.length >= 8, `${puzzle.id}: facts too sparse`);
     assert.ok(puzzle.requiredPoints.length >= 2, `${puzzle.id}: missing causal rubric`);
     assert.ok(puzzle.criticalContradictions.length >= 2);
-    assert.ok(puzzle.unspecifiedDetails.length >= 3);
+    assert.ok(puzzle.unspecifiedDetails.length >= 2);
+    assert.ok(puzzle.irrelevantDetails.length >= 1);
     assert.ok(puzzle.acceptableVariants.length >= 2);
     assert.equal(puzzle.hints.length, 3);
     assert.equal(new Set(puzzle.hints).size, 3);
