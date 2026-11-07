@@ -66,9 +66,20 @@ test('late transcription preserves a draft edited while speech recognition was r
   page.onInput({ detail: { value: '识别等待时新写的问题' } });
   await page._applyRequest('voice-request', { status: 'succeeded', transcript: '较早的录音文字' });
   assert.equal(page.data.draft, '识别等待时新写的问题');
+  assert.equal(page.data.recoveredTranscript, '较早的录音文字');
   assert.equal(storage.draft(sessionID).text, '识别等待时新写的问题');
   assert.equal(storage.pending(sessionID), null);
   assert.equal(page.data.busy, false);
+});
+test('an empty recognition can be replaced without overwriting the current draft', async () => {
+  const { page, storage } = gameFixture();
+  page._setPending({ requestId: 'no-speech', kind: 'transcribeAudio', draftVersion: 0 });
+  page.onInput({ detail: { value: '已经写好的问题' } });
+  await page._applyRequest('no-speech', { status: 'failed', error: { code: 'EMPTY_TRANSCRIPT', message: '请重录或打字' } });
+  assert.equal(page.data.error, '请重录或打字');
+  assert.equal(page.data.draft, '已经写好的问题');
+  assert.equal(page.data.busy, false);
+  assert.equal(storage.pending(sessionID), null);
 });
 
 test('transcription with no newer edit is restored as an editable draft', async () => {

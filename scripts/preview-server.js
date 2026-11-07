@@ -61,10 +61,6 @@ const server = http.createServer(async (req, res) => {
       const [file, mime] = staticFiles[url.pathname];
       return respond(res, 200, fs.readFileSync(path.join(__dirname, 'preview', file)), mime);
     }
-    if (/^\/assets\/audio\/[a-z]+\.wav$/.test(url.pathname)) {
-      const asset = path.join(root, 'miniprogram', url.pathname);
-      if (fs.existsSync(asset)) return respond(res, 200, fs.readFileSync(asset), 'audio/wav');
-    }
     respond(res, 404, '{}');
   } catch (error) { respond(res, 500, JSON.stringify({ error: 'Local preview failed', message: error.message })); }
 });

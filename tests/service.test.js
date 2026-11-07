@@ -171,6 +171,47 @@ test('hints cap at three and reveal is only possible for the owner', async () =>
   assert.equal(reveal.data.session.solution, 'SECRET_SOLUTION');
   assert.equal((await f.handle('askQuestion', { sessionId: s.id, requestId: 'post-reveal', text: '问题？' })).error.code, 'SESSION_ENDED');
 });
+test('effective question cap reveals the solution once, after the last valid verdict', async () => {
+  const answers = ['yes', 'clarify', 'unspecified', 'no'];
+  let calls = 0;
+  const f = fixture({ limits: { questionLimit: 2 }, provider: { judge: async () => {
+    calls++;
+    return { answer: answers.shift() };
+  } } });
+  const session = await f.start();
+  assert.equal(session.maxQuestions, 2);
+  const ask = requestId => f.handle('askQuestion', { sessionId: session.id, requestId, text: '是这样吗？' });
+
+  for (const id of ['first', 'clarify', 'unspecified']) {
+    const { data } = await ask(id);
+    assert.equal(data.session.questionCount, 1);
+    assert.equal(data.session.state, 'playing');
+    assert.equal(data.session.solution, undefined);
+  }
+
+  const { data: last } = await ask('last');
+  assert.equal(last.answer, 'no');
+  assert.equal(last.session.questionCount, 2);
+  assert.equal(last.session.attempts, 4);
+  assert.equal(last.session.state, 'revealed');
+  assert.equal(last.session.solution, 'SECRET_SOLUTION');
+  assert.deepEqual((await ask('last')).data.session, last.session);
+  assert.equal((await ask('after-limit')).error.code, 'SESSION_ENDED');
+  assert.equal(calls, 4);
+});
+test('sessions created before the question cap keep their manual reveal rule', async () => {
+  const f = fixture({ limits: { questionLimit: 1 } });
+  const session = await f.start();
+  await f.store.transaction(async tx => {
+    const oldSession = await tx.get('sessions', session.id);
+    delete oldSession.maxQuestions;
+    await tx.set('sessions', session.id, oldSession);
+  });
+  const { data } = await f.handle('askQuestion', { sessionId: session.id, requestId: 'old', text: '是吗？' });
+  assert.equal(data.session.maxQuestions, null);
+  assert.equal(data.session.state, 'playing');
+  assert.equal(data.session.solution, undefined);
+});
 test('incomplete and uncertain guesses do not consume failure opportunities', async () => {
   const answers = ['incomplete', 'uncertain', 'incorrect', 'solved'];
   const f = fixture({ provider: { judge: async () => ({ answer: answers.shift() }) } }), s = await f.start();
@@ -205,6 +246,23 @@ test('server inspected duration and exact upload path reject audio before chargi
   const long = await f.handle('transcribeAudio', { sessionId: s.id, requestId: 'voice1', uploadId: u.uploadId, fileID: `cloud://env.bucket/${u.cloudPath}` });
   assert.equal(long.error.code, 'INVALID_AUDIO'); assert.equal(f.voiceCalls, 0);
   assert.equal((await f.store.scan('requests')).length, 0);
+});
+test('an empty recognition reports a re-record prompt and removes the unusable upload', async () => {
+  const f = fixture({ provider: { transcribe: async () => {
+    throw Object.assign(new Error('private provider response'), { code: 'EMPTY_TRANSCRIPT' });
+  } } });
+  const session = await f.start();
+  const { data: upload } = await f.handle('registerUpload', { sessionId: session.id });
+  const fileID = 'cloud://environment.bucket/' + upload.cloudPath;
+  const { data } = await f.handle('transcribeAudio', {
+    sessionId: session.id, requestId: 'silent-audio', uploadId: upload.uploadId, fileID
+  });
+  assert.equal(data.status, 'failed');
+  assert.equal(data.error.code, 'EMPTY_TRANSCRIPT');
+  assert.match(data.error.message, /重录/);
+  assert.equal(data.session.activeRequestId, null);
+  assert.equal(data.session.questionCount, 0);
+  assert.deepEqual(f.removed, [fileID]);
 });
 test('audio usage records exact inspected duration without trusting the client', async () => {
   const f = fixture({ audio: { inspect: async () => ({ buffer: Buffer.from('mp3'), durationSeconds: 19.984 }) } });

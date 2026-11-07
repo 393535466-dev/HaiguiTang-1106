@@ -3,12 +3,15 @@
 const crypto = require('node:crypto');
 const DAY = 86400000;
 const QUESTION = new Set(['yes', 'no', 'irrelevant', 'unspecified', 'clarify']);
+const EFFECTIVE_ANSWERS = new Set(['yes', 'no', 'irrelevant']);
 const GUESS = new Set(['solved', 'incomplete', 'incorrect', 'uncertain']);
 const UNCERTAIN_ERRORS = new Set(['UPSTREAM_TIMEOUT', 'TIMEOUT', 'NETWORK_ERROR', 'RESULT_UNKNOWN', 'AbortError']);
 const KNOWN_ERRORS = {
   CONTENT_CHECK_UNAVAILABLE: '内容检查暂不可用，请联系维护人员',
   CONTENT_BLOCKED: '请调整文字后再提交',
-  CONTEXT_LIMIT: '对话太长，请提交完整猜底或揭底',
+  EMPTY_TRANSCRIPT: '这段录音没有识别到文字，请重录或打字',
+  TRANSCRIPT_TOO_LONG: '这段话转写后太长，请缩短后重录或打字',
+  CONTEXT_LIMIT: '这段对话太长，请提交完整猜底或揭底',
   PROVIDER_AUTH: '模型密钥或权限有误，请联系维护人员检查配置',
   RATE_LIMITED: '模型服务限流，请稍后手动重试'
 };
@@ -19,7 +22,7 @@ const finite = v => Number.isFinite(v) && v >= 0 ? v : 0;
 function createService({ store, provider, audio, puzzles, clock = Date.now,
   idFactory = () => crypto.randomUUID(), limits = {} }) {
   const config = { userDaily: 100, globalDaily: 500, sessionJudge: 50,
-    guessFailures: 5, requestTimeoutMs: 30000, sessionDays: 7, ...limits };
+    questionLimit: 30, guessFailures: 5, requestTimeoutMs: 30000, sessionDays: 7, ...limits };
   const now = () => +clock();
   const requestKey = (uid, sid, rid) => HASH(`${uid}\0${sid}\0${rid}`);
   const dateKey = time => new Date(time + 8 * 3600000).toISOString().slice(0, 10);
@@ -40,7 +43,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       title: s.title, difficulty: s.difficulty, surface: s.surface, state: s.state,
       messages: (s.messages || []).map(m => ({ id: m.id, type: m.type, text: m.text, answer: m.answer, createdAt: m.createdAt })),
       hints: (p.hints || []).slice(0, s.hintCount || 0), hintCount: s.hintCount || 0, maxHints: 3,
-      questionCount: s.questionCount || 0, guessFailures: s.guessFailures || 0,
+      questionCount: s.questionCount || 0, maxQuestions: s.maxQuestions ?? null, guessFailures: s.guessFailures || 0,
       maxGuessFailures: config.guessFailures, attempts: s.attempts || 0,
       maxAttempts: config.sessionJudge, expiresAt: s.expiresAt,
       activeRequestId: s.activeRequestId || null
@@ -150,7 +153,10 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
         else {
           r.answer = output.answer;
           s.messages.push({ id: request.requestId, type: request.kind, text: request.text, answer: output.answer, createdAt: now() });
-          if (request.kind === 'question' && output.answer !== 'clarify') s.questionCount++;
+          if (request.kind === 'question' && EFFECTIVE_ANSWERS.has(output.answer)) {
+            s.questionCount++;
+            if (s.maxQuestions && s.questionCount >= s.maxQuestions) s.state = 'revealed';
+          }
           if (request.kind === 'guess' && output.answer === 'incorrect') s.guessFailures++;
           if (output.answer === 'solved') s.state = 'solved';
         }
@@ -205,7 +211,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       if (!p) throw fail('INVALID_PUZZLE', '请选择有效题目');
       const s = { id: idFactory(), userId: uid, puzzleId: p.id, puzzleVersion: p.version,
         puzzle: structuredClone(p), title: p.title, difficulty: p.difficulty, surface: p.surface,
-        state: 'playing', version: 1, messages: [], hintCount: 0, questionCount: 0,
+        state: 'playing', version: 1, messages: [], hintCount: 0, questionCount: 0, maxQuestions: config.questionLimit,
         guessFailures: 0, attempts: 0, activeRequestId: null, createdAt: now(), expiresAt: now() + config.sessionDays * DAY };
       await store.transaction(async tx => {
         await usage(tx, uid, now(), 'starts');
@@ -321,7 +327,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
     }
     const reserved = await reserve(uid, input, kind, fingerprint);
     if (reserved.prior) return reserved.prior;
-    let result;
+    let result, externalError;
     try {
       result = await external(async () => {
         const o = kind === 'asr' ? await provider.transcribe({ buffer: recording.buffer })
@@ -334,9 +340,9 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
         if (!o || !(kind === 'guess' ? GUESS : QUESTION).has(o.answer)) throw fail('INVALID_MODEL_OUTPUT', 'invalid output');
         return { answer: o.answer, usage: { inputTokens: finite(o.usage?.inputTokens), outputTokens: finite(o.usage?.outputTokens) } };
       });
-    } catch (error) { return finish(uid, reserved.request, null, error); }
-    const response = await finish(uid, reserved.request, result, null);
-    if (kind === 'asr' && response.status === 'succeeded') {
+    } catch (error) { externalError = error; }
+    const response = await finish(uid, reserved.request, result, externalError);
+    if (kind === 'asr' && (response.status === 'succeeded' || ['EMPTY_TRANSCRIPT', 'TRANSCRIPT_TOO_LONG'].includes(response.error?.code))) {
       await store.transaction(async tx => {
         const u = await tx.get('uploads', input.uploadId);
         if (u) { u.consumed = true; await tx.set('uploads', input.uploadId, u); }

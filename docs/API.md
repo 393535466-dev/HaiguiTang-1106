@@ -35,15 +35,16 @@
   state: 'playing' | 'solved' | 'revealed' | 'expired' | 'cleared',
   messages: [{ id, type: 'question'|'guess', text, answer, createdAt }],
   hints: [/* 已解锁文本 */], hintCount, maxHints: 3,
-  questionCount, guessFailures, maxGuessFailures: 5,
+  questionCount, maxQuestions, guessFailures, maxGuessFailures: 5,
   attempts, maxAttempts: 50, expiresAt,
   solution: /* 只在solved或revealed时存在 */,
   activeRequestId: /* 用于恢复，不含内部原始内容 */
 }
 ```
 
-提问枚举 `yes | no | irrelevant | unspecified | clarify`。
-猜底枚举 `solved | incomplete | incorrect | uncertain`。只有 incorrect 消耗5次失败猜底机会；所有模型外呼都计入50次尝试。
+有效判词为 `yes | no | irrelevant`，各消耗一次有效提问。前端把 `unspecified | clarify` 显示为提示。新局暂定 `maxQuestions: 30`，达到上限时本轮判词和汤底随同一个响应返回，会话进入 `revealed`。旧会话的 `maxQuestions` 为 `null`，沿用手动揭底规则。
+
+猜底枚举为 `solved | incomplete | incorrect | uncertain`。只有 `incorrect` 消耗 5 次失败猜底机会。每局另有 50 次裁判尝试的费用护栏，已预占的超时和失败计入该护栏。语音转写按独立配额计量。
 
 ## 服务端依赖边界
 
@@ -53,6 +54,6 @@
 
 `audio.inspect({fileID,cloudPath})`返回 `{buffer,durationSeconds}`并在服务端验证实际MP3、大小、时长及路径；`audio.remove(fileID)`删除上传文件。清理函数需支持24小时孤立文件、7天会话正文和30天去标识计量清理，需可测试。
 
-每日配额对裁判调用、ASR、音频登记/下载检查、开局分别计数；默认每用户每类100、全局每类500，配额只可在云端调低。已知失败不退回预占，避免通过异常反复外呼。裁判请求正文上限为24KB UTF-8（并非精确token计数），超出明确提示，不静默截断；完整猜底独立判断，不携带历史，因此长对话仍可提交最终解释。实际token用量仅以厂商返回计量为准。
+每日配额对裁判调用、ASR、音频登记/下载检查、开局分别计数。默认每用户每类 100、全局每类 500，配额只可在云端调低。已知失败保留预占，避免通过异常反复外呼。提问暂带最近 12 条问答，完整猜底独立判断。请求正文上限为 24KB UTF-8，超出时返回提示。实际 token 用量以厂商返回计量为准。
 
 本地开发可显式提供测试provider，云函数生产入口不允许隐式mock。前端无密钥，无题库汤底，无客户端传来的身份判断。

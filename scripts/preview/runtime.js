@@ -110,11 +110,7 @@
     getSetting(options) { complete(options, { authSetting: { 'scope.record': false } }); },
     authorize(options) { if (options.fail) options.fail({ errMsg: '本地预览不提供微信麦克风授权' }); },
     openSetting(options) { modal({ title: '请使用微信真机', content: '本地浏览器预览不提供微信权限或真实录音。', showCancel: false }); complete(options, { authSetting: { 'scope.record': false } }); },
-    openPrivacyContract() { modal({ title: '微信隐私保护指引', content: '本地预览无法打开微信后台配置的隐私指引。请在真实 AppID 的微信环境验证。', showCancel: false }); },
-    createInnerAudioContext() {
-      const audio = new Audio();
-      return { set src(value) { audio.src = value; }, play() { audio.play().catch(() => {}); }, stop() { audio.pause(); try { audio.currentTime = 0; } catch (_) {} }, destroy() { audio.pause(); audio.src = ''; } };
-    }
+    openPrivacyContract() { modal({ title: '微信隐私保护指引', content: '本地预览无法打开微信后台配置的隐私指引。请在真实 AppID 的微信环境验证。', showCancel: false }); }
   };
 
   function evaluate(expression, scope) {

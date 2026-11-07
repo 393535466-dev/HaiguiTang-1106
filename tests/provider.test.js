@@ -61,8 +61,21 @@ test('invalid answers and incomplete JSON are service errors, never game answers
 test('long history is rejected explicitly without silent truncation', async () => {
   let dispatched = false;
   const provider = createProvider({ env, fetchFn: async () => { dispatched = true; } });
-  await assert.rejects(provider.judge({ puzzle, kind: 'question', text: '是吗', history: [{ text: '问'.repeat(10000) }] }), { code: 'CONTEXT_LIMIT' });
+  await assert.rejects(provider.judge({ puzzle, kind: 'question', text: '是吗', history: [{ type: 'question', text: '问'.repeat(10000) }] }), { code: 'CONTEXT_LIMIT' });
   assert.equal(dispatched, false);
+});
+test('question context keeps recent questions and excludes abandoned guesses', async () => {
+  const history = [{ type: 'question', text: '不在近期上下文的旧问题', answer: 'yes' }];
+  for (let i = 1; i <= 12; i++) {
+    history.push({ type: 'question', text: '问题 ' + i, answer: 'no' });
+  }
+  history.push({ type: 'guess', text: '猜错的旧解释', answer: 'incorrect' });
+  const provider = createProvider({ env, fetchFn: async (_, opts) => {
+    const { untrustedHistory } = JSON.parse(JSON.parse(opts.body).messages[1].content);
+    assert.deepEqual(untrustedHistory.map(message => message.text), history.slice(1, 13).map(message => message.text));
+    return response('{"answer":"clarify"}');
+  } });
+  await provider.judge({ puzzle, history, kind: 'question', text: '是他吗？' });
 });
 test('ASR uses a private Base64 MP3 payload and returns only checked transcript', async () => {
   let moderated;

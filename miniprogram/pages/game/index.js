@@ -9,15 +9,13 @@ Page({
   data: {
     session: null, loading: true, error: '', draft: '', mode: 'question', busy: false,
     statusText: '', pending: null, recording: false, cancelling: false, recordSeconds: 0,
-    muted: false, surfaceExpanded: false, privacyNeeded: false, scrollTarget: '',
+    surfaceExpanded: false, privacyNeeded: false, scrollTarget: '',
     voiceReady: false, draftSource: '', configured: false, recoveredTranscript: ''
   },
   onLoad(options) {
     this._alive = true; this._visible = true; this._draftVersion = 0
     this._sessionId = options.id || ''
     this._bindRecorder()
-    this._audio = wx.createInnerAudioContext ? wx.createInnerAudioContext() : null
-    this.setData({ muted: Boolean(storage.read('hgt:muted')) })
     this._initializing = this.initialize()
   },
   onShow() {
@@ -28,7 +26,6 @@ Page({
     this._visible = false; this.saveDraft(); this._pressed = false; this._cancelRecord = true
     if (this._recorder && this.data.recording) this._recorder.stop()
     clearTimeout(this._pollTimer)
-    if (this._audio) this._audio.stop()
   },
   onUnload() {
     this.onHide(); this._alive = false
@@ -38,7 +35,6 @@ Page({
       if (this._recorder.offStop) this._recorder.offStop(this._onRecordStop)
       if (this._recorder.offError) this._recorder.offError(this._onRecordError)
     }
-    if (this._audio) this._audio.destroy()
   },
   async initialize() {
     try {
@@ -95,7 +91,8 @@ Page({
   },
   onInput(e) {
     this._draftVersion += 1
-    this.setData({ draft: e.detail.value, draftSource: this.data.draftSource === 'voice' ? 'edited' : 'typed' })
+    const fromVoice = this.data.draftSource === 'voice' || this.data.draftSource === 'edited'
+    this.setData({ draft: e.detail.value, draftSource: fromVoice ? 'edited' : 'typed' })
     this.saveDraft()
   },
   switchMode(e) {
@@ -104,16 +101,6 @@ Page({
     this.setData({ mode, error: '' }); this.saveDraft()
   },
   toggleSurface() { this.setData({ surfaceExpanded: !this.data.surfaceExpanded }) },
-  toggleMute() {
-    const muted = !this.data.muted
-    this.setData({ muted }); storage.write('hgt:muted', muted)
-    if (muted && this._audio) this._audio.stop()
-  },
-  _play(answer) {
-    if (this.data.muted || !this._audio || !this._visible || !presentation.labels[answer]) return
-    this._audio.src = '/assets/audio/' + answer + '.wav'
-    this._audio.play()
-  },
   _setPending(value) {
     if (value && this._pending && this._pending.requestId !== value.requestId) this._previousPending = this._pending
     this._pending = value
@@ -172,9 +159,9 @@ Page({
       if (pending.kind === 'transcribeAudio' || (pending.kind === 'recovered' && typeof result.transcript === 'string')) {
         if (this._draftVersion === pending.draftVersion && (!this.data.session || !this.data.session.ended)) {
           this._draftVersion += 1
-          this.setData({ draft: result.transcript || '', draftSource: 'voice' })
+          this.setData({ draft: result.transcript || '', draftSource: 'voice', recoveredTranscript: '' })
           this.saveDraft()
-        } else if (pending.kind === 'recovered') {
+        } else if (!this.data.session || !this.data.session.ended) {
           this.setData({ recoveredTranscript: result.transcript || '' })
         }
         this._clearPending()
@@ -187,12 +174,17 @@ Page({
         }
         this._clearPending()
         this.setData({ error: '' })
-        this._play(result.answer || (this.data.session && this.data.session.messages.length && this.data.session.messages[this.data.session.messages.length - 1].answer))
       }
       return
     }
     if (result.status === 'superseded') {
       this._clearPending(); await this.reload(); return
+    }
+    if (result.status === 'failed' && result.error &&
+      ['EMPTY_TRANSCRIPT', 'TRANSCRIPT_TOO_LONG'].includes(result.error.code)) {
+      this._clearPending()
+      this.setData({ error: api.message(result.error) })
+      return
     }
     const state = result.status || 'unknown'
     this._setPending(Object.assign({}, pending, { status: state }))
