@@ -196,7 +196,7 @@ test('network errors are unknown; same request never repeats the provider call',
   assert.equal((await f.handle('askQuestion', args)).data.status, 'unknown'); assert.equal(calls, 1);
 });
 test('known provider failures expose only approved static recovery messages', async () => {
-  const codes = ['CONTENT_CHECK_UNAVAILABLE', 'CONTENT_BLOCKED', 'CONTEXT_LIMIT', 'PROVIDER_AUTH', 'RATE_LIMITED'];
+  const codes = ['CONTENT_CHECK_UNAVAILABLE', 'CONTENT_BLOCKED', 'CONTEXT_LIMIT', 'PROVIDER_AUTH', 'RATE_LIMITED', 'INVALID_MODEL_OUTPUT', 'UPSTREAM_ERROR'];
   for (const code of codes) {
     const f = fixture({ provider: { judge: async () => { throw Object.assign(new Error('PRIVATE_UPSTREAM_RESPONSE'), { code }); } } });
     const s = await f.start();
@@ -204,6 +204,8 @@ test('known provider failures expose only approved static recovery messages', as
     assert.equal(result.data.status, 'failed'); assert.equal(result.data.error.code, code);
     assert.equal(JSON.stringify(result).includes('PRIVATE_UPSTREAM_RESPONSE'), false);
     assert.ok(result.data.error.message.length > 5);
+    assert.equal((await f.store.scan('requests'))[0].failureCode, code);
+    assert.equal(JSON.stringify(result).includes('failureCode'), false);
   }
 });
 test('actual request deadline returns unknown and does not grant a second provider dispatch', async () => {

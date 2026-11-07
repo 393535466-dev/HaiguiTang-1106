@@ -104,12 +104,16 @@ function createProvider({ env = process.env, fetchFn = globalThis.fetch, moderat
     // A clarification is inconclusive in guess mode, never a pass or a factual verdict.
     // Some models use the question-mode word when refusing an injected instruction.
     if (isGuess && output?.answer === 'clarify') output.answer = 'uncertain';
-    const allowed = isGuess ? GUESSES : ANSWERS;
-    if (!output || !allowed.has(output.answer)) throw failure('INVALID_MODEL_OUTPUT');
+    if (!output || typeof output !== 'object' || Array.isArray(output)) throw failure('INVALID_MODEL_OUTPUT');
     if (!isGuess) {
       if (output.intent !== 'yes_no' && !Object.hasOwn(QUESTION_INTENTS, output.intent)) throw failure('INVALID_MODEL_OUTPUT');
+      // Route a recognized non-question before checking the question answer enum.
+      // A model may pair answer_guess with a guess verdict such as "uncertain";
+      // none of that verdict is used when we ask the player to clarify the intent.
       if (Object.hasOwn(QUESTION_INTENTS, output.intent)) { output.answer = 'clarify'; output.clarifyReason = QUESTION_INTENTS[output.intent]; }
     }
+    const allowed = isGuess ? GUESSES : ANSWERS;
+    if (!allowed.has(output.answer)) throw failure('INVALID_MODEL_OUTPUT');
     if (isGuess && output.answer === 'solved') {
       const required = puzzle.requiredPoints || [];
       const covered = new Set(Array.isArray(output.covered) ? output.covered : []);

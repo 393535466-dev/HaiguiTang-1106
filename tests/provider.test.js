@@ -67,6 +67,15 @@ test('guess cannot pass unless every required point and no contradiction are exp
   } });
   assert.equal((await provider.judge({ puzzle, text: puzzle.solution, kind: 'guess', history: [{ text: 'x'.repeat(50000) }] })).answer, 'solved');
 });
+test('guess intent submitted as a question is clarified before validating the answer enum', async () => {
+  for (const answer of ['uncertain', 'incorrect', 'solved']) {
+    const provider = createProvider({ env, fetchFn: async () => response(JSON.stringify({ intent: 'answer_guess', answer })) });
+    const result = await provider.judge({ puzzle, kind: 'question', text: '因为他是卖票的。' });
+    assert.equal(result.answer, 'clarify'); assert.equal(result.clarifyReason, 'guess');
+  }
+  const invalid = createProvider({ env, fetchFn: async () => response('{"intent":"yes_no","answer":"solved"}') });
+  await assert.rejects(invalid.judge({ puzzle, kind: 'question', text: '是吗？' }), { code: 'INVALID_MODEL_OUTPUT' });
+});
 test('invalid answers and incomplete JSON are service errors, never game answers', async () => {
   for (const output of ['not-json', '{"answer":"maybe"}', '{"answer":"solved"}']) {
     const provider = createProvider({ env, fetchFn: async () => response(output) });

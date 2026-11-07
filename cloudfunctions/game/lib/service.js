@@ -16,6 +16,8 @@ const KNOWN_ERRORS = {
   TRANSCRIPT_TOO_LONG: '这段话转写后太长，请缩短后重录或打字',
   CONTEXT_LIMIT: '这段对话太长，请提交完整猜底或揭底',
   PROVIDER_AUTH: '模型密钥或权限有误，请联系维护人员检查配置',
+  INVALID_MODEL_OUTPUT: 'AI 这次未返回有效判定，你的文字已保留，可以重新提交',
+  UPSTREAM_ERROR: 'AI 服务未能接受这次请求，你的文字已保留，请稍后再试',
   RATE_LIMITED: '模型服务限流，请稍后手动重试'
 };
 const HASH = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -148,6 +150,8 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
         r.status = 'superseded'; delete r.text; delete r.transcript;
       } else if (error) {
         const code = error.code || error.name;
+        // Private diagnostic code only; never persist provider messages or raw output.
+        r.failureCode = typeof code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(code) ? code : 'INTERNAL_ERROR';
         r.status = UNCERTAIN_ERRORS.has(code) ? 'unknown' : 'failed';
         r.error = { code: r.status === 'unknown' ? 'RESULT_UNKNOWN' : KNOWN_ERRORS[code] ? code : 'SERVICE_ERROR',
           message: r.status === 'unknown' ? '请求结果未知，服务可能已计费，请先查询状态' : KNOWN_ERRORS[code] || '服务未能完成，请稍后手动重试' };
