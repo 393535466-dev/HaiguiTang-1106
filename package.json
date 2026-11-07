@@ -6,6 +6,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "test:browser-input": "node tests/browser/preview-input.js",
     "check": "node scripts/check.js",
     "preview": "node scripts/preview-server.js",
     "preview:fixture": "PREVIEW_MODE=fixture node scripts/preview-server.js",

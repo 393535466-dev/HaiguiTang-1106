@@ -7,7 +7,7 @@
   const overlays = document.querySelector('#preview-overlays');
   const unconfigured = new URLSearchParams(location.search).get('mode') === 'unconfigured';
   const modules = {}, definitions = {}, pages = [];
-  let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer;
+  let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null;
   const domTemplates = {};
   const baseStyles = files['/app.wxss'].source;
   const style = document.createElement('style'); document.head.append(style);
@@ -132,14 +132,29 @@
       if (!match) continue;
       const logical = match[2];
       const nativeEvent = { tap: 'click', input: 'input', touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup', touchcancel: 'pointercancel', agreeprivacyauthorization: 'click' }[logical];
-      element.addEventListener(nativeEvent, event => {
+      const dispatch = event => {
         if (match[1] === 'catch') event.stopPropagation();
         if (logical.startsWith('touch') && logical === 'touchstart' && element.setPointerCapture) element.setPointerCapture(event.pointerId);
         const fn = page[attribute.value];
         if (typeof fn !== 'function') { console.warn('Preview missing handler', attribute.value); return; }
         const argument = { type: logical, currentTarget: { dataset: Object.assign({}, element.dataset) }, target: { dataset: Object.assign({}, element.dataset) }, detail: { value: event.target.value }, touches: logical === 'touchend' || logical === 'touchcancel' ? [] : [{ clientY: event.clientY || 0, clientX: event.clientX || 0 }] };
         Promise.resolve(fn.call(page, argument)).catch(error => { console.error(error); toast({ title: '预览操作异常：' + error.message }); });
+      };
+      element.addEventListener(nativeEvent, event => {
+        // Pinyin candidates belong to the native IME, not the player's draft.
+        if (logical === 'input' && (event.isComposing || composition?.element === element)) return;
+        dispatch(event);
       });
+      if (logical === 'input') {
+        element.addEventListener('compositionstart', () => { composition = { element, page }; });
+        element.addEventListener('compositionend', event => {
+          if (composition?.element === element) composition = null;
+          if (page !== topPage() || !element.isConnected) return;
+          // Also handles browsers whose final input event still has isComposing.
+          dispatch(event);
+          scheduleRender();
+        });
+      }
     }
   }
   function renderChildren(parent, scope, page, prefix) {
@@ -194,6 +209,10 @@
   function scheduleRender() { if (scheduled) return; scheduled = true; requestAnimationFrame(() => { scheduled = false; render(); }); }
   function render() {
     const page = topPage(); if (!page) return;
+    // Replacing a composing textarea commits every intermediate Pinyin string.
+    // Defer ALL renders (including async replies and resize) until compositionend.
+    if (composition?.page === page && composition.element.isConnected) return;
+    composition = null;
     const active = document.activeElement;
     const activeKey = active && active.dataset && active.dataset.nodeKey;
     const selection = activeKey && active.tagName === 'TEXTAREA' ? [active.selectionStart, active.selectionEnd] : null;

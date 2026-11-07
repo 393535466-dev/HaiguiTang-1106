@@ -12,6 +12,8 @@ node --test tests/*.test.js
 
 本地测试使用显式 fake provider 验证状态、权限、计量和异常，不会访问真实模型。`tests/puzzles.test.js` 检查三题、60 条问答预期与 12 条猜底预期是否完整；它不能证明模型能答对这些用例。
 
+中文输入另外执行 `npm run test:browser-input`。此项需本机安装 Playwright 和 Chromium，可用 `npm install --no-save --package-lock=false playwright`、`npx playwright install chromium` 准备，或通过 `PREVIEW_BROWSER_EXECUTABLE` 指定现有 Chrome。测试启动独立固定裁判服务，不读取真实 Key、不调用模型。它通过浏览器的 IME 接口逐步输入拼音再确认汉字，覆盖练习/正式游戏的提问与猜底、连续选字、选中替换、取消组合、中英混输、删除、插入文字、字数及选字期间的异步重绘。普通 `fill()` 一次填好中文不能代替此项检查。
+
 2026-11-07 本机真实文字回归：4 题共 96 条，`qwen-plus` 非思考模式通过 95 条。正式题提问 59/60，练习提问 20/20，猜底合计 16/16；剩余模糊指代问题见执行记录。这是固定样本结果，连续 20 轮/题及真实语音项仍未测。
 
 ## 真实语音链路
