@@ -24,6 +24,7 @@ Page({
     }
   },
   chooseStory() { this.setData({ scrollTarget: 'story-list' }) },
+  tutorial() { wx.navigateTo({ url: '/pages/tutorial/index' }) },
   async start(e) {
     if (!this.data.canStart || this._starting) {
       if (!this.data.canStart) wx.showToast({ title: '请先完成云端配置', icon: 'none' })

@@ -19,6 +19,7 @@ function session(value) {
     ended: value.state !== 'playing',
     isSolved: value.state === 'solved',
     reachedQuestionLimit: value.state === 'revealed' && Boolean(value.maxQuestions) && value.questionCount >= value.maxQuestions,
+    remainingQuestions: Math.max(0, (value.maxQuestions || 0) - (value.questionCount || 0)),
     canReveal: value.state === 'playing',
     remainingGuesses: Math.max(0, (value.maxGuessFailures || 5) - (value.guessFailures || 0))
   })

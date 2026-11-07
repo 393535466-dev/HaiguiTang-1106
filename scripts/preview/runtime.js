@@ -119,7 +119,7 @@
   }
   function interpolate(value, scope) {
     const exact = value.match(/^\{\{([\s\S]*)\}\}$/);
-    if (exact) return evaluate(exact[1], scope);
+    if (exact && !exact[1].includes('}}')) return evaluate(exact[1], scope);
     return value.replace(/\{\{([\s\S]*?)\}\}/g, (_, expression) => { const result = evaluate(expression, scope); return result == null ? '' : String(result); });
   }
   function template(file) {

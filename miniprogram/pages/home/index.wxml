@@ -10,6 +10,7 @@
       <button wx:else class="primary hero-button" bindtap="chooseStory">挑一碗，慢慢猜 <text class="arrow">↓</text></button>
       <view class="hero-meta"><text>按住说话</text><text class="meta-dot">·</text><text>松手确认</text><text class="meta-dot">·</text><text>独自也能开局</text></view>
     </view>
+    <button class="tutorial-entry" bindtap="tutorial"><view><view class="tutorial-entry-title">第一次玩？跟着做一遍</view><view class="tutorial-entry-copy">读题、提问、提示、猜底 · 可随时跳过</view></view><text>↗</text></button>
     <view class="section-heading" id="story-list"><view><view class="eyebrow">THE STORIES</view><view class="section-title serif">今天喝哪碗？</view></view><view class="story-count">{{puzzles.length}} 则小故事</view></view>
     <view class="status-line"><view class="status-dot {{statusKind}}"></view><text>{{statusText}}</text><button class="refresh" bindtap="load" disabled="{{loading}}">{{loading ? '连接中' : '重新检查'}}</button></view>
     <view wx:if="{{error}}" class="notice setup-notice">{{error}}</view>

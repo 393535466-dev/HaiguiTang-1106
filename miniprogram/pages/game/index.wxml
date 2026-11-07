@@ -5,7 +5,7 @@
     <view class="game-header"><button class="back-button" bindtap="home" aria-label="返回故事列表">‹</button><view class="game-heading"><view class="game-kicker">你的推理手账</view><view class="game-title serif">{{session.title}}</view></view><button class="more-toggle" bindtap="more" aria-label="更多操作">···</button></view>
     <view class="surface-card"><view class="surface-top"><text class="surface-label">汤 面</text><text class="pill">{{session.difficulty}}</text><button class="surface-toggle" bindtap="toggleSurface">{{surfaceExpanded ? '收起 −' : '展开 +'}}</button></view><view class="surface-body serif {{surfaceExpanded ? 'expanded' : ''}}">{{session.surface}}</view></view>
     <view class="ledger-bar">
-      <text>有效提问 {{session.questionCount || 0}}{{session.maxQuestions ? ' / ' + session.maxQuestions : ''}}</text>
+      <text>{{session.maxQuestions ? '剩余提问 ' + session.remainingQuestions + ' / ' + session.maxQuestions : '有效提问 ' + (session.questionCount || 0)}}</text>
       <text class="ledger-dot">·</text><text>提示 {{session.hintCount || 0}} / 3</text>
       <text class="ledger-state">{{session.ended ? '本局已结束' : '推理中'}}</text>
     </view>

@@ -263,7 +263,11 @@ Page({
     this.saveDraft()
   },
   more() {
-    wx.showActionSheet({ itemList: ['录音与隐私说明', '清空本局记录'], success: e => { if (e.tapIndex === 0) this.privacy(); else if (e.tapIndex === 1) this.clear() } })
+    wx.showActionSheet({ itemList: ['跟着玩一遍', '录音与隐私说明', '清空本局记录'], success: e => { if (e.tapIndex === 0) this.tutorial(); else if (e.tapIndex === 1) this.privacy(); else if (e.tapIndex === 2) this.clear() } })
+  },
+  tutorial() {
+    if (this.data.recording || this.data.busy) { wx.showToast({ title: '当前操作完成后，再打开练习', icon: 'none' }); return }
+    wx.navigateTo({ url: '/pages/tutorial/index' })
   },
   privacy() { wx.navigateTo({ url: '/pages/privacy/index' }) },
   agreePrivacy() { getApp().resolvePrivacy(true); this.setData({ privacyNeeded: false }) },

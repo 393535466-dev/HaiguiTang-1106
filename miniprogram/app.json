@@ -1,5 +1,5 @@
 {
-  "pages": ["pages/home/index", "pages/game/index", "pages/privacy/index"],
+  "pages": ["pages/home/index", "pages/game/index", "pages/tutorial/index", "pages/privacy/index"],
   "window": {
     "navigationBarTitleText": "一碗海龟汤",
     "navigationBarBackgroundColor": "#f4f1e9",
