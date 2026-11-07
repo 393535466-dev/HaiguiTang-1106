@@ -25,6 +25,33 @@ function fixture(options = {}) {
     advance(ms) { time += ms; } };
 }
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
+test('voice practice is owned, short-lived, metered and isolated from the real game', async () => {
+  const f = fixture(), real = await f.start();
+  const s = (await f.handle('startVoicePractice')).data.session;
+  assert.notEqual(s.id, real.id);
+  assert.equal(s.expiresAt, real.expiresAt - 7 * DAY + 3600000);
+  assert.equal((await f.handle('listPuzzles')).data.puzzles.length, 1);
+  assert.equal((await f.handle('registerUpload', { sessionId: s.id }, 'bob')).error.code, 'NOT_FOUND');
+  for (const action of ['askQuestion', 'guessAnswer', 'getHint', 'revealSoup']) {
+    assert.equal((await f.handle(action, { sessionId: s.id, requestId: 'blocked', text: 'anything' })).error.code, 'INVALID_ACTION');
+  }
+  assert.equal(f.calls, 0);
+  const upload = (await f.handle('registerUpload', { sessionId: s.id })).data;
+  const input = { sessionId: s.id, requestId: 'asr-only', uploadId: upload.uploadId, fileID: 'cloud://test/' + upload.cloudPath };
+  await f.handle('confirmUpload', input);
+  assert.equal((await f.handle('transcribeAudio', input)).data.transcript, '他在电梯里吗？');
+  assert.equal(f.voiceCalls, 1);
+  const totals = (await f.store.scan('usage')).find(v => v.id.startsWith('global-'));
+  assert.equal(totals.asr, 1); assert.equal(totals.starts, 2);
+  await f.handle('clearSession', { sessionId: s.id });
+  assert.equal((await f.handle('getSession', { sessionId: real.id })).data.session.state, 'playing');
+});
+test('unconfigured practice voice cannot create a session or spend start quota', async () => {
+  const f = fixture({ provider: { ready: () => ({ textReady: false, voiceReady: false }) } });
+  assert.equal((await f.handle('startVoicePractice')).error.code, 'CONFIG_REQUIRED');
+  assert.equal((await f.store.scan('sessions')).length, 0);
+  assert.equal((await f.store.scan('usage')).length, 0);
+});
 async function waitFor(fn) {
   for (let i = 0; i < 100; i++) { if (fn()) return; await new Promise(setImmediate); }
   throw new Error('did not reach pending call');

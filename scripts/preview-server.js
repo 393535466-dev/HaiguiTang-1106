@@ -26,7 +26,7 @@ const service = createService({ store: createMemoryStore(), provider,
 function bundle() {
   const files = {};
   const add = (file, kind) => { files['/' + file.replace(/^miniprogram\//, '')] = { kind, source: fs.readFileSync(path.join(root, file), 'utf8') }; };
-  for (const file of ['app.js', 'app.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js']) add('miniprogram/' + file, path.extname(file).slice(1));
+  for (const file of ['app.js', 'app.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js', 'utils/practice-input.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
   for (const page of ['home', 'game', 'tutorial', 'privacy']) for (const ext of ['js', 'wxml', 'wxss']) add(`miniprogram/pages/${page}/index.${ext}`, ext);
   // Never bundle config.local.js or server puzzle/answer files.
   return 'window.__miniFiles=' + JSON.stringify(files).replace(/</g, '\\u003c') + ';';

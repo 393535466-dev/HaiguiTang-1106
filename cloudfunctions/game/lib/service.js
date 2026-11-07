@@ -105,6 +105,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
         if (exists.fingerprint !== fingerprint) throw fail('REQUEST_CONFLICT', '相同请求ID不能提交不同内容');
         return { prior: exposeRequest(exists, s) };
       }
+      if (s.mode === 'voice-practice' && kind !== 'asr') throw fail('INVALID_ACTION', '输入练习不支持正式判题');
       if (s.activeRequestId) {
         const old = await tx.get('requests', requestKey(uid, s.id, s.activeRequestId));
         if (old && old.status === 'processing' && old.deadlineAt <= now()) old.status = 'unknown';
@@ -206,13 +207,16 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       return { configured: !!(state.textReady && state.voiceReady), textReady: !!state.textReady, voiceReady: !!state.voiceReady, environment: 'cloud', ownerKey: HASH(uid).slice(0,24) };
     }
     if (action === 'listPuzzles') return { puzzles: puzzles.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty, teaser: p.teaser })) };
-    if (action === 'startSolo') {
-      const p = puzzles.find(p => p.id === args.puzzleId);
+    if (action === 'startSolo' || action === 'startVoicePractice') {
+      const practice = action === 'startVoicePractice';
+      if (practice) await ready('asr');
+      const p = practice ? { id: 'voice-practice', version: 1, title: '语音输入练习', difficulty: '练习', surface: '', hints: [] } : puzzles.find(p => p.id === args.puzzleId);
       if (!p) throw fail('INVALID_PUZZLE', '请选择有效题目');
       const s = { id: idFactory(), userId: uid, puzzleId: p.id, puzzleVersion: p.version,
         puzzle: structuredClone(p), title: p.title, difficulty: p.difficulty, surface: p.surface,
-        state: 'playing', version: 1, messages: [], hintCount: 0, questionCount: 0, maxQuestions: config.questionLimit,
-        guessFailures: 0, attempts: 0, activeRequestId: null, createdAt: now(), expiresAt: now() + config.sessionDays * DAY };
+        mode: practice ? 'voice-practice' : 'solo',
+        state: 'playing', version: 1, messages: [], hintCount: 0, questionCount: 0, maxQuestions: practice ? null : config.questionLimit,
+        guessFailures: 0, attempts: 0, activeRequestId: null, createdAt: now(), expiresAt: now() + (practice ? 3600000 : config.sessionDays * DAY) };
       await store.transaction(async tx => {
         await usage(tx, uid, now(), 'starts');
         await tx.set('sessions', s.id, s);
@@ -237,6 +241,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
     if (['getHint', 'revealSoup', 'clearSession'].includes(action)) {
       const result = await store.transaction(async tx => {
         const s = await owned(tx, uid, args.sessionId, action !== 'clearSession');
+        if (s.mode === 'voice-practice' && action !== 'clearSession') throw fail('INVALID_ACTION', '输入练习不支持正式游戏操作');
         if (action === 'getHint') s.hintCount = Math.min(3, (s.puzzle.hints || []).length, s.hintCount + 1);
         else {
           s.version++; s.activeRequestId = null;

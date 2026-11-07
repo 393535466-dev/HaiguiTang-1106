@@ -20,21 +20,19 @@ Page({
   },
   onShow() {
     this._visible = true
+    this._attachRecorder()
     if (this._initialized) this.reload().then(() => this._pending && this.checkResult())
   },
   onHide() {
     this._visible = false; this.saveDraft(); this._pressed = false; this._cancelRecord = true
-    if (this._recorder && this.data.recording) this._recorder.stop()
+    if (this._recorder && (this.data.recording || this._recordStarting)) this._recorder.stop()
+    if (!this.data.recording && !this._recordStarting) this._detachRecorder()
     clearTimeout(this._pollTimer)
   },
   onUnload() {
     this.onHide(); this._alive = false
     clearInterval(this._recordTimer)
-    if (this._recorder) {
-      if (this._recorder.offStart) this._recorder.offStart(this._onRecordStart)
-      if (this._recorder.offStop) this._recorder.offStop(this._onRecordStop)
-      if (this._recorder.offError) this._recorder.offError(this._onRecordError)
-    }
+    if (!this.data.recording && !this._recordStarting) this._detachRecorder()
   },
   async initialize() {
     try {
@@ -277,22 +275,38 @@ Page({
     this._recorder = wx.getRecorderManager()
     this._onRecordStart = () => {
       if (!this._alive || !this._pressed) { this._cancelRecord = true; this._recorder.stop(); return }
+      this._recordStarting = false
       this.setData({ recording: true, recordSeconds: 0, cancelling: false, error: '', statusText: '' })
       this._recordTimer = setInterval(() => { if (this._alive) this.setData({ recordSeconds: Math.min(20, this.data.recordSeconds + 1) }) }, 1000)
     }
     this._onRecordStop = result => {
+      this._recordStarting = false
       clearInterval(this._recordTimer)
       const cancelled = this._cancelRecord || !this._visible || !this._alive
       if (this._alive) this.setData({ recording: false, cancelling: false })
-      if (cancelled) { this._deleteLocal(result.tempFilePath); return }
+      if (cancelled) { this._deleteLocal(result.tempFilePath); if (!this._visible || !this._alive) this._detachRecorder(); return }
       if (result.duration < 500) { this._deleteLocal(result.tempFilePath); wx.showToast({ title: '太短啦，再说完整一点', icon: 'none' }); return }
       this._uploadRecording(result.tempFilePath)
     }
     this._onRecordError = () => {
+      this._recordStarting = false
       clearInterval(this._recordTimer)
       if (this._alive) this.setData({ recording: false, cancelling: false, error: '录音没有完成。可以重新按住，或直接打字提问。' })
+      if (!this._visible || !this._alive) this._detachRecorder()
     }
+    this._attachRecorder()
+  },
+  _attachRecorder() {
+    if (!this._recorder || this._recorderBound) return
     this._recorder.onStart(this._onRecordStart); this._recorder.onStop(this._onRecordStop); this._recorder.onError(this._onRecordError)
+    this._recorderBound = true
+  },
+  _detachRecorder() {
+    if (!this._recorder || !this._recorderBound) return
+    if (this._recorder.offStart) this._recorder.offStart(this._onRecordStart)
+    if (this._recorder.offStop) this._recorder.offStop(this._onRecordStop)
+    if (this._recorder.offError) this._recorder.offError(this._onRecordError)
+    this._recorderBound = false
   },
   async recordStart(e) {
     if (this.data.busy || !this.data.session || this.data.session.ended) return
@@ -319,8 +333,10 @@ Page({
         this._replaceForRecording = this._pending.requestId
         if (!this._pressed) { wx.showToast({ title: '已确认，请再次按住录音', icon: 'none' }); return }
       }
+      this._recordStarting = true
       this._recorder.start({ duration: 19000, sampleRate: 16000, numberOfChannels: 1, encodeBitRate: 48000, format: 'mp3' })
     } catch (_) {
+      this._recordStarting = false
       if (this._alive) this.setData({ error: '没有获得录音授权。你仍可以用文字继续。' })
     }
   },

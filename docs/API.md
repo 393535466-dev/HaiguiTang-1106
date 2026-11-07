@@ -11,6 +11,7 @@
 | status | 无 | `{ configured, textReady, voiceReady, environment: 'cloud', ownerKey }`；ownerKey是用户散列，不返回密钥；ready只表示配置齐备，并非联调通过 |
 | listPuzzles | 无 | `{ puzzles: [{ id, title, difficulty, teaser }] }`；无汤底 |
 | startSolo | `{ puzzleId }` | `{ session }` |
+| startVoicePractice | 无 | `{ session }`；语音服务已配置才创建，1小时到期，仅用于练习转写，不进入正式题库或本机继续游戏入口 |
 | getSession | `{ sessionId }` | `{ session }` |
 | registerUpload | `{ sessionId }` | `{ uploadId, cloudPath }`，云端登记所属用户及24小时清理期限 |
 | confirmUpload | `{ sessionId, uploadId, fileID }` | `{ confirmed: true }`；上传完成立即登记私有fileID |
@@ -24,6 +25,8 @@
 | feedback | `{ sessionId, messageId?, kind: 'wrong_answer'|'puzzle_issue' }` | `{ received: true }`；不收自由文本 |
 
 上传步骤：registerUpload → wx.cloud.uploadFile({cloudPath,filePath}) → confirmUpload → transcribeAudio。只允许已登记的当前用户私有上传路径，不能传任意音频URL。取消时调用 `discardUpload { sessionId, uploadId, fileID? }`。录音设置19秒，服务端按实际MP3帧验证不超过20秒、1MB、单声道；私有文件下载也限制为1MB/8秒，临时下载地址不下发客户端。
+
+语音练习复用相同上传、转写、幂等和查询接口，创建消耗开局配额，ASR 消耗语音配额；不代表免费调用。服务端固定 `mode: voice-practice`，拒绝在该会话提问判题、猜底、取提示或揭底。练习退出调用 `clearSession`，上传已开始时先完成登记或丢弃再清理；异常退出按 1 小时会话到期与定时任务清理。客户端无需保存练习会话或草稿，不替换原来的正式局。
 
 请求状态为 `processing | succeeded | failed | unknown | superseded`。unknown表示厂商可能已经计费，不可自动重新外呼。同requestId只读回原结果；用户显式确认重试后生成新ID并携带旧replaceRequestId，撤销旧请求游戏写回资格。
 

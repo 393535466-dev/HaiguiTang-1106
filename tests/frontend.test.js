@@ -36,8 +36,20 @@ function gameFixture(call = async () => { throw new Error('Unexpected API call')
     _alive: true, _visible: false, _sessionId: sessionID, _draftVersion: 0,
     setData(patch) { Object.assign(this.data, patch); } };
   page.data.session = playing();
-  return { page, storage, local };
+  return { page, storage, local, wx };
 }
+
+test('game releases recorder listeners while a tutorial or another page is visible', () => {
+  const { page, wx } = gameFixture();
+  const starts = new Set(), stops = new Set(), errors = new Set();
+  wx.getRecorderManager = () => ({ onStart: f => starts.add(f), offStart: f => starts.delete(f),
+    onStop: f => stops.add(f), offStop: f => stops.delete(f), onError: f => errors.add(f), offError: f => errors.delete(f) });
+  page._bindRecorder();
+  assert.equal(starts.size, 1);
+  page.onHide(); assert.equal(starts.size, 0); assert.equal(stops.size, 0);
+  page.onShow(); page.onShow(); assert.equal(starts.size, 1);
+  page.onUnload(); assert.equal(starts.size, 0); assert.equal(errors.size, 0);
+});
 
 test('client timeout dispatches once and accepts the original late response without retrying', async () => {
   let resolveCloud, dispatches = 0, fireTimeout, late;
