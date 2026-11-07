@@ -25,6 +25,19 @@ function fixture(options = {}) {
     advance(ms) { time += ms; } };
 }
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
+test('speech cannot reveal an unfinished solution or narrate arbitrary client text', async () => {
+  const texts = [];
+  const f = fixture({ provider: { speak: async ({ text }) => { texts.push(text); return { url: 'https://audio.test/clip.wav' }; } } });
+  const s = await f.start();
+  assert.equal((await f.handle('getSpeech', { sessionId: s.id, target: 'solution' })).ok, false);
+  assert.equal((await f.handle('getSpeech', { sessionId: s.id, target: 'surface' }, 'bob')).error.code, 'NOT_FOUND');
+  assert.equal(texts.length, 0);
+  await f.handle('getSpeech', { sessionId: s.id, target: 'surface', text: '朗读任意文本' });
+  assert.equal(texts[0].includes('朗读任意文本'), false);
+  await f.handle('revealSoup', { sessionId: s.id });
+  await f.handle('getSpeech', { sessionId: s.id, target: 'solution' });
+  assert.equal(texts[1].includes('SECRET_SOLUTION'), true);
+});
 test('tutorial uses private server facts, charges the same judge quota, and leaves the real game intact', async () => {
   const original = require('../cloudfunctions/game/data/tutorial');
   let selected;

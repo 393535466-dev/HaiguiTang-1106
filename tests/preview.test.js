@@ -27,7 +27,7 @@ test('preview uses the real provider protocol and keeps keys and solutions off p
   const base = 'http://127.0.0.1:' + server.address().port;
   const post = async body => (await fetch(base + '/api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).json();
   const status = await post({ action: 'status' });
-  assert.equal(status.data.judgeMode, 'real'); assert.equal(status.data.voiceReady, false);
+  assert.equal(status.data.judgeMode, 'real'); assert.equal(status.data.voiceReady, true);
   const start = await post({ action: 'startTutorial' });
   const answer = await post({ action: 'askQuestion', sessionId: start.data.session.id, requestId: 'free-wording', text: '自由表达的问题' });
   assert.equal(answer.data.answer, 'yes'); assert.equal(dispatched, 1);
@@ -39,5 +39,5 @@ test('preview uses the real provider protocol and keeps keys and solutions off p
   assert.equal((await fetch(base + '/api', { method: 'POST', headers: { Origin: 'https://outside.test', 'Content-Type': 'application/json' }, body: '{}' })).status, 403);
   assert.equal((await fetch(base + '/api', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: '{}' })).status, 415);
   const audio = await post({ action: 'startVoicePractice' });
-  assert.equal(audio.error.code, 'PREVIEW_UNSUPPORTED');
+  assert.equal(audio.ok, true);
 });

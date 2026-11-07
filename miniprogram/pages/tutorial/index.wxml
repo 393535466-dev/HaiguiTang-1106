@@ -1,6 +1,7 @@
 <view class="tutorial-page">
   <view class="tutorial-header"><view><view class="eyebrow">第一次喝汤</view><view class="tutorial-title serif">跟着玩一遍</view></view><button class="skip-button" bindtap="exit">{{returnToGame ? '回到游戏' : '跳过练习'}} ↗</button></view>
   <view class="practice-label">{{judgeMode === 'fixture' ? '开发测试 · 固定测试裁判' : 'AI 主持 · 用你自己的话来问'}}</view>
+<view class="host-voice-bar"><button bindtap="toggleHostVoice" disabled="{{recording}}">{{hostVoiceEnabled ? '人声已开 · 关闭' : '开启自然人声'}}</button><button bindtap="readSurface" disabled="{{recording}}">听题</button><button bindtap="replayHostVoice" disabled="{{recording}}">重播</button></view><view wx:if="{{hostVoiceStatus}}" class="host-voice-status">{{hostVoiceStatus}}</view>
   <view class="step-list"><view wx:for="{{steps}}" wx:key="*this" class="step-item {{index === step ? 'current' : ''}} {{step > index ? 'complete' : ''}}"><text class="step-no">{{index + 1}}</text><text>{{item}}</text></view></view>
   <scroll-view class="tutorial-scroll" scroll-y scroll-into-view="{{scrollTarget}}">
     <view class="tutorial-content">
@@ -32,7 +33,7 @@
       </block>
       <view wx:if="{{step === 1 || step === 3}}" id="practice-input-status" class="input-status">
         <view wx:if="{{inputError}}" class="teaching-note">{{inputError}}</view><view wx:if="{{voiceStatus}}" class="voice-note">{{voiceStatus}}</view><view wx:if="{{voiceError}}" class="teaching-note">{{voiceError}}</view><button wx:if="{{voicePending}}" class="text-link" bindtap="checkVoice">检查已有转写结果</button><view wx:if="{{recoveredTranscript}}" class="voice-note">识别文字：{{recoveredTranscript}}<button class="text-link" bindtap="useTranscript">使用识别文字</button></view>
-        <view wx:if="{{!sessionEnded}}" class="voice-note">{{voiceSupported ? '语音先转文字。核对人名、数字和否定词后，再确认发送。' : '本机网页可使用真实文字 AI。语音转写请在微信体验版使用。'}}</view>
+        <view wx:if="{{!sessionEnded}}" class="voice-note">{{voiceSupported ? '语音先转文字。核对人名、数字和否定词后，再确认发送。' : '当前浏览器未提供录音能力，可以继续打字，或换用支持麦克风的浏览器。'}}</view>
       </view>
     </view>
   </scroll-view>

@@ -12,6 +12,7 @@ const positiveLimit = (value, fallback) => /^\d+$/.test(String(value)) && +value
 // Accept identity only from the trusted SDK context, never event.openid/userId.
 function createHandler({ cloud, cloudbase, env = process.env, fetchFn = globalThis.fetch }) {
   const store = createCloudStore(cloud.database());
+  const speechCache = new Map();
   const storage = cloudbase && cloudbase.init({ env: env.TCB_ENV || env.SCF_NAMESPACE });
   return async (event = {}) => {
     const context = cloud.getWXContext();
@@ -32,7 +33,7 @@ function createHandler({ cloud, cloudbase, env = process.env, fetchFn = globalTh
       } : undefined
     });
     const service = createService({ store, audio, puzzles,
-      provider: createProvider({ env, fetchFn, moderate }),
+      provider: createProvider({ env, fetchFn, moderate, speechCache }),
       limits: { userDaily: positiveLimit(env.DAILY_USER_LIMIT, 100), globalDaily: positiveLimit(env.DAILY_GLOBAL_LIMIT, 500) }
     });
     if (!uid && event.Type === 'Timer' && event.TriggerName === CLEANUP_TRIGGER) {

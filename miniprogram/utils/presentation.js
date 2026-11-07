@@ -6,6 +6,7 @@ const notes = {
   uncertain: '这次无法可靠判断，可以换一种表述。', solved: '故事的另一面，被你发现了。'
 }
 const clarificationNotes = {
+  reference: '你说的「他 / 她 / 这件事」具体指什么？补充清楚再问。',
   person: '你说的是哪一位人物？把名字补上再问。',
   time: '你指的是哪个时间点？补充一下先后顺序。',
   multiple: '这句里有几个判断，先选其中一件事问吧。',

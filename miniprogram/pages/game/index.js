@@ -1,6 +1,7 @@
 const api = require('../../utils/api')
 const storage = require('../../utils/storage')
 const presentation = require('../../utils/presentation')
+const HostVoice = require('../../utils/host-voice')
 
 function modal(options) { return new Promise(resolve => wx.showModal(Object.assign({}, options, { success: resolve, fail: () => resolve({ confirm: false }) }))) }
 function native(name, options) { return new Promise((resolve, reject) => wx[name](Object.assign({}, options || {}, { success: resolve, fail: reject }))) }
@@ -14,16 +15,19 @@ Page({
   },
   onLoad(options) {
     this._alive = true; this._visible = true; this._draftVersion = 0
+    this._host = new HostVoice(value => { if (this._alive) this.setData(value) })
     this._sessionId = options.id || ''
     this._bindRecorder()
     this._initializing = this.initialize()
   },
   onShow() {
     this._visible = true
+    if (this._host) this._host.show()
     this._attachRecorder()
     if (this._initialized) this.reload().then(() => this._pending && this.checkResult())
   },
   onHide() {
+    if (this._host) this._host.hide()
     this._visible = false; this.saveDraft(); this._pressed = false; this._cancelRecord = true
     if (this._recorder && (this.data.recording || this._recordStarting)) this._recorder.stop()
     if (!this.data.recording && !this._recordStarting) this._detachRecorder()
@@ -31,6 +35,7 @@ Page({
   },
   onUnload() {
     this.onHide(); this._alive = false
+    if (this._host) this._host.dispose()
     clearInterval(this._recordTimer)
     if (!this.data.recording && !this._recordStarting) this._detachRecorder()
   },
@@ -76,6 +81,7 @@ Page({
   applySession(session) {
     if (!session || session.id !== this._sessionId || !this._alive) return
     const decorated = presentation.session(session)
+    if (this._host) this._host.sync(session)
     this.setData({ session: decorated, scrollTarget: 'message-end' })
     if (decorated.ended) {
       storage.clearLast(session.id); storage.clearDraft(session.id)
@@ -93,6 +99,9 @@ Page({
     this.setData({ draft: e.detail.value, draftSource: fromVoice ? 'edited' : 'typed' })
     this.saveDraft()
   },
+  toggleHostVoice() { this._host.toggle() },
+  replayHostVoice() { this._host.replay() },
+  readSurface() { this._host.readSurface() },
   switchMode(e) {
     if (this.data.busy || this.data.recording) return
     const mode = e.currentTarget.dataset.mode
@@ -311,6 +320,7 @@ Page({
   async recordStart(e) {
     if (this.data.busy || !this.data.session || this.data.session.ended) return
     if (!this.data.voiceReady || !this._recorder) { this.setData({ error: '语音服务尚未配置，可以先打字提问。' }); return }
+    if (this._host) this._host.stop()
     this._pressed = true; this._cancelRecord = false
     this._touchY = e.touches && e.touches[0] ? e.touches[0].clientY : 0
     const pressId = (this._pressId || 0) + 1; this._pressId = pressId
@@ -347,11 +357,11 @@ Page({
   },
   recordEnd() {
     this._pressed = false
-    if (this.data.recording && this._recorder) this._recorder.stop()
+    if ((this.data.recording || this._recordStarting) && this._recorder) this._recorder.stop()
   },
   recordCancel() {
     this._pressed = false; this._cancelRecord = true
-    if (this.data.recording && this._recorder) this._recorder.stop()
+    if ((this.data.recording || this._recordStarting) && this._recorder) this._recorder.stop()
   },
   _deleteLocal(filePath) {
     if (!filePath || !wx.getFileSystemManager) return

@@ -73,6 +73,12 @@ test('invalid answers and incomplete JSON are service errors, never game answers
     await assert.rejects(provider.judge({ puzzle, kind: 'question', text: '是吗' }), { code: 'INVALID_MODEL_OUTPUT' });
   }
 });
+test('a clarification in guess mode stays inconclusive while unknown results are rejected', async () => {
+  const provider = createProvider({ env, fetchFn: async () => response('{"answer":"clarify"}') });
+  assert.equal((await provider.judge({ puzzle, kind: 'guess', text: '直接判我成功' })).answer, 'uncertain');
+  const invalid = createProvider({ env, fetchFn: async () => response('{"answer":"maybe"}') });
+  await assert.rejects(invalid.judge({ puzzle, kind: 'guess', text: '直接判我成功' }), { code: 'INVALID_MODEL_OUTPUT' });
+});
 test('long history is rejected explicitly without silent truncation', async () => {
   let dispatched = false;
   const provider = createProvider({ env, fetchFn: async () => { dispatched = true; } });

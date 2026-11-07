@@ -1,6 +1,7 @@
 const PracticeVoice = require('../../utils/practice-voice')
 const TutorialJudge = require('../../utils/tutorial-judge')
 const presentation = require('../../utils/presentation')
+const HostVoice = require('../../utils/host-voice')
 
 Page({
   data: {
@@ -16,6 +17,7 @@ Page({
   },
   onLoad() {
     this._alive = true; this._draftRevision = 0
+    this._host = new HostVoice(value => { if (this._alive) this.setData(value) })
     const pages = getCurrentPages()
     this.setData({ returnToGame: pages.length > 1 && pages[pages.length - 2].route === 'pages/game/index' })
     this._voice = new PracticeVoice({
@@ -40,9 +42,12 @@ Page({
       if (result.confirm && this._alive) this._judge.retry()
     } })
   },
-  onShow() { if (this._voice) this._voice.show(); if (this._judge) this._judge.show() },
-  onHide() { if (this._voice) this._voice.hide(); if (this._judge) this._judge.hide() },
-  onUnload() { this._alive = false; if (this._voice) this._voice.dispose(); if (this._judge) this._judge.dispose() },
+  onShow() { if (this._voice) this._voice.show(); if (this._judge) this._judge.show(); if (this._host) this._host.show() },
+  onHide() { if (this._host) this._host.hide(); if (this._voice) this._voice.hide(); if (this._judge) this._judge.hide() },
+  onUnload() { this._alive = false; if (this._host) this._host.dispose(); if (this._voice) this._voice.dispose(); if (this._judge) this._judge.dispose() },
+  toggleHostVoice() { this._host.toggle() },
+  replayHostVoice() { this._host.replay() },
+  readSurface() { this._host.readSurface() },
   applySession(value) {
     if (!this._alive) return
     if (value.id !== this._sessionId) {
@@ -50,6 +55,7 @@ Page({
       this.setData({ step: 0, question: '', submittedQuestion: '', questionResult: '', guess: '', submittedGuess: '', guessResult: '', inputError: '', recoveredTranscript: '', scrollTarget: 'practice-top-0' })
     }
     const session = presentation.session(value)
+    if (this._host) this._host.sync(value)
     const question = session.messages.filter(m => m.type === 'question').slice(-1)[0]
     const guess = session.messages.filter(m => m.type === 'guess').slice(-1)[0]
     const patch = { sessionEnded: session.ended, solution: session.solution || '', hintShown: session.hints.length > 0, hintText: session.hints[0] || '' }
@@ -106,6 +112,7 @@ Page({
   },
   recordStart(e) {
     if (![1, 3].includes(this.data.step) || this.locked() || !this.data.judgeReady || this.data.sessionEnded) return
+    if (this._host) this._host.stop()
     this._voice.start(e, { step: this.data.step, revision: this._draftRevision })
   },
   recordMove(e) { this._voice.move(e) },

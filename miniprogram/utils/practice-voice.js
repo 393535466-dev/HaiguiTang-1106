@@ -49,7 +49,7 @@ class PracticeVoice {
   }
   patch(value) { if (this.alive) this.update(value) }
   async start(e, context) {
-    if (!this.supported) { this.patch({ voiceError: '当前浏览器预览不支持语音转写。可以直接打字，语音请在微信体验版使用。' }); return }
+    if (!this.supported) { this.patch({ voiceError: '当前浏览器无法开启录音。可以继续打字，或使用支持麦克风的 Chrome、Safari。' }); return }
     if (this.settingUp || this.starting || this.recording || this.working || this.pending || !this.alive) return
     this.pressed = true; this.cancelled = false; this.settingUp = true
     this.touchY = e.touches && e.touches[0] ? e.touches[0].clientY : 0
@@ -71,7 +71,7 @@ class PracticeVoice {
     } catch (error) {
       this.starting = false
       const denied = /auth|deny|denied/i.test(error.errMsg || '')
-      this.patch({ voiceError: denied ? '未获得麦克风权限。可在微信设置中开启，也可以直接打字。' : api.message(error), voiceStatus: '' })
+      this.patch({ voiceError: denied ? '未获得麦克风权限。请在当前应用或浏览器的网站设置中开启，也可以直接打字。' : api.message(error), voiceStatus: '' })
     } finally { this.settingUp = false; this.patch({ voiceBusy: false }) }
   }
   move(e) {

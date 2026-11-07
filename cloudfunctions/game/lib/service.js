@@ -2,11 +2,12 @@
 
 const crypto = require('node:crypto');
 const tutorialPuzzle = require('../data/tutorial');
+const { speechText } = require('./speech');
 const DAY = 86400000;
 const QUESTION = new Set(['yes', 'no', 'irrelevant', 'unspecified', 'clarify']);
 const EFFECTIVE_ANSWERS = new Set(['yes', 'no', 'irrelevant']);
 const GUESS = new Set(['solved', 'incomplete', 'incorrect', 'uncertain']);
-const CLARIFY_REASONS = new Set(['person', 'time', 'multiple', 'open_ended', 'guess', 'instruction']);
+const CLARIFY_REASONS = new Set(['person', 'reference', 'time', 'multiple', 'open_ended', 'guess', 'instruction']);
 const UNCERTAIN_ERRORS = new Set(['UPSTREAM_TIMEOUT', 'TIMEOUT', 'NETWORK_ERROR', 'RESULT_UNKNOWN', 'AbortError']);
 const KNOWN_ERRORS = {
   CONTENT_CHECK_UNAVAILABLE: '内容检查暂不可用，请联系维护人员',
@@ -230,6 +231,18 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       return { session: publicSession(s) };
     }
     if (action === 'getSession') return store.transaction(async tx => ({ session: publicSession(await owned(tx, uid, args.sessionId)) }));
+    if (action === 'getSpeech') {
+      await ready('text');
+      if (!provider.speak) throw fail('CONFIG_REQUIRED', '人声播报尚未配置');
+      const text = await store.transaction(async tx => {
+        const s = await owned(tx, uid, args.sessionId);
+        if (s.mode === 'voice-practice' || ['cleared', 'expired'].includes(s.state)) throw fail('SESSION_ENDED', '这局已结束或记录已清空');
+        const value = speechText(s, args.target, args.messageId);
+        await usage(tx, uid, now(), 'speech');
+        return value;
+      });
+      return provider.speak({ text });
+    }
     if (action === 'getRequest') {
       safeID(args.requestId, '请求ID');
       return store.transaction(async tx => {
@@ -278,7 +291,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       return store.transaction(async tx => {
         const s = await owned(tx, uid, args.sessionId, true);
         await usage(tx, uid, now(), 'uploads');
-        const id = idFactory(), path = `audio/${HASH(uid).slice(0,24)}/${s.id}/${id}.mp3`;
+        const id = idFactory(), path = `audio/${HASH(uid).slice(0,24)}/${s.id}/${id}.${audio.extension === 'wav' ? 'wav' : 'mp3'}`;
         await tx.set('uploads', id, { userId: uid, sessionId: s.id, cloudPath: path, fileID: null,
           // Reserve an hour for the normal hourly cleanup, targeting deletion within 24 hours.
           consumed: false, createdAt: now(), expiresAt: now() + 23 * 3600000 });
@@ -341,7 +354,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
     let result, externalError;
     try {
       result = await external(async () => {
-        const o = kind === 'asr' ? await provider.transcribe({ buffer: recording.buffer })
+        const o = kind === 'asr' ? await provider.transcribe({ buffer: recording.buffer, mimeType: recording.mimeType || 'audio/mpeg' })
           : await provider.judge({ puzzle: reserved.session.puzzle, history: reserved.session.messages,
             text: input.text, kind });
         if (kind === 'asr') {

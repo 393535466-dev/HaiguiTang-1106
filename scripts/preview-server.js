@@ -7,13 +7,14 @@ const path = require('node:path');
 const { createService } = require('../cloudfunctions/game/lib/service');
 const { createMemoryStore } = require('../cloudfunctions/game/lib/store-memory');
 const { createPreviewProvider } = require('./preview-provider');
+const { createPreviewAudio } = require('./preview-audio');
 const puzzles = require('../cloudfunctions/game/data/puzzles');
 const root = path.resolve(__dirname, '..');
 
 function bundle() {
   const files = {};
   const add = (file, kind) => { files['/' + file.replace(/^miniprogram\//, '')] = { kind, source: fs.readFileSync(path.join(root, file), 'utf8') }; };
-  for (const file of ['app.js', 'app.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
+  for (const file of ['app.js', 'app.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
   for (const page of ['home', 'game', 'tutorial', 'privacy']) for (const ext of ['js', 'wxml', 'wxss']) add(`miniprogram/pages/${page}/index.${ext}`, ext);
   return 'window.__miniFiles=' + JSON.stringify(files).replace(/</g, '\\u003c') + ';';
 }
@@ -28,8 +29,9 @@ async function readJSON(req) {
 }
 function createPreviewServer(options = {}) {
   const provider = createPreviewProvider(options);
-  const service = createService({ store: createMemoryStore(), provider,
-    audio: { inspect: async () => { throw new Error('Preview audio is disabled'); }, remove: async () => {}, removeByPath: async () => {} },
+  const store = createMemoryStore(), owner = 'local-preview-user';
+  const audio = createPreviewAudio(store, owner);
+  const service = createService({ store, provider, audio,
     puzzles, limits: { userDaily: 100, globalDaily: 100 } });
   const server = http.createServer(async (req, res) => {
     try {
@@ -39,18 +41,26 @@ function createPreviewServer(options = {}) {
       if (!allowed.has(host)) return respond(res, 403, '{}');
       if (req.headers.origin && !Array.from(allowed).some(h => req.headers.origin === 'http://' + h)) return respond(res, 403, '{}');
       const url = new URL(req.url, 'http://' + host);
+      if (req.method === 'POST' && url.pathname === '/audio') {
+        if (req.headers['content-type'] !== 'audio/wav') return respond(res, 415, '{}');
+        if (!provider.ready().voiceReady) return respond(res, 403, JSON.stringify({ error: '语音识别尚未配置。' }));
+        try {
+          const chunks = []; let size = 0;
+          for await (const chunk of req) { size += chunk.length; if (size > 640044) return respond(res, 413, '{}'); chunks.push(chunk); }
+          return respond(res, 200, JSON.stringify(await audio.upload(url.searchParams.get('path') || '', Buffer.concat(chunks))));
+        } catch (error) { return respond(res, 400, JSON.stringify({ error: error.code === 'EMPTY_AUDIO' ? '没有听到声音，请靠近麦克风重录。' : '录音无效或已过期，请重新录制。' })); }
+      }
       if (req.method === 'POST' && url.pathname === '/api') {
         if (!(req.headers['content-type'] || '').startsWith('application/json')) return respond(res, 415, '{}');
         const input = await readJSON(req);
-        if (['registerUpload', 'confirmUpload', 'transcribeAudio', 'discardUpload', 'startVoicePractice'].includes(input.action)) return respond(res, 200, JSON.stringify({ ok: false, error: { code: 'PREVIEW_UNSUPPORTED', message: '本地浏览器不支持录音转写，请使用微信真机。', retryable: false } }));
-        const output = await service.handle(input.action, input, 'local-preview-user');
+        const output = await service.handle(input.action, input, owner);
         if (input.action === 'status' && output.ok) { output.data.environment = 'local-' + provider.mode; output.data.judgeMode = provider.mode; }
         return respond(res, 200, JSON.stringify(output));
       }
       if (req.method !== 'GET' && req.method !== 'HEAD') return respond(res, 405, '{}');
       if (url.pathname === '/bundle.js') return respond(res, 200, bundle(), 'text/javascript; charset=utf-8');
-      if (url.pathname === '/preview-status') return respond(res, 200, JSON.stringify({ mode: provider.mode, textReady: provider.ready().textReady }));
-      const staticFiles = { '/': ['index.html', 'text/html; charset=utf-8'], '/runtime.js': ['runtime.js', 'text/javascript; charset=utf-8'], '/preview.css': ['preview.css', 'text/css; charset=utf-8'] };
+      if (url.pathname === '/preview-status') return respond(res, 200, JSON.stringify({ mode: provider.mode, ...provider.ready() }));
+      const staticFiles = { '/': ['index.html', 'text/html; charset=utf-8'], '/runtime.js': ['runtime.js', 'text/javascript; charset=utf-8'], '/voice.js': ['voice.js', 'text/javascript; charset=utf-8'], '/recorder.wav.min.js': ['vendor/recorder.wav.min.js', 'text/javascript; charset=utf-8'], '/preview.css': ['preview.css', 'text/css; charset=utf-8'] };
       if (staticFiles[url.pathname]) {
         const [file, mime] = staticFiles[url.pathname];
         return respond(res, 200, fs.readFileSync(path.join(__dirname, 'preview', file)), mime);
@@ -58,12 +68,13 @@ function createPreviewServer(options = {}) {
       respond(res, 404, '{}');
     } catch (_) { respond(res, 500, JSON.stringify({ error: '本地服务未能完成请求，请检查配置后重试。' })); }
   });
+  server.on('close', () => audio.clear());
   return { server, service, provider };
 }
 if (require.main === module) {
   const { server, provider } = createPreviewServer();
   server.listen(18875, '127.0.0.1', () => {
-    process.stdout.write((provider.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : '本机真实文字 AI · 语音请用微信真机') + '\nhttp://127.0.0.1:18875/\n');
+    process.stdout.write((provider.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : '本机真实 AI · 语音输入与自然人声') + '\nhttp://127.0.0.1:18875/\n');
     if (!provider.ready().textReady) process.stdout.write('请在 .env.preview.local 填写服务端密钥并启用 GAME_ENABLED；保存后重新检查连接即可。\n');
     process.stdout.write('按 Ctrl+C 结束。\n');
   });

@@ -7,7 +7,7 @@
   const overlays = document.querySelector('#preview-overlays');
   const unconfigured = new URLSearchParams(location.search).get('mode') === 'unconfigured';
   const modules = {}, definitions = {}, pages = [];
-  let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null;
+  let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null;
   const domTemplates = {};
   const baseStyles = files['/app.wxss'].source;
   const style = document.createElement('style'); document.head.append(style);
@@ -112,6 +112,7 @@
     openSetting(options) { modal({ title: '请使用微信真机', content: '本地浏览器预览不提供微信权限或真实录音。', showCancel: false }); complete(options, { authSetting: { 'scope.record': false } }); },
     openPrivacyContract() { modal({ title: '微信隐私保护指引', content: '本地预览无法打开微信后台配置的隐私指引。请在真实 AppID 的微信环境验证。', showCancel: false }); }
   };
+  if (window.installPreviewVoice) window.installPreviewVoice(window.wx);
 
   function evaluate(expression, scope) {
     try { return new Function('scope', 'with(scope){return (' + expression + ')}')(scope); }
@@ -134,17 +135,25 @@
       const nativeEvent = { tap: 'click', input: 'input', touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup', touchcancel: 'pointercancel', agreeprivacyauthorization: 'click' }[logical];
       const dispatch = event => {
         if (match[1] === 'catch') event.stopPropagation();
-        if (logical.startsWith('touch') && logical === 'touchstart' && element.setPointerCapture) element.setPointerCapture(event.pointerId);
+        if (logical === 'touchstart') {
+          gesture = { handlers: element._previewTouchHandlers, pointerId: event.pointerId };
+          if (screen.setPointerCapture) screen.setPointerCapture(event.pointerId);
+        }
         const fn = page[attribute.value];
         if (typeof fn !== 'function') { console.warn('Preview missing handler', attribute.value); return; }
         const argument = { type: logical, currentTarget: { dataset: Object.assign({}, element.dataset) }, target: { dataset: Object.assign({}, element.dataset) }, detail: { value: event.target.value }, touches: logical === 'touchend' || logical === 'touchcancel' ? [] : [{ clientY: event.clientY || 0, clientX: event.clientX || 0 }] };
         Promise.resolve(fn.call(page, argument)).catch(error => { console.error(error); toast({ title: '预览操作异常：' + error.message }); });
       };
       element.addEventListener(nativeEvent, event => {
+        if (event._previewForwarded) return;
         // Pinyin candidates belong to the native IME, not the player's draft.
         if (logical === 'input' && (event.isComposing || composition?.element === element)) return;
         dispatch(event);
       });
+      if (logical.startsWith('touch')) {
+        element._previewTouchHandlers = element._previewTouchHandlers || {};
+        element._previewTouchHandlers[logical] = dispatch;
+      }
       if (logical === 'input') {
         element.addEventListener('compositionstart', () => { composition = { element, page }; });
         element.addEventListener('compositionend', event => {
@@ -231,6 +240,15 @@
     renderSequence++;
   }
   window.addEventListener('resize', scheduleRender);
+  for (const [nativeEvent, logical] of [['pointermove', 'touchmove'], ['pointerup', 'touchend'], ['pointercancel', 'touchcancel']]) {
+    window.addEventListener(nativeEvent, event => {
+      if (!gesture || gesture.pointerId !== event.pointerId) return;
+      const current = gesture;
+      if (logical !== 'touchmove') gesture = null;
+      event._previewForwarded = true;
+      current.handlers[logical]?.(event);
+    }, true);
+  }
   document.addEventListener('visibilitychange', () => { const page = topPage(); if (!page) return; if (document.hidden && page.onHide) page.onHide(); else if (!document.hidden && page.onShow) page.onShow(); });
   document.querySelector('#sample-question').onclick = () => {
     const input = appRoot.querySelector('textarea');
@@ -240,7 +258,7 @@
   requireMini('/app.js'); if (app.onLaunch) app.onLaunch();
   navigate({ url: location.hash.slice(1) || '/pages/home/index' }, 'push');
   fetch('/preview-status').then(r => r.json()).then(status => {
-    document.querySelector('#preview-mode').textContent = unconfigured ? '未配置界面检查 · 无模型调用' : status.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : status.textReady ? '真实文字 AI · 本机体验' : '真实 AI 待接入 · 请配置服务端密钥';
+    document.querySelector('#preview-mode').textContent = unconfigured ? '未配置界面检查 · 无模型调用' : status.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : status.textReady ? 'AI 语音海龟汤 · 本机体验' : '真实 AI 待接入 · 请配置服务端密钥';
     if (status.mode === 'fixture') document.querySelector('#preview-description').textContent = '这是显式开启的开发测试模式，只匹配测试问句，不代表真实 AI 能力。默认启动方式使用真实模型。';
   }).catch(() => { document.querySelector('#preview-mode').textContent = '本机服务未连接'; });
   // Read-only diagnostics for UI acceptance; this never contains the private puzzle bank.

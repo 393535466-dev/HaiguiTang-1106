@@ -42,8 +42,9 @@ test('practice transcripts fill an editable draft and never submit; newer typing
   let definition;
   class FakeVoice { constructor(options) { this.options = options; this.supported = true; } }
   class FakeJudge { connect() {} async submit() {} }
+  class FakeHost { sync() {} }
   vm.runInNewContext(read('pages/tutorial/index.js'), {
-    require: name => name.endsWith('practice-voice') ? FakeVoice : name.endsWith('tutorial-judge') ? FakeJudge : presentation,
+    require: name => name.endsWith('practice-voice') ? FakeVoice : name.endsWith('tutorial-judge') ? FakeJudge : name.endsWith('host-voice') ? FakeHost : presentation,
     Page: value => { definition = value; }, getCurrentPages: () => [], wx: {}
   });
   const page = { ...definition, data: structuredClone(definition.data), setData(p) { Object.assign(this.data, p); } };
