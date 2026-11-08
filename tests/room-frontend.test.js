@@ -7,7 +7,7 @@ function page() {
  const p=Object.assign({},definition,{data:structuredClone(definition.data),_alive:true,_roomId:'123456',_host:{sync(){}},setData(v){Object.assign(this.data,v)}});
  return {p,writes};
 }
-const room=(revision,id='123456')=>({id,revision,state:'playing',messages:[],hints:[],members:[],maxQuestions:30,questionCount:0,hintCount:0,turnDeadlineAt:Date.now()+90000,active:null});
+const room=(revision,id='123456')=>({id,revision,state:'playing',messages:[],hints:[],members:[],maxQuestions:30,questionCount:0,hintCount:0,turnDeadlineAt:Date.now()+45000,active:null});
 test('out-of-order room polls never roll back a newer turn or revive a room after leaving',()=>{
  const {p}=page();p.apply(room(5));p.apply({...room(4),state:'waiting'});assert.equal(p.data.room.revision,5);assert.equal(p.data.room.state,'playing');
  p._roomId='654321';p.data.room=null;p.apply(room(6));assert.equal(p.data.room,null);

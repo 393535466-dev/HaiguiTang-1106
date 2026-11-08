@@ -25,6 +25,10 @@ async function main() {
     await b.getByPlaceholder('输入昵称，最多12字').fill('小陈'); await b.getByPlaceholder('输入六位房间号').fill(roomId); await b.getByRole('button', { name: '加入房间' }).click();
     await a.waitForFunction(() => window.__preview.page.data.room?.members.length === 2);
     await a.getByRole('button', { name: '开始推理' }).click(); await roomReady(a); await roomReady(b);
+    for (const p of [a,b]) {
+      const seconds = await p.evaluate(() => window.__preview.page.data.seconds);
+      assert.ok(seconds > 0 && seconds <= 45, 'both players see the shortened turn deadline');
+    }
     assert.notEqual(await a.evaluate(() => window.__preview.page.data.room.meId), await b.evaluate(() => window.__preview.page.data.room.meId));
     assert.equal(await b.getByRole('button', { name: '向 AI 提问', exact: true }).isDisabled(), true);
     await b.getByRole('button', { name: '按住说话', exact: true }).click();

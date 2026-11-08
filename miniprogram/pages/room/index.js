@@ -6,7 +6,7 @@ const HostVoice = require('../../utils/host-voice')
 const modal = options => new Promise(resolve => wx.showModal(Object.assign({}, options, { success: resolve })))
 Page({
   data: { room: null, nickname: '', roomCode: '', puzzles: [], selectedPuzzle: '', loading: true, busy: false, error: '', connection: '',
-    mode: 'discussion', draft: '', pending: false, seconds: 90, recording: false, cancelling: false, recordSeconds: 0,
+    mode: 'discussion', draft: '', pending: false, seconds: 45, recording: false, cancelling: false, recordSeconds: 0,
     voiceBusy: false, voicePending: false, voiceError: '', voiceStatus: '', recoveredTranscript: '', privacyNeeded: false, scrollTarget: '', surfaceExpanded: false },
   onLoad(options) {
     this._alive = true; this._visible = true; this._revision = 0; this._roomId = options.id || ''

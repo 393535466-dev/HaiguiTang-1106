@@ -6,6 +6,7 @@ const fail = (code, message) => Object.assign(new Error(message), { code, public
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const effective = new Set(['yes', 'no', 'irrelevant']);
 const unknown = new Set(['UPSTREAM_TIMEOUT', 'TIMEOUT', 'NETWORK_ERROR', 'RESULT_UNKNOWN', 'AbortError']);
+const TURN_MS = 45000;
 const actions = new Set(['getProfile', 'saveProfile', 'getLeaderboard', 'createRoom', 'joinRoom', 'getRoom', 'startRoom', 'leaveRoom', 'roomChat', 'roomQuestion', 'roomGuess', 'getRoomRequest', 'skipRoomTurn', 'roomHint', 'revealRoom', 'getRoomSpeech']);
 function createRooms({ store, provider, puzzles, usage, recordUsage, clock, idFactory, limits }) {
   const now = clock;
@@ -37,7 +38,7 @@ function createRooms({ store, provider, puzzles, usage, recordUsage, clock, idFa
     await invalidate(tx, r);
     const old = r.members.findIndex(m => m.uid === r.turnOwner);
     for (let n = 1; n <= r.members.length; n++) { const m = r.members[(old + n + r.members.length) % r.members.length]; if (!m.left) { r.turnOwner = m.uid; break; } }
-    r.turnSerial++; r.turnDeadlineAt = now() + 90000; r.revision++;
+    r.turnSerial++; r.turnDeadlineAt = now() + TURN_MS; r.revision++;
     if (reason) add(r, { type: 'system', text: reason });
   }
   async function refresh(tx, r) {
@@ -182,8 +183,8 @@ function createRooms({ store, provider, puzzles, usage, recordUsage, clock, idFa
         if (r.state !== 'waiting') return { room: publicRoom(r, uid) };
         if (members(r).length < 2) throw fail('NEED_PLAYERS', '至少两名玩家才能开局');
         for (const m of members(r)) m.eligible = await ranking.claim(tx, m.uid, r.puzzle, r.gameId);
-        r.state = 'playing'; r.turnOwner = uid; r.turnDeadlineAt = now() + 90000;
-        add(r, { type: 'system', text: '开始推理。每轮 90 秒，澄清后可继续问；讨论不会消耗提问次数。' });
+        r.state = 'playing'; r.turnOwner = uid; r.turnDeadlineAt = now() + TURN_MS;
+        add(r, { type: 'system', text: '开始推理。每轮 45 秒，澄清后可继续问；讨论不会消耗提问次数。' });
       } else if (action === 'leaveRoom') {
         mine(r, uid).left = true;
         add(r, { type: 'system', text: r.members.find(m => m.uid === uid).nickname + ' 离开了房间。' });

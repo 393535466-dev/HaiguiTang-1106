@@ -72,11 +72,23 @@ test('skipping invalidates a late answer and never passes the next player twice'
 });
 test('host leaving transfers ownership and a disconnected current turn expires without extra model calls', async () => {
   const f=setup(),r=await f.pair();
-  f.advance(91000);const after=(await f.call('bob','getRoom',{roomId:r.id})).data.room;
+  f.advance(44999);const before=(await f.call('alice','getRoom',{roomId:r.id})).data.room;
+  assert.equal(before.myTurn,true);assert.equal(before.turnSerial,r.turnSerial);
+  f.advance(1);const after=(await f.call('bob','getRoom',{roomId:r.id})).data.room;
   assert.equal(after.myTurn,true);assert.equal(f.calls,0);
+  assert.equal(after.turnDeadlineAt-r.turnDeadlineAt,45000);
   await f.call('alice','leaveRoom',{roomId:r.id});
   const b=(await f.call('bob','getRoom',{roomId:r.id})).data.room;assert.equal(b.isHost,true);assert.equal(b.members.length,1);
   await f.call('bob','leaveRoom',{roomId:r.id});assert.equal((await f.call('bob','getRoom',{roomId:r.id})).error.code,'ROOM_ENDED');
+});
+test('a question submitted before the 45-second deadline may finish without losing its answer', async () => {
+  let resolve;const f=setup({judge:()=>new Promise(r=>{resolve=r})}),r=await f.pair();
+  f.advance(44000);const pending=f.submit('alice',r,'near-deadline');while(!resolve)await new Promise(setImmediate);
+  f.advance(2000);const waiting=(await f.call('bob','getRoom',{roomId:r.id})).data.room;
+  assert.equal(waiting.turnSerial,r.turnSerial);assert.equal(waiting.active.status,'processing');
+  resolve({answer:'yes'});const result=await pending;
+  assert.equal(result.data.status,'succeeded');assert.equal(result.data.room.turnSerial,r.turnSerial+1);
+  assert.equal(result.data.room.questionCount,1);assert.equal(f.calls,1);
 });
 test('shared victory settles each eligible member once, with identical team points and separate boards', async () => {
   const f=setup(),r=await f.pair();
