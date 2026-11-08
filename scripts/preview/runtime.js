@@ -6,22 +6,25 @@
   const appRoot = document.querySelector('#app');
   const overlays = document.querySelector('#preview-overlays');
   const unconfigured = new URLSearchParams(location.search).get('mode') === 'unconfigured';
-  const guest = new URLSearchParams(location.search).get('guest') === '1';
+  const remote = !['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
+  const isolatedTab = new URLSearchParams(location.search).get('guest') === '1';
+  const guest = remote || isolatedTab;
+  const identityStore = isolatedTab ? sessionStorage : localStorage;
   let guestIdentity;
   window.previewHeaders = async () => {
     if (!guest) return {};
     if (!guestIdentity) guestIdentity = (async () => {
-      let token = sessionStorage.getItem('hgt-preview-player');
+      let token = identityStore.getItem('hgt-preview-player');
       if (!token) {
         const response = await fetch('/preview-player', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-        if (!response.ok) throw new Error('无法准备第二名玩家，请关闭多余测试窗口后重试');
-        token = (await response.json()).token; sessionStorage.setItem('hgt-preview-player', token);
+        if (!response.ok) throw new Error('无法准备玩家身份，请从完整测试链接重新进入');
+        token = (await response.json()).token; identityStore.setItem('hgt-preview-player', token);
       }
       return { 'X-Preview-Player': token };
-    })();
+    })().catch(error => { guestIdentity = null; throw error; });
     return guestIdentity;
   };
-  const localStore = guest ? sessionStorage : localStorage;
+  const localStore = guest ? identityStore : localStorage;
   const modules = {}, definitions = {}, pages = [];
   let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null;
   const domTemplates = {};
@@ -102,8 +105,8 @@
       init() {},
       async callFunction(options) {
         const response = await fetch('/api', { method: 'POST', headers: { 'Content-Type': 'application/json', ...await window.previewHeaders() }, body: JSON.stringify(options.data) });
-        if (response.status === 401) { sessionStorage.removeItem('hgt-preview-player'); throw new Error('本机访客身份已过期，请刷新页面重新进入。'); }
-        if (!response.ok) throw new Error('本地预览服务没有接通');
+        if (response.status === 401) { identityStore.removeItem('hgt-preview-player'); guestIdentity = null; throw new Error('玩家身份已过期，请刷新页面重新进入。'); }
+        if (!response.ok) throw new Error('试玩服务没有接通，请从完整测试链接重新进入');
         return { result: await response.json() };
       },
       async uploadFile() { throw new Error('浏览器预览不提供录音上传，请在微信真机验证。'); }
@@ -289,9 +292,13 @@
   requireMini('/app.js'); if (app.onLaunch) app.onLaunch();
   navigate({ url: location.hash.slice(1) || '/pages/home/index' }, 'push');
   fetch('/preview-status').then(r => r.json()).then(status => {
-    document.querySelector('#preview-mode').textContent = unconfigured ? '未配置界面检查 · 无模型调用' : status.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : status.textReady ? 'AI 语音海龟汤 · 本机体验' : '真实 AI 待接入 · 请配置服务端密钥';
+    document.querySelector('#preview-mode').textContent = unconfigured ? '未配置界面检查 · 无模型调用' : status.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : status.textReady ? 'AI 语音海龟汤 · ' + (remote ? '手机测试' : '本机体验') : '真实 AI 待接入 · 请配置服务端密钥';
+    if (remote) {
+      document.querySelector('#preview-detail').textContent = '好奇心俱乐部 · 手机测试';
+      document.querySelector('.preview-notes p').textContent = '两台手机打开同一个完整邀请链接，分别填写昵称，通过六位房间号同桌。推荐在 Safari 或 Chrome 中打开并允许麦克风。临时测试期间，发起人的电脑需保持开机联网。';
+    }
     if (status.mode === 'fixture') document.querySelector('#preview-description').textContent = '这是显式开启的开发测试模式，只匹配测试问句，不代表真实 AI 能力。默认启动方式使用真实模型。';
-  }).catch(() => { document.querySelector('#preview-mode').textContent = '本机服务未连接'; });
+  }).catch(() => { document.querySelector('#preview-mode').textContent = '试玩服务未连接'; });
   // Read-only diagnostics for UI acceptance; this never contains the private puzzle bank.
   window.__preview = { get page() { return topPage(); }, get route() { return topPage().route; }, get renderCount() { return renderSequence; }, unconfigured };
 })();
