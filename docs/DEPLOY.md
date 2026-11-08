@@ -4,6 +4,14 @@
 
 没有真实 AppID、云环境和模型密钥时，可以进行源码检查、隔离的服务端测试与界面预览。这些结果不代表微信真机录音、真实模型准确率或 3 至 5 秒等待目标已经通过。
 
+## 本机已准备的交付目录
+
+`npm run prepare:wechat` 生成独立 `.release/wechat-*` 目录，可作为开发者工具的项目目录。它自带空的 `miniprogram/config.local.js`，避免缺文件导致编译中断；默认 AppID 为占位值，账号齐备后才能实际联调。若用命令参数填写，执行 `npm run prepare:wechat -- --appid 真实AppID --env 真实云环境ID`，不会修改原仓库或把本机 Key 打入交付包。
+
+`deployment-manifest.json` 汇总十个集合、排行榜索引、运行时、超时和清理任务要求，仅供核对，不能直接当厂商配置导入。`SHA256SUMS` 可校验文件。使用 `npm run preflight -- --project 交付目录` 做本地检查，生成交付目录和字段校验都不表示已部署。
+
+云函数继续使用开发者工具的「云端安装依赖」流程，参见 [CloudBase 官方部署说明](https://docs.cloudbase.net/cloud-function/quick-start)；上传后实际检查 Node 运行时、权限与触发器。两部手机记录见 [DEVICE-TEST.md](DEVICE-TEST.md)。
+
 ## 1 用户先准备账号
 
 - [微信公众平台](https://mp.weixin.qq.com/)：已有账号先登录，保存真实 AppID，管理员能扫码。

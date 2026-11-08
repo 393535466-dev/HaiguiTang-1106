@@ -1,18 +1,14 @@
 'use strict';
-const fs = require('node:fs');
 const path = require('node:path');
-const root = path.resolve(__dirname, '..');
-const project = require('../project.config.json');
-let local = {};
-try { local = require('../miniprogram/config.local'); } catch (_) {}
-const privatePath = path.join(root, 'project.private.config.json');
-if (fs.existsSync(privatePath)) Object.assign(project, JSON.parse(fs.readFileSync(privatePath, 'utf8')));
-const checks = [
-  ['Node.js >=20', Number(process.versions.node.split('.')[0]) >= 20],
-  ['真实微信 AppID', /^wx[0-9a-f]{16}$/.test(project.appid || '')],
-  ['本机云环境 ID', Boolean(local.cloudEnv && !/你的|example|placeholder/i.test(local.cloudEnv))],
-  ['game 云函数入口', fs.existsSync(path.join(root, 'cloudfunctions/game/index.js'))]
-];
-for (const [name, pass] of checks) console.log(`${pass ? '已就绪' : '待准备'}  ${name}`);
-console.log('云端 Key、启用开关、数据库/存储权限、定时器、微信类目和真机录音需按 docs/DEPLOY.md 核验。此检查不连接付费服务，也不验证云端密钥。');
-if (checks.some(([, pass]) => !pass)) process.exitCode = 2;
+const { inspectProject } = require('./wechat-project');
+const args = process.argv.slice(2);
+if (args.length && (args.length !== 2 || args[0] !== '--project')) {
+  console.error('用法：npm run preflight -- [--project 项目目录]'); process.exitCode = 1;
+} else {
+  const root = args.length ? path.resolve(args[1]) : path.resolve(__dirname, '..');
+  const result = inspectProject(root), nodeReady = Number(process.versions.node.split('.')[0]) >= 20;
+  console.log(`${nodeReady ? '已就绪' : '待准备'}  Node.js >=20`);
+  for (const check of result.checks) console.log(`${check.pass ? '已就绪' : '待准备'}  ${check.name}`);
+  console.log('本地预检不连接云端。集合/索引、存储权限、云端 Key、定时器、类目、录音及两部真机仍需按部署说明验证。');
+  if (!nodeReady || !result.filesReady || !result.accountConfigured) process.exitCode = 2;
+}

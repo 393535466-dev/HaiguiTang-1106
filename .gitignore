@@ -8,6 +8,7 @@ project.private.config.json
 coverage/
 test-results/
 .preview-data/
+.release/
 *.log
 *.pem
 *.key

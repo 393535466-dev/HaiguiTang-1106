@@ -52,6 +52,14 @@ TTS_VOICE=Serena
 
 没有真实 AppID、云环境时，可先用本机 Key 验证文字 AI，微信录音和云端权限仍无法完成联调。未配置或未显式启用时应展示待配置状态，生产入口不会自动伪造 AI 答案。
 
+## 生成微信体验交付包
+
+运行 `npm run prepare:wechat`，会在被 Git 忽略的 `.release/wechat-*` 生成独立导入目录，包含页面、云函数、部署参考清单、文件校验和与双人真机验收表。每次生成新目录，不覆盖旧包或当前本机试玩配置；不包含本机密钥、玩家记录及浏览器预览工具。此命令需要从 Git 工作副本执行，新增交付文件先登记到 Git。
+
+账号准备后可执行 `npm run prepare:wechat -- --appid 真实AppID --env 真实云环境ID`，参数仅写入生成的副本。默认不读取私有账号配置，未提供时保持待配置状态；密钥仍只填云端。用 `npm run preflight -- --project 交付目录` 检查交付文件与账号字段，格式通过不代表云端连接或真机验收通过。
+
+下一步按 [双人真机验收表](docs/DEVICE-TEST.md) 执行。账号、登录和真实手机尚未准备时，不能生成有效体验二维码。
+
 ## 导入微信开发者工具
 
 1. 先复制 `miniprogram/config.example.js` 为 `miniprogram/config.local.js`（可先保持空），再使用[官方稳定版工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)导入仓库根目录，填写本人账号的真实 AppID。
