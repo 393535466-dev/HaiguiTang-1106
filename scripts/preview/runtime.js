@@ -231,7 +231,8 @@
   function css(source) {
     const width = screen.getBoundingClientRect().width;
     const height = screen.getBoundingClientRect().height;
-    return source.replace(/([\d.]+)rpx/g, (_, n) => (+n * width / 750) + 'px').replace(/100vh/g, height + 'px').replace(/(^|})\s*page\s*\{/g, '$1#mini-screen{').replace(/\b(view|text)(?=[\s,.#:{\[])/g, tag => tag === 'view' ? 'div' : 'span');
+    // Translate type selectors only; classes such as .message-text must stay intact.
+    return source.replace(/([\d.]+)rpx/g, (_, n) => (+n * width / 750) + 'px').replace(/100vh/g, height + 'px').replace(/(^|})\s*page\s*\{/g, '$1#mini-screen{').replace(/(^|[}\s,{>+~])(view|text)(?=[\s,.#:{\[>+~]|$)/g, (_, prefix, tag) => prefix + (tag === 'view' ? 'div' : 'span'));
   }
   function scheduleRender() { if (scheduled) return; scheduled = true; requestAnimationFrame(() => { scheduled = false; render(); }); }
   function render() {
@@ -245,16 +246,27 @@
     const selection = activeKey && active.tagName === 'TEXTAREA' ? [active.selectionStart, active.selectionEnd] : null;
     const scrolls = Array.from(appRoot.querySelectorAll('[data-scroll-view]')).map(element => [element.dataset.nodeKey, element.scrollTop]);
     const lastCount = page._renderedMessageCount;
-    const currentCount = (page.data.session || page.data.room)?.messages?.length;
+    const conversation = page.data.session || page.data.room;
+    const currentCount = conversation?.messages?.length;
+    const contentKey = JSON.stringify([conversation?.messages?.slice(-1)[0]?.id, conversation?.state, conversation?.hintCount, conversation?.active?.requestId || conversation?.activeRequestId]);
     const stem = page._previewFile.replace(/\.js$/, '');
     style.textContent = css(baseStyles + '\n' + files[stem + '.wxss'].source);
     appRoot.replaceChildren(renderChildren(template(stem + '.wxml'), page.data, page, 'p'));
     for (const [key, top] of scrolls) { const element = appRoot.querySelector('[data-node-key="' + key + '"]'); if (element) element.scrollTop = top; }
     if (activeKey) { const input = appRoot.querySelector('[data-node-key="' + activeKey + '"]'); if (input && input.tagName === 'TEXTAREA') { input.focus({ preventScroll: true }); if (selection) input.setSelectionRange(selection[0], selection[1]); } }
-    if (page.data.scrollTarget && (page._renderedScrollTarget !== page.data.scrollTarget || currentCount !== lastCount)) {
-      const target = document.getElementById(page.data.scrollTarget); if (target) target.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    if (page.data.scrollTarget && (page._renderedScrollTarget !== page.data.scrollTarget || currentCount !== lastCount || contentKey !== page._renderedContentKey)) {
+      const target = document.getElementById(page.data.scrollTarget);
+      if (target) {
+        const scroller = target.closest('[data-scroll-view]');
+        const alignStart = page.data.scrollTarget === 'story-list' || page.data.scrollTarget.startsWith('practice-top');
+        // A countdown repaint would cancel an unfinished native smooth scroll.
+        // Finish inside the local scroller without moving the surrounding page.
+        if (scroller && /^(room-)?message-end$/.test(page.data.scrollTarget)) scroller.scrollTop = scroller.scrollHeight;
+        else if (scroller) scroller.scrollTop += target.getBoundingClientRect()[alignStart ? 'top' : 'bottom'] - scroller.getBoundingClientRect()[alignStart ? 'top' : 'bottom'];
+        else target.scrollIntoView({ block: alignStart ? 'start' : 'end', behavior: 'auto' });
+      }
     }
-    page._renderedScrollTarget = page.data.scrollTarget; page._renderedMessageCount = currentCount;
+    page._renderedScrollTarget = page.data.scrollTarget; page._renderedMessageCount = currentCount; page._renderedContentKey = contentKey;
     renderSequence++;
   }
   window.addEventListener('resize', scheduleRender);
@@ -268,6 +280,7 @@
     }, true);
   }
   document.addEventListener('visibilitychange', () => { const page = topPage(); if (!page) return; if (document.hidden && page.onHide) page.onHide(); else if (!document.hidden && page.onShow) page.onShow(); });
+  document.querySelectorAll('[data-page]').forEach(link => { link.onclick = event => { event.preventDefault(); navigate({ url: link.dataset.page }, 'redirect'); }; });
   document.querySelector('#sample-question').onclick = () => {
     const input = appRoot.querySelector('textarea');
     if (!input) return toast({ title: '先选择「没看的电影」并进入一局' });

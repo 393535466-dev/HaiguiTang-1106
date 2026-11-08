@@ -6,7 +6,7 @@ Page({
   async load() {
     const generation = this._generation = (this._generation || 0) + 1
     this.setData({ loading: true, error: '' })
-    try { const r = await api.call('getLeaderboard', { mode: this.data.mode }); if (this._alive && generation === this._generation) this.setData({ rows: r.rows, me: r.me, loading: false }) }
+    try { const r = await api.call('getLeaderboard', { mode: this.data.mode }); if (this._alive && generation === this._generation) this.setData({ rows: r.rows.map(row => ({ ...row, initial: Array.from(row.nickname || "友")[0] })), me: r.me, loading: false }) }
     catch (e) { if (this._alive && generation === this._generation) this.setData({ error: api.message(e), loading: false }) }
   },
   switchMode(e) { this.setData({ mode: e.currentTarget.dataset.mode, rows: [], me: null }); this.load() },

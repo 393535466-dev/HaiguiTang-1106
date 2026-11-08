@@ -16,6 +16,7 @@
     "eval:ai": "node scripts/evaluate-ai.js",
     "preflight": "node scripts/preflight.js",
     "prepare:wechat": "node scripts/prepare-wechat.js",
-    "test:browser-multiplayer": "node tests/browser/preview-multiplayer.js"
+    "test:browser-multiplayer": "node tests/browser/preview-multiplayer.js",
+    "test:browser-design": "node tests/browser/preview-design.js"
   }
 }

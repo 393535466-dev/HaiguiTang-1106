@@ -5,12 +5,12 @@ const PracticeVoice = require('../../utils/practice-voice')
 const HostVoice = require('../../utils/host-voice')
 const modal = options => new Promise(resolve => wx.showModal(Object.assign({}, options, { success: resolve })))
 Page({
-  data: { room: null, nickname: '', roomCode: '', puzzles: [], selectedPuzzle: '', loading: true, busy: false, error: '', connection: '',
+  data: { room: null, nickname: '', roomCode: '', lobbyMode: 'create', puzzles: [], selectedPuzzle: '', loading: true, busy: false, error: '', connection: '',
     mode: 'discussion', draft: '', pending: false, seconds: 45, recording: false, cancelling: false, recordSeconds: 0,
     voiceBusy: false, voicePending: false, voiceError: '', voiceStatus: '', recoveredTranscript: '', privacyNeeded: false, scrollTarget: '', surfaceExpanded: false },
   onLoad(options) {
     this._alive = true; this._visible = true; this._revision = 0; this._roomId = options.id || ''
-    if (options.code) this.setData({ roomCode: options.code })
+    if (options.code) this.setData({ roomCode: options.code, lobbyMode: 'join' })
     this._host = new HostVoice(patch => { if (this._alive) this.setData(patch) }, { room: true })
     this._voice = new PracticeVoice({ update: patch => { if (this._alive) { this.setData(patch); this._host.setRecording(this.data.recording || this.data.voiceBusy) } }, transcript: (text, context) => {
       if (context.roomId !== this._roomId || !this.data.room || !['waiting', 'playing'].includes(this.data.room.state)) return
@@ -19,8 +19,8 @@ Page({
     } })
     this.initialize()
   },
-  onShow() { this._visible = true; if (this._voice) this._voice.show(); if (this._host) this._host.show(); if (this._ready && this._roomId) this.poll() },
-  onHide() { this._visible = false; clearTimeout(this._timer); if (this._voice) this._voice.hide(); if (this._host) this._host.hide(); this.saveDraft() },
+  onShow() { this._visible = true; clearInterval(this._clock); this._clock = setInterval(() => this.tickClock(), 1000); if (this._voice) this._voice.show(); if (this._host) this._host.show(); if (this._ready && this._roomId) this.poll() },
+  onHide() { this._visible = false; clearTimeout(this._timer); clearInterval(this._clock); if (this._voice) this._voice.hide(); if (this._host) this._host.hide(); this.saveDraft() },
   onUnload() { this.onHide(); this._alive = false; if (this._voice) this._voice.dispose(); if (this._host) this._host.dispose() },
   async initialize() {
     try {
@@ -38,6 +38,12 @@ Page({
     } catch (e) { if (this._alive) this.setData({ loading: false, error: api.message(e) }) }
   },
   nicknameInput(e) { this.setData({ nickname: e.detail.value }) },
+  switchLobby(e) { if (!this.data.busy) this.setData({ lobbyMode: e.currentTarget.dataset.mode, error: '' }) },
+  tickClock() {
+    if (!this._alive || !this._visible || this.data.room?.state !== 'playing') return
+    const seconds = Math.max(0, Math.ceil((this.data.room.turnDeadlineAt - Date.now()) / 1000))
+    if (seconds !== this.data.seconds) this.setData({ seconds })
+  },
   codeInput(e) { this.setData({ roomCode: e.detail.value.replace(/\D/g, '').slice(0, 6) }) },
   choosePuzzle(e) { this.setData({ selectedPuzzle: e.currentTarget.dataset.id }) },
   async enter(action) {
@@ -57,10 +63,11 @@ Page({
     const old = this.data.room, latest = room.messages[room.messages.length - 1]
     if (old && old.id === room.id && room.revision < old.revision) return
     const oldLast = old && old.messages[old.messages.length - 1]
-    const messages = presentation.session({ ...room, maxGuessFailures: 5 }).messages
+    const messages = presentation.session({ ...room, maxGuessFailures: 5 }).messages.map(m => ({ ...m, isMe: m.playerId === room.meId }))
+    const members = room.members.map(m => ({ ...m, initial: Array.from(m.nickname || '友')[0] }))
     this._host.sync(room)
-    this.setData({ room: Object.assign({}, room, { messages }), loading: false, connection: '', seconds: Math.max(0, Math.ceil((room.turnDeadlineAt - Date.now()) / 1000)),
-      scrollTarget: latest && latest.id !== oldLast?.id ? 'room-message-end' : '' })
+    this.setData({ room: Object.assign({}, room, { messages, members }), loading: false, connection: '', seconds: Math.max(0, Math.ceil((room.turnDeadlineAt - Date.now()) / 1000)),
+      scrollTarget: (latest && latest.id !== oldLast?.id) || (room.solution && !old?.solution) ? 'room-message-end' : '' })
     storage.write('hgt:' + storage.owner() + ':room', room.id)
     if (room.state === 'playing' && room.active?.mine && !this._pending) {
       this._pending = { requestId: room.active.requestId, revision: -1 }; this.setData({ pending: true })

@@ -22,7 +22,7 @@ async function main() {
     const roomId = await a.evaluate(() => window.__preview.page.data.room.id);
     await b.goto(base + '/?guest=1#/pages/room/index');
     await b.waitForFunction(() => !window.__preview.page.data.loading);
-    await b.getByPlaceholder('输入昵称，最多12字').fill('小陈'); await b.getByPlaceholder('输入六位房间号').fill(roomId); await b.getByRole('button', { name: '加入房间' }).click();
+    await b.getByPlaceholder('输入昵称，最多12字').fill('小陈'); await b.getByRole('button', { name: '加入好友房', exact: true }).click(); await b.getByPlaceholder('输入六位房间号').fill(roomId); await b.getByRole('button', { name: '加入房间' }).click();
     await a.waitForFunction(() => window.__preview.page.data.room?.members.length === 2);
     await a.getByRole('button', { name: '开始推理' }).click(); await roomReady(a); await roomReady(b);
     for (const p of [a,b]) {

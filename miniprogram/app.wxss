@@ -1,3 +1,25 @@
-page{background:#f4f1e9;color:#203d35;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:28rpx;line-height:1.65;box-sizing:border-box}view,text,button,textarea{box-sizing:border-box}button{margin:0;padding:0;border:0;line-height:1.4;font-size:28rpx;border-radius:0;background:transparent;color:inherit}button::after{border:0}button[disabled]{opacity:.45;color:inherit}button:active{opacity:.76}.serif{font-family:"Songti SC","STSong","Noto Serif SC",serif}.eyebrow{font-size:20rpx;letter-spacing:4rpx;color:#6f7b6c}.muted{color:#788177}.primary{background:#214c3e;color:#fffdf5;border-radius:16rpx;padding:28rpx 34rpx;font-weight:600;letter-spacing:2rpx}.secondary{border:1rpx solid #b7c1b2;border-radius:14rpx;padding:23rpx 28rpx;background:#fbf9f2}.text-link{color:#9d4b38;font-size:24rpx;padding:10rpx 0}.pill{display:inline-flex;align-items:center;padding:7rpx 17rpx;border:1rpx solid #c8d1c0;border-radius:100rpx;font-size:20rpx;line-height:1.4;color:#5d705c}.notice{border:1rpx solid #d7d6bd;background:#ededdc;border-radius:13rpx;padding:21rpx 24rpx;font-size:24rpx;color:#62674b}.privacy-backdrop{position:fixed;z-index:999;inset:0;background:rgba(15,37,29,.62);display:flex;align-items:center;justify-content:center;padding:44rpx}.privacy-dialog{width:100%;background:#faf8f0;padding:40rpx;border-radius:24rpx;box-shadow:0 25rpx 90rpx rgba(0,0,0,.18)}.privacy-title{font-size:37rpx;font-weight:600;line-height:1.45}.privacy-body{font-size:26rpx;color:#657061;margin:25rpx 0 30rpx}.privacy-dialog .primary{margin-top:18rpx}.privacy-dialog .secondary{margin-top:15rpx}.privacy-inline-link{color:#a2503e;text-decoration:underline}
-
-.host-voice-bar{display:flex;gap:20rpx;align-items:center;padding:8rpx 36rpx;color:#527258;flex-shrink:0}.host-voice-bar button{font-size:22rpx;padding:10rpx 0;line-height:1.5}.host-voice-bar button:first-child{margin-right:auto}.host-voice-status{font-size:21rpx;line-height:1.5;padding:0 36rpx 8rpx;color:#7c8770;flex-shrink:0}
+page{background:#f6f3eb;color:#213e35;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:28rpx;line-height:1.65;box-sizing:border-box}
+view,text,button,textarea{box-sizing:border-box}
+button{margin:0;padding:0;border:0;line-height:1.4;font-size:28rpx;border-radius:0;background:transparent;color:inherit}
+button::after{border:0}
+button[disabled]{opacity:.48}
+button:active{opacity:.78}
+textarea{font-family:inherit}
+.serif{font-family:"Songti SC","STSong","Noto Serif SC",serif}
+.eyebrow{font-size:20rpx;letter-spacing:3rpx;color:#6b7b6b}
+.muted{color:#6b796e}
+.primary{background:#234c3e;color:#fffdf5;border-radius:18rpx;padding:25rpx 30rpx;font-weight:600;letter-spacing:1rpx}
+.secondary{border:1rpx solid #cbd1c2;border-radius:18rpx;padding:23rpx 28rpx;background:#fffdf7}
+.text-link{color:#a14c37;font-size:24rpx;padding:12rpx 0}
+.pill{display:inline-flex;align-items:center;padding:6rpx 15rpx;border:1rpx solid #cbd3c2;border-radius:100rpx;font-size:21rpx;line-height:1.5;color:#566d53}
+.notice{border:1rpx solid #ddd1b6;background:#f2ecdc;border-radius:16rpx;padding:22rpx 24rpx;font-size:25rpx;color:#776143;line-height:1.7}
+.privacy-backdrop{position:fixed;z-index:999;inset:0;background:rgba(19,40,32,.6);display:flex;align-items:center;justify-content:center;padding:36rpx}
+.privacy-dialog{width:100%;max-height:90vh;overflow-y:auto;background:#fffdf6;padding:38rpx;border-radius:28rpx;box-shadow:0 25rpx 90rpx rgba(0,0,0,.18)}
+.privacy-title{font-size:39rpx;font-weight:600;line-height:1.45}
+.privacy-body{font-size:27rpx;color:#657466;margin:25rpx 0 24rpx}
+.privacy-dialog .primary,.privacy-dialog .secondary{width:100%;margin-top:16rpx;min-height:86rpx}
+.privacy-inline-link{color:#a2503e;text-decoration:underline}
+.host-voice-bar{display:flex;gap:24rpx;align-items:center;padding:6rpx 36rpx;color:#526d52;flex-shrink:0}
+.host-voice-bar button{font-size:23rpx;padding:11rpx 0;line-height:1.5;min-height:58rpx}
+.host-voice-bar button:first-child{margin-right:auto}
+.host-voice-status{font-size:22rpx;line-height:1.5;padding:0 36rpx 8rpx;color:#69795f;flex-shrink:0}

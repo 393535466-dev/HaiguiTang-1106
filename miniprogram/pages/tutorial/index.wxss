@@ -1,5 +1,92 @@
-.tutorial-page{height:100vh;display:flex;flex-direction:column}.tutorial-header{display:flex;align-items:center;justify-content:space-between;padding:30rpx 36rpx 12rpx}.tutorial-title{font-size:43rpx;font-weight:600;margin-top:5rpx}.skip-button{font-size:23rpx;padding:20rpx 0 20rpx 20rpx;color:#687b62}.practice-label{font-size:21rpx;color:#7b816d;margin:0 36rpx 20rpx}.step-list{display:flex;gap:10rpx;padding:0 36rpx 22rpx;border-bottom:1rpx solid #d4dccb}.step-item{flex:1;display:flex;gap:8rpx;align-items:center;color:#89947e;font-size:23rpx;white-space:nowrap}.step-no{display:inline-flex;width:33rpx;height:33rpx;border:1rpx solid #cbd3bf;border-radius:50%;align-items:center;justify-content:center;font-size:19rpx}.step-item.current{color:#214c3e;font-weight:600}.current .step-no{background:#214c3e;border-color:#214c3e;color:#fffdf5}.step-item.complete .step-no{background:#e0e6d5}.tutorial-scroll{flex:1;height:0;min-height:0;overflow-y:auto}.tutorial-content{padding:26rpx 36rpx 35rpx}.practice-story{background:#faf8f0;border:1rpx solid #d4dcc9;border-radius:17rpx;padding:22rpx 25rpx}.story-label{font-size:21rpx;color:#819074}.practice-surface{font-size:29rpx;line-height:1.8;margin-top:12rpx}.instruction-title{font-size:36rpx;font-weight:600;margin:31rpx 0 12rpx}.instruction-copy{font-size:25rpx;color:#71806a;line-height:1.8;margin:12rpx 0 21rpx}.teaching-note{font-size:25rpx;color:#78613c;line-height:1.8;background:#f0eadb;border-left:4rpx solid #b69b68;border-radius:0 12rpx 12rpx 0;padding:20rpx 23rpx;margin-top:20rpx}.example-choice{display:block;width:100%;text-align:left;font-size:25rpx;line-height:1.7;border:1rpx solid #cdd6c1;border-radius:12rpx;padding:18rpx 23rpx;margin-top:14rpx;background:#faf8f0}.example-choice.chosen{border-color:#42694d;background:#e9efdf}.practice-draft{margin-top:22rpx;border:1rpx dashed #9cad8d;padding:20rpx 23rpx;border-radius:12rpx}.draft-copy{font-size:26rpx;line-height:1.8;margin:9rpx 0 17rpx}.practice-send{font-size:24rpx;padding:19rpx 24rpx}.practice-answer{display:flex;flex-direction:column;align-items:flex-start;gap:17rpx;font-size:27rpx;line-height:1.8;padding:23rpx;border:1rpx solid #bbccb0;border-radius:14rpx;background:#e8eddf;margin-top:22rpx}.answer-tag{background:#d5e1ca;color:#315744;border-radius:8rpx;padding:5rpx 17rpx;font-weight:600}.voice-note{font-size:23rpx;line-height:1.8;color:#7c8770;margin-top:22rpx}.hint-action{width:100%;font-size:27rpx;margin-top:25rpx}.solution-title{font-size:35rpx;font-weight:600}.solved .voice-note{margin-top:0}.tutorial-footer{flex-shrink:0;padding:20rpx 36rpx calc(16rpx + env(safe-area-inset-bottom));border-top:1rpx solid #d4dccb;background:#f4f1e9}.tutorial-footer .primary{width:100%;font-size:27rpx;padding:24rpx}.footer-links{display:flex;justify-content:space-between;align-items:center;min-height:44rpx;margin-top:10rpx;color:#869078;font-size:21rpx}.footer-links button{font-size:23rpx;padding:10rpx 0}.footer-links text{margin-left:auto}.footer-reminder{padding:15rpx 0;text-align:center;font-size:25rpx;color:#6c7b61}
-.draft-heading{display:flex;justify-content:space-between;font-size:22rpx;color:#7a886e}.practice-input{border:0;outline:none;padding:0;width:100%;height:140rpx;font-size:28rpx;line-height:1.7;margin:15rpx 0 22rpx;color:#203d35;background:transparent}.guess-input{height:180rpx}.practice-actions{display:flex;gap:14rpx;align-items:stretch}.practice-actions .practice-send{flex:1;letter-spacing:0}.voice-button{flex:1;border:1rpx solid #b7c6ac;border-radius:14rpx;padding:20rpx 8rpx;font-size:24rpx;background:#e8eddf;touch-action:none;user-select:none}.voice-button.active{background:#e4d3b6}.example-link{margin-top:18rpx;color:#8c7b5c;text-decoration:underline;font-size:22rpx;line-height:1.8}.player-message{border-radius:14rpx;background:#e2e9dc;padding:20rpx 24rpx;margin-top:24rpx;font-size:27rpx;line-height:1.8;overflow-wrap:anywhere}.player-message>view{margin-top:8rpx}.input-status{margin-top:18rpx}
+.tutorial-page{height:100vh;display:flex;flex-direction:column}
+.tutorial-header{display:flex;align-items:center;justify-content:space-between;padding:30rpx 36rpx 12rpx}
+.tutorial-title{font-size:43rpx;font-weight:600;margin-top:5rpx}
+.skip-button{font-size:23rpx;padding:20rpx 0 20rpx 20rpx;color:#687b62}
+.practice-label{font-size:21rpx;color:#7b816d;margin:0 36rpx 20rpx}
+.step-list{display:flex;gap:10rpx;padding:0 36rpx 22rpx;border-bottom:1rpx solid #d4dccb}
+.step-item{flex:1;display:flex;gap:8rpx;align-items:center;color:#89947e;font-size:23rpx;white-space:nowrap}
+.step-no{display:inline-flex;width:33rpx;height:33rpx;border:1rpx solid #cbd3bf;border-radius:50%;align-items:center;justify-content:center;font-size:19rpx}
+.step-item.current{color:#214c3e;font-weight:600}
+.current .step-no{background:#214c3e;border-color:#214c3e;color:#fffdf5}
+.step-item.complete .step-no{background:#e0e6d5}
+.tutorial-scroll{flex:1;height:0;min-height:0;overflow-y:auto}
+.tutorial-content{padding:26rpx 36rpx 35rpx}
+.practice-story{background:#faf8f0;border:1rpx solid #d4dcc9;border-radius:17rpx;padding:22rpx 25rpx}
+.story-label{font-size:21rpx;color:#819074}
+.practice-surface{font-size:29rpx;line-height:1.8;margin-top:12rpx}
+.instruction-title{font-size:36rpx;font-weight:600;margin:31rpx 0 12rpx}
+.instruction-copy{font-size:25rpx;color:#71806a;line-height:1.8;margin:12rpx 0 21rpx}
+.teaching-note{font-size:25rpx;color:#78613c;line-height:1.8;background:#f0eadb;border-left:4rpx solid #b69b68;border-radius:0 12rpx 12rpx 0;padding:20rpx 23rpx;margin-top:20rpx}
+.example-choice{display:block;width:100%;text-align:left;font-size:25rpx;line-height:1.7;border:1rpx solid #cdd6c1;border-radius:12rpx;padding:18rpx 23rpx;margin-top:14rpx;background:#faf8f0}
+.example-choice.chosen{border-color:#42694d;background:#e9efdf}
+.practice-draft{margin-top:22rpx;border:1rpx dashed #9cad8d;padding:20rpx 23rpx;border-radius:12rpx}
+.draft-copy{font-size:26rpx;line-height:1.8;margin:9rpx 0 17rpx}
+.practice-send{font-size:24rpx;padding:19rpx 24rpx}
+.practice-answer{display:flex;flex-direction:column;align-items:flex-start;gap:17rpx;font-size:27rpx;line-height:1.8;padding:23rpx;border:1rpx solid #bbccb0;border-radius:14rpx;background:#e8eddf;margin-top:22rpx}
+.answer-tag{background:#d5e1ca;color:#315744;border-radius:8rpx;padding:5rpx 17rpx;font-weight:600}
+.voice-note{font-size:23rpx;line-height:1.8;color:#7c8770;margin-top:22rpx}
+.hint-action{width:100%;font-size:27rpx;margin-top:25rpx}
+.solution-title{font-size:35rpx;font-weight:600}
+.solved .voice-note{margin-top:0}
+.tutorial-footer{flex-shrink:0;padding:20rpx 36rpx calc(16rpx + env(safe-area-inset-bottom));border-top:1rpx solid #d4dccb;background:#f4f1e9}
+.tutorial-footer .primary{width:100%;font-size:27rpx;padding:24rpx}
+.footer-links{display:flex;justify-content:space-between;align-items:center;min-height:44rpx;margin-top:10rpx;color:#869078;font-size:21rpx}
+.footer-links button{font-size:23rpx;padding:10rpx 0}
+.footer-links text{margin-left:auto}
+.footer-reminder{padding:15rpx 0;text-align:center;font-size:25rpx;color:#6c7b61}
+
+.draft-heading{display:flex;justify-content:space-between;font-size:22rpx;color:#7a886e}
+.practice-input{border:0;outline:none;padding:0;width:100%;height:140rpx;font-size:28rpx;line-height:1.7;margin:15rpx 0 22rpx;color:#203d35;background:transparent}
+.guess-input{height:180rpx}
+.practice-actions{display:flex;gap:14rpx;align-items:stretch}
+.practice-actions .practice-send{flex:1;letter-spacing:0}
+.voice-button{flex:1;border:1rpx solid #b7c6ac;border-radius:14rpx;padding:20rpx 8rpx;font-size:24rpx;background:#e8eddf;touch-action:none;user-select:none}
+.voice-button.active{background:#e4d3b6}
+.example-link{margin-top:18rpx;color:#8c7b5c;text-decoration:underline;font-size:22rpx;line-height:1.8}
+.player-message{border-radius:14rpx;background:#e2e9dc;padding:20rpx 24rpx;margin-top:24rpx;font-size:27rpx;line-height:1.8;overflow-wrap:anywhere}
+.player-message>view{margin-top:8rpx}
+.input-status{margin-top:18rpx}
 
 .tutorial-page .primary[disabled]{color:#fffdf5;opacity:.55}
-.judge-status{font-size:23rpx;color:#5c7458;padding-bottom:14rpx}.judge-error{font-size:23rpx;color:#994d3b;line-height:1.6;padding-bottom:14rpx}
+
+.judge-status{font-size:23rpx;color:#5c7458;padding-bottom:14rpx}
+.judge-error{font-size:23rpx;color:#994d3b;line-height:1.6;padding-bottom:14rpx}
+
+/* Shared club typography and controls, while keeping the four-step teaching flow. */
+.tutorial-page{background:#f6f3eb;overflow-y:auto}
+.tutorial-header{padding:26rpx 34rpx 12rpx}
+.tutorial-title{font-size:44rpx}
+.skip-button{font-size:24rpx;min-height:72rpx}
+.practice-label{font-size:23rpx;color:#718165}
+.step-list{padding:0 34rpx 22rpx}
+.step-item{font-size:24rpx}
+.step-no{width:38rpx;height:38rpx;font-size:21rpx}
+.tutorial-content{padding:26rpx 34rpx 35rpx}
+.practice-story{background:#e9edde;border-color:#d3dec6;border-radius:19rpx;padding:24rpx}
+.story-label{font-size:23rpx;color:#68815b}
+.practice-surface{font-size:30rpx}
+.instruction-title{font-size:38rpx}
+.instruction-copy{font-size:27rpx;color:#667b5e}
+.teaching-note{font-size:26rpx;border-radius:0 14rpx 14rpx 0}
+.practice-draft{background:#fffdf7;border:1rpx solid #cbd8bd;border-radius:18rpx;padding:24rpx}
+.draft-heading{font-size:23rpx;color:#75896a}
+.practice-input{font-size:30rpx;line-height:1.8}
+.practice-answer{border-radius:18rpx;padding:24rpx;font-size:28rpx}
+.voice-note{font-size:24rpx;color:#718563}
+.practice-send,.voice-button{font-size:25rpx;min-height:82rpx}
+.voice-button{background:#f3f5eb}
+.player-message{background:#e2eada;font-size:29rpx;border-radius:18rpx 5rpx 18rpx 18rpx}
+.tutorial-footer{background:#fcfaf3}
+.tutorial-footer .primary{border-radius:16rpx}
+.footer-links{font-size:22rpx}
+.judge-status,.judge-error{font-size:24rpx}
+
+@media(max-height:700px){.tutorial-header{padding-top:12rpx}
+.tutorial-title{font-size:38rpx}
+.practice-label{margin-bottom:10rpx}
+.step-list{padding-bottom:12rpx}
+.tutorial-footer{padding-top:12rpx}
+.footer-links{margin-top:4rpx}
+}
+
+.practice-actions button{min-height:44px}

@@ -17,8 +17,8 @@ Page({
       const { puzzles } = await api.call('listPuzzles')
       if (!this._alive) return
       const ready = Boolean(health.textReady && health.gameEnabled !== false)
-      const localStatus = health.environment === 'local-real' ? (health.voiceReady ? 'AI 主持已连接 · 支持语音输入' : '真实文字 AI 已配置') : health.environment === 'local-fixture' ? '固定测试裁判 · 非真实 AI' : ''
-      this.setData({ puzzles: puzzles || [], canStart: ready, continuing: storage.lastSession(), loading: false, statusKind: ready ? 'ready' : 'waiting', statusText: ready ? localStatus || (health.voiceReady ? '语音与裁判已配置 · 待真机验证' : '文字裁判已配置 · 语音待配置') : 'AI 主持尚未接入', error: ready ? '' : '请先完成服务端 AI 配置，再开始第一局。' })
+      const localStatus = health.environment === 'local-fixture' ? '固定测试裁判 · 非真实 AI' : ''
+      this.setData({ puzzles: puzzles || [], canStart: ready, continuing: storage.lastSession(), loading: false, statusKind: ready ? 'ready' : 'waiting', statusText: ready ? localStatus || (health.voiceReady ? 'AI 主持已就位 · 可以开麦' : 'AI 主持已就位 · 文字提问') : 'AI 主持尚未接入', error: ready ? '' : '请先完成服务端 AI 配置，再开始第一局。' })
     } catch (e) {
       if (!this._alive) return
       this.setData({ loading: false, canStart: false, continuing: '', statusKind: 'waiting', statusText: '等待云端配置', error: api.message(e) })
