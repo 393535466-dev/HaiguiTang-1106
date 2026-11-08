@@ -31,6 +31,10 @@ function createCloudStore(database) {
   return {
     ...wrap(database),
     transaction(callback) { return database.runTransaction(transaction => callback(wrap(transaction))); },
+    async leaderboard(mode) {
+      const { data } = await database.collection('rankings').where({ mode }).orderBy('points', 'desc').orderBy('wins', 'desc').orderBy('updatedAt', 'asc').orderBy('playerId', 'asc').limit(20).get();
+      return data || [];
+    },
     async scan(collection) {
       const rows = []; let cursor = null;
       for (;;) {

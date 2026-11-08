@@ -1,6 +1,6 @@
 <scroll-view class="home-scroll" scroll-y scroll-into-view="{{scrollTarget}}" scroll-with-animation>
   <view class="home-page">
-    <view class="brand"><view class="brand-mark serif">汤</view><view><view class="brand-name">一碗海龟汤</view><view class="brand-sub">LATERAL THINKING CLUB</view></view><view class="edition">单人语音版</view></view>
+    <view class="brand"><view class="brand-mark serif">汤</view><view><view class="brand-name">一碗海龟汤</view><view class="brand-sub">LATERAL THINKING CLUB</view></view><view class="edition">单人 · 好友同玩</view></view>
     <view class="hero">
       <view class="eyebrow">一段故事 · 一点不寻常</view>
       <view class="hero-title serif">故事有<text class="title-break">另一面。</text></view>
@@ -10,6 +10,7 @@
       <button wx:else class="primary hero-button" bindtap="chooseStory">挑一碗，慢慢猜 <text class="arrow">↓</text></button>
       <view class="hero-meta"><text>按住说话</text><text class="meta-dot">·</text><text>松手确认</text><text class="meta-dot">·</text><text>独自也能开局</text></view>
     </view>
+    <view class="social-entry"><button class="secondary" bindtap="friends">和朋友一起玩 ↗</button><button class="secondary" bindtap="leaderboard">好奇心排行榜 ↗</button></view>
     <button class="tutorial-entry" bindtap="tutorial"><view><view class="tutorial-entry-title">第一次玩？跟着做一遍</view><view class="tutorial-entry-copy">读题、提问、提示、猜底 · 可随时跳过</view></view><text>↗</text></button>
     <view class="section-heading" id="story-list"><view><view class="eyebrow">THE STORIES</view><view class="section-title serif">今天喝哪碗？</view></view><view class="story-count">{{puzzles.length}} 则小故事</view></view>
     <view class="status-line"><view class="status-dot {{statusKind}}"></view><text>{{statusText}}</text><button class="refresh" bindtap="load" disabled="{{loading}}">{{loading ? '连接中' : '重新检查'}}</button></view>

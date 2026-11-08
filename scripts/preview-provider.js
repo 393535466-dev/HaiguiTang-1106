@@ -9,6 +9,7 @@ function createPreviewProvider({ env = process.env, configPath, fetchFn = global
   return {
     mode: fixture ? 'fixture' : 'real',
     ready() { return { textReady: fixture || real().ready().textReady, voiceReady: !fixture && real().ready().voiceReady }; },
+    async checkText(text) { if (!fixture) await real().checkText(text); },
     async judge(input) {
       if (!fixture) return real().judge(input);
       const cases = input.kind === 'guess' ? input.puzzle.guessCases : input.puzzle.testCases;

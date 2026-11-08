@@ -2,8 +2,8 @@
 
 // Test/local adapter. Transactions serialize and commit a cloned working set.
 // Production must use the CloudBase transactional adapter, never this instance.
-function createMemoryStore() {
-  let records = new Map();
+function createMemoryStore({ entries = [], persist } = {}) {
+  let records = new Map(entries);
   let tail = Promise.resolve();
   const key = (collection, id) => `${collection}\u0000${id}`;
   const copy = value => value == null ? null : structuredClone(value);
@@ -14,12 +14,13 @@ function createMemoryStore() {
       tail = new Promise(resolve => { unlock = resolve; });
       await previous;
       const draft = new Map([...records].map(([k, v]) => [k, copy(v)]));
+      let dirty = false;
       const tx = {
         async get(collection, id) { return copy(draft.get(key(collection, id))); },
-        async set(collection, id, value) { draft.set(key(collection, id), copy(value)); },
-        async delete(collection, id) { draft.delete(key(collection, id)); }
+        async set(collection, id, value) { dirty = true; draft.set(key(collection, id), copy(value)); },
+        async delete(collection, id) { dirty = true; draft.delete(key(collection, id)); }
       };
-      try { const result = await work(tx); records = draft; return copy(result); }
+      try { const result = await work(tx); if (persist && dirty) await persist([...draft]); records = draft; return copy(result); }
       finally { unlock(); }
     },
     async scan(collection) {

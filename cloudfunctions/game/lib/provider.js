@@ -142,7 +142,7 @@ function createProvider({ env = process.env, fetchFn = globalThis.fetch, moderat
     await moderate(text);
     return { text: text.trim() };
   }
-  return { ready, judge, transcribe, async speak(input) { if (!configured || !enabled) throw failure('CONFIG_REQUIRED'); return speech.speak(input); } };
+  return { ready, judge, transcribe, async checkText(text) { if (!configured || !enabled) throw failure('CONFIG_REQUIRED'); await moderate(text); }, async speak(input) { if (!configured || !enabled) throw failure('CONFIG_REQUIRED'); return speech.speak(input); } };
 }
 
 module.exports = { createProvider, validBaseURL, failure };

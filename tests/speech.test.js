@@ -45,3 +45,11 @@ test('turning off narration or starting recording discards late audio; replay re
   host.sync({ id: 's1', messages: [{ id: 'm1', answer: 'yes' }] }); assert.equal(calls, 1);
   host.dispose();
 });
+test('room host does not speak over a recording and only narrates host answers, not discussions', async () => {
+  const calls=[], audio={onEnded(){},onError(){},stop(){},destroy(){},play(){}};const module={exports:{}};
+  vm.runInNewContext(fs.readFileSync(require.resolve('../miniprogram/utils/host-voice'),'utf8'),{module,require:()=>({call:async(action,args)=>{calls.push({action,args});return {url:'https://audio.test/a',expiresAt:Date.now()+3600000}}}),wx:{getStorageSync:()=>true,setStorageSync(){},createInnerAudioContext:()=>audio},Date,Map});
+  const host=new module.exports(()=>{},{room:true});host.setRecording(true);
+  host.sync({id:'123456',messages:[{id:'judge',answer:'yes'},{id:'chat',type:'discussion',text:'private discussion'}]});
+  await new Promise(setImmediate);assert.equal(calls.length,0);
+  host.setRecording(false);host.replay();await new Promise(setImmediate);assert.equal(calls.length,1);assert.equal(calls[0].action,'getRoomSpeech');assert.equal(calls[0].args.messageId,'judge');assert.equal(calls[0].args.roomId,'123456');host.dispose();
+});

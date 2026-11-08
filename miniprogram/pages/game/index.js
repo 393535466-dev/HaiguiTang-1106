@@ -99,6 +99,7 @@ Page({
     this.setData({ draft: e.detail.value, draftSource: fromVoice ? 'edited' : 'typed' })
     this.saveDraft()
   },
+  leaderboard() { wx.navigateTo({ url: '/pages/leaderboard/index' }) },
   toggleHostVoice() { this._host.toggle() },
   replayHostVoice() { this._host.replay() },
   readSurface() { this._host.readSurface() },
@@ -238,7 +239,7 @@ Page({
     catch (e) { this.setData({ error: api.message(e) }) }
   },
   async clear() {
-    const confirm = await modal({ title: '清空这本手账？', content: '将结束本局并删除问答、草稿和录音。已产生的服务费用不会退回。', confirmText: '确认清空', confirmColor: '#9d4b38' })
+    const confirm = await modal({ title: '清空这本手账？', content: '将结束本局并删除问答、草稿和录音。已产生的服务费用不会退回，累计积分与首次挑战记录会保留。', confirmText: '确认清空', confirmColor: '#9d4b38' })
     if (!confirm.confirm) return
     try {
       await api.call('clearSession', { sessionId: this._sessionId })

@@ -74,3 +74,29 @@
 浏览器适配以相同登记、确认、转写及查询接口工作，录音是 16kHz、16bit、单声道 WAV；原生微信仍是 MP3。`audio.extension` 只由服务端适配器设定，客户端不能随意指定格式。`POST /audio?path=...` 仅接受已登记、当前会话所有者的路径和受限 WAV 正文；不接收任意 URL、不保存磁盘录音。最大 20 秒、静音与格式校验发生在付费识别前。
 
 getSpeech 每次访问检查会话归属及结果状态，并计入独立 speech 日配额；每用户每类 100、全局每类 500，本机全局 100。客户端缓存重播不再次请求；服务端对同模型/音色/固定文本共享生成中的请求和未过期音频地址，冷启动不保证命中。合成失败短暂缓存且不自动重试。生成 URL 只接受百炼指定音频域名，转换为 HTTPS；请按云端网络能力配置播放/下载域名。
+
+## 好友房与排行榜（2026-11-08）
+
+以下操作仍通过同一 `game` 云函数；服务端使用微信上下文身份，本机使用固定主身份或服务端签发的访客凭据。不采信正文 `userId`。
+
+| action | 输入摘要 | 返回/约束 |
+|---|---|---|
+| `getProfile` / `saveProfile` | 后者 `nickname`，1～12 字 | 当前玩家昵称；保存前内容检查 |
+| `getLeaderboard` | `mode: solo/friends` | `rows`（前20人）、`me`；分数由服务端计算 |
+| `createRoom` | `puzzleId` | 房主及六位 `room.id`，等待状态 |
+| `joinRoom` | `roomId` | 仅等候房接纳新成员，最多6人；旧成员可重新连接 |
+| `getRoom` | `roomId` | 当前成员可读的房间、消息及轮次；刷新心跳，不调用模型 |
+| `startRoom` | `roomId` | 仅房主，至少2人；事务预占每位成员首次资格 |
+| `roomChat` | `roomId, requestId, text` | 内容检查后共享文字，不进入裁判上下文 |
+| `roomQuestion` / `roomGuess` | `roomId, requestId, turnSerial, text` | 当前玩家才能发起；每房一个活动裁判请求 |
+| `getRoomRequest` | `roomId, requestId` | 只查本人的原操作，不重新调用模型 |
+| `skipRoomTurn` / `roomHint` | `roomId, turnSerial` | 当前玩家；跳过使旧结果失去写回资格 |
+| `revealRoom` | `roomId` | 仅房主，结束整房，0分结算 |
+| `leaveRoom` | `roomId` | 主动退出；需要时转移房主与轮次 |
+| `getRoomSpeech` | `roomId, target, messageId?` | 与单人播报相同的固定文本白名单，未结束不可取答案音频 |
+
+公开房间不含原始 `uid`、完整题库、标准评分点或未揭晓答案。`members[].id` 是匿名标识；`myTurn/isHost` 供界面显示，服务器另行验证权限。消息区分 `discussion/question/guess/system`。`revision` 防止客户端晚到快照回退，`turnSerial` 阻止旧轮次提交；判题结束时再核验，讨论产生的新消息不会使正常判题失效。
+
+讨论上限200字，猜底500字；房间内显示最近200条共享消息，裁判独立保留12条正式问答。昵称/讨论检查失败不公开写入；讨论也有独立配额和至少1秒发送间隔。`roomRequests` 保存去重摘要和状态，不保存玩家输入正文。
+
+好友转写复用每人独立的 `startVoicePractice` / 上传 / ASR 接口；无须把房间设成录音文件的所有者。`getRoomSpeech` 与单人合成共享服务实例缓存。

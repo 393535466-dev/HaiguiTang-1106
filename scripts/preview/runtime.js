@@ -6,6 +6,22 @@
   const appRoot = document.querySelector('#app');
   const overlays = document.querySelector('#preview-overlays');
   const unconfigured = new URLSearchParams(location.search).get('mode') === 'unconfigured';
+  const guest = new URLSearchParams(location.search).get('guest') === '1';
+  let guestIdentity;
+  window.previewHeaders = async () => {
+    if (!guest) return {};
+    if (!guestIdentity) guestIdentity = (async () => {
+      let token = sessionStorage.getItem('hgt-preview-player');
+      if (!token) {
+        const response = await fetch('/preview-player', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        if (!response.ok) throw new Error('无法准备第二名玩家，请关闭多余测试窗口后重试');
+        token = (await response.json()).token; sessionStorage.setItem('hgt-preview-player', token);
+      }
+      return { 'X-Preview-Player': token };
+    })();
+    return guestIdentity;
+  };
+  const localStore = guest ? sessionStorage : localStorage;
   const modules = {}, definitions = {}, pages = [];
   let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null;
   const domTemplates = {};
@@ -85,16 +101,18 @@
     cloud: {
       init() {},
       async callFunction(options) {
-        const response = await fetch('/api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(options.data) });
+        const response = await fetch('/api', { method: 'POST', headers: { 'Content-Type': 'application/json', ...await window.previewHeaders() }, body: JSON.stringify(options.data) });
+        if (response.status === 401) { sessionStorage.removeItem('hgt-preview-player'); throw new Error('本机访客身份已过期，请刷新页面重新进入。'); }
         if (!response.ok) throw new Error('本地预览服务没有接通');
         return { result: await response.json() };
       },
       async uploadFile() { throw new Error('浏览器预览不提供录音上传，请在微信真机验证。'); }
     },
-    getStorageSync(key) { try { return JSON.parse(localStorage.getItem(key)); } catch (_) { return null; } },
-    getStorageInfoSync() { return { keys: Object.keys(localStorage) }; },
-    setStorageSync(key, value) { localStorage.setItem(key, JSON.stringify(value)); },
-    removeStorageSync(key) { localStorage.removeItem(key); },
+    getStorageSync(key) { try { return JSON.parse(localStore.getItem(key)); } catch (_) { return null; } },
+    getStorageInfoSync() { return { keys: Object.keys(localStore) }; },
+    setStorageSync(key, value) { localStore.setItem(key, JSON.stringify(value)); },
+    removeStorageSync(key) { localStore.removeItem(key); },
+    setClipboardData(options) { navigator.clipboard.writeText(options.data).then(() => complete(options), () => modal({ title: '房间号', content: options.data, showCancel: false })); },
     navigateTo(options) { navigate(options, 'push'); },
     redirectTo(options) { navigate(options, 'redirect'); },
     navigateBack(options = {}) {
@@ -227,7 +245,7 @@
     const selection = activeKey && active.tagName === 'TEXTAREA' ? [active.selectionStart, active.selectionEnd] : null;
     const scrolls = Array.from(appRoot.querySelectorAll('[data-scroll-view]')).map(element => [element.dataset.nodeKey, element.scrollTop]);
     const lastCount = page._renderedMessageCount;
-    const currentCount = page.data.session && page.data.session.messages.length;
+    const currentCount = (page.data.session || page.data.room)?.messages?.length;
     const stem = page._previewFile.replace(/\.js$/, '');
     style.textContent = css(baseStyles + '\n' + files[stem + '.wxss'].source);
     appRoot.replaceChildren(renderChildren(template(stem + '.wxml'), page.data, page, 'p'));

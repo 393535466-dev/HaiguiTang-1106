@@ -26,7 +26,7 @@
           <view wx:if="{{session.reachedQuestionLimit}}" class="answer-note">有效提问次数已用完，本局自动揭底。</view>
           <view wx:if="{{session.solution}}" class="solution-body">{{session.solution}}</view>
           <view wx:else class="solution-body">本局已作废或到期，请回到首页开启新的故事。</view>
-          <view class="ending-meta">{{session.questionCount || 0}} 次有效提问 · {{session.hintCount || 0}} 条线索</view>
+          <view class="ending-meta">{{session.ranked ? '本局得分 ' + session.points + ' · 已计入单人榜' : '本次为重玩或旧版对局，不重复计分'}}</view><button class="text-link" bindtap="leaderboard">查看单人榜 ↗</button><view class="ending-meta">{{session.questionCount || 0}} 次有效提问 · {{session.hintCount || 0}} 条线索</view>
           <button class="primary" bindtap="home">再挑一碗汤 ↗</button><button class="text-link" bindtap="feedback">反馈题目问题</button>
         </view>
         <view id="message-end" class="message-end"></view>

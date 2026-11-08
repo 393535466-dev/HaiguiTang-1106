@@ -20,15 +20,15 @@ function createPreviewAudio(store, owner) {
   const cleanup = setInterval(purge, 60000); cleanup.unref();
   return {
     extension: 'wav',
-    async upload(cloudPath, buffer) {
+    async upload(cloudPath, buffer, currentOwner = owner) {
       purge(); inspectWAV(buffer);
       const id = /^audio\/[a-f0-9]{24}\/[a-zA-Z0-9_-]+\/([a-zA-Z0-9_-]+)\.wav$/.exec(cloudPath)?.[1];
       if (!id) throw failure('INVALID_UPLOAD');
       return store.transaction(async tx => {
         const upload = await tx.get('uploads', id);
         const session = upload && await tx.get('sessions', upload.sessionId);
-        if (!upload || upload.userId !== owner || upload.cloudPath !== cloudPath || upload.consumed || upload.expiresAt <= Date.now() ||
-            !session || session.userId !== owner || session.state !== 'playing' || session.expiresAt <= Date.now()) throw failure('INVALID_UPLOAD');
+        if (!upload || upload.userId !== currentOwner || upload.cloudPath !== cloudPath || upload.consumed || upload.expiresAt <= Date.now() ||
+            !session || session.userId !== currentOwner || session.state !== 'playing' || session.expiresAt <= Date.now()) throw failure('INVALID_UPLOAD');
         const fileID = 'cloud://local-preview/' + cloudPath;
         const old = files.get(fileID);
         if (old && !old.buffer.equals(buffer)) throw failure('INVALID_UPLOAD');

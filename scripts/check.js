@@ -6,7 +6,7 @@ const root = path.resolve(__dirname, '..');
 const files = [];
 function walk(dir) {
   for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (['node_modules', '.git', 'test-results'].includes(item.name)) continue;
+    if (['node_modules', '.git', 'test-results', '.preview-data'].includes(item.name)) continue;
     const target = path.join(dir, item.name);
     if (item.isDirectory()) walk(target); else files.push(target);
   }

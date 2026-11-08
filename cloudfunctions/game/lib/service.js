@@ -3,6 +3,8 @@
 const crypto = require('node:crypto');
 const tutorialPuzzle = require('../data/tutorial');
 const { speechText } = require('./speech');
+const ranking = require('./ranking');
+const { createRooms } = require('./rooms');
 const DAY = 86400000;
 const QUESTION = new Set(['yes', 'no', 'irrelevant', 'unspecified', 'clarify']);
 const EFFECTIVE_ANSWERS = new Set(['yes', 'no', 'irrelevant']);
@@ -29,6 +31,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
   const config = { userDaily: 100, globalDaily: 500, sessionJudge: 50,
     questionLimit: 30, guessFailures: 5, requestTimeoutMs: 30000, sessionDays: 7, ...limits };
   const now = () => +clock();
+  const rooms = createRooms({ store, provider, puzzles, usage, recordUsage, clock: now, idFactory, limits: config });
   const requestKey = (uid, sid, rid) => HASH(`${uid}\0${sid}\0${rid}`);
   const dateKey = time => new Date(time + 8 * 3600000).toISOString().slice(0, 10);
   const safeID = (value, name) => {
@@ -54,6 +57,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       maxAttempts: config.sessionJudge, expiresAt: s.expiresAt,
       activeRequestId: s.activeRequestId || null
     };
+    result.ranked = Boolean(s.ranked); result.points = s.points || 0;
     if (s.state === 'solved' || s.state === 'revealed') result.solution = p.solution;
     return result;
   };
@@ -87,6 +91,14 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       throw fail('DAILY_LIMIT', '今日调用额度已用完，可以查看已解锁提示或揭底');
     global[type] = (global[type] || 0) + amount; user[type] = (user[type] || 0) + amount;
     await tx.set('usage', gid, global); await tx.set('usage', userKey, user);
+  }
+  async function recordUsage(tx, time, tokens) {
+    const key = `global-${dateKey(time)}`, totals = await tx.get('usage', key);
+    if (totals) {
+      totals.inputTokens = finite(totals.inputTokens) + finite(tokens?.inputTokens);
+      totals.outputTokens = finite(totals.outputTokens) + finite(tokens?.outputTokens);
+      await tx.set('usage', key, totals);
+    }
   }
   async function prior(uid, sid, rid, fingerprint) {
     return store.transaction(async tx => {
@@ -169,6 +181,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
           }
           if (request.kind === 'guess' && output.answer === 'incorrect') s.guessFailures++;
           if (output.answer === 'solved') s.state = 'solved';
+          if (s.mode === 'solo') await ranking.settle(tx, s, [{ uid, eligible: s.ranked }], 'solo', now());
         }
         s.activeRequestId = null; s.updatedAt = now();
       }
@@ -211,6 +224,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
   async function run(action, args, uid) {
     if (typeof uid !== 'string' || !uid || uid.length > 200) throw fail('AUTH_REQUIRED', '请在微信中登录后重试');
     if (!args || typeof args !== 'object') args = {};
+    if (rooms.actions.has(action)) return rooms.run(action, args, uid);
     if (action === 'status') {
       const state = await provider.ready();
       return { configured: !!(state.textReady && state.voiceReady), textReady: !!state.textReady, voiceReady: !!state.voiceReady, environment: 'cloud', ownerKey: HASH(uid).slice(0,24) };
@@ -230,6 +244,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
         guessFailures: 0, attempts: 0, activeRequestId: null, createdAt: now(), expiresAt: now() + (practice || tutorial ? 3600000 : config.sessionDays * DAY) };
       await store.transaction(async tx => {
         await usage(tx, uid, now(), 'starts');
+        if (s.mode === 'solo') s.ranked = await ranking.claim(tx, uid, p, s.id);
         await tx.set('sessions', s.id, s);
       });
       return { session: publicSession(s) };
@@ -271,6 +286,7 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
           if (action === 'revealSoup') s.state = 'revealed';
           else { s.state = 'cleared'; s.messages = []; s.puzzle = null; s.hintCount = 0; }
         }
+        if (s.mode === 'solo') await ranking.settle(tx, s, [{ uid, eligible: s.ranked }], 'solo', now());
         await tx.set('sessions', s.id, s);
         return action === 'clearSession' ? { cleared: true } : { session: publicSession(s) };
       });
@@ -386,9 +402,10 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
   return {
     async handle(action, args, userId) {
       try { return { ok: true, data: await run(action, args, userId) }; }
-      catch (error) { return { ok: false, error: { code: error.code || 'SERVICE_ERROR', message: error.public ? error.message : '服务暂时不可用，请稍后重试', retryable: false } }; }
+      catch (error) { return { ok: false, error: { code: error.code || 'SERVICE_ERROR', message: error.public ? error.message : KNOWN_ERRORS[error.code] || '服务暂时不可用，请稍后重试', retryable: false } }; }
     },
     async cleanup() {
+      await rooms.cleanup();
       const stats = { sessions: 0, requests: 0, uploads: 0, usage: 0, feedback: 0, pendingUploads: 0 };
       for (const s of await store.scan('sessions')) if (s.expiresAt <= now() || s.state === 'cleared') {
         await store.transaction(async tx => {

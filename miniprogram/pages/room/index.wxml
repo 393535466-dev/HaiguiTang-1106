@@ -1,0 +1,46 @@
+<view class="room-page">
+  <view class="room-header"><button bindtap="home" aria-label="返回首页">‹</button><view><view class="eyebrow">FRIENDS AT THE TABLE</view><view class="serif room-title">{{room ? room.title : '和朋友，喝同一碗汤'}}</view></view><button class="small-link" bindtap="leaderboard">排行榜 ↗</button></view>
+  <view wx:if="{{loading}}" class="room-loading">正在准备好友桌…</view>
+  <scroll-view wx:elif="{{!room}}" class="room-setup" scroll-y>
+    <view class="setup-copy">2～6 人一起推理。自由讨论，轮流向 AI 提问。</view>
+    <view class="field-label">大家怎么称呼你</view><textarea class="short-field" value="{{nickname}}" bindinput="nicknameInput" maxlength="12" placeholder="输入昵称，最多12字" auto-height="false"></textarea>
+    <view class="setup-panel"><view class="serif panel-title">我来组一桌</view><view class="setup-copy">选好故事，再把六位房间号告诉朋友。</view>
+      <button wx:for="{{puzzles}}" wx:key="id" class="puzzle-option {{selectedPuzzle === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="choosePuzzle"><text>{{item.title}}</text><text>{{item.difficulty}} {{selectedPuzzle === item.id ? '✓' : ''}}</text></button>
+      <button class="primary" bindtap="create" disabled="{{busy}}">创建好友房</button>
+    </view>
+    <view class="setup-panel"><view class="serif panel-title">朋友已经开桌</view><textarea class="short-field code-field" value="{{roomCode}}" bindinput="codeInput" maxlength="6" placeholder="输入六位房间号" auto-height="false"></textarea><button class="secondary" bindtap="join" disabled="{{busy || roomCode.length !== 6}}">加入房间</button></view>
+    <view class="setup-copy">好友局共同计分，不抢最后一答。每题只有首次开局可计分，重玩仍可参与讨论。</view>
+    <view wx:if="{{error}}" class="room-error">{{error}}</view>
+  </scroll-view>
+  <block wx:else>
+    <view class="room-code-line"><text>房间 {{room.id}} · {{room.members.length}} / 6 人</text><button bindtap="copyCode">复制房间号</button></view>
+    <view class="room-members"><view wx:for="{{room.members}}" wx:key="id" class="member-chip {{item.isMe ? 'me' : ''}}"><text>{{item.nickname}}{{item.isMe ? '（我）' : ''}}</text><text class="member-state">{{item.isHost ? '房主 · ' : ''}}{{item.online ? '在线' : '暂离'}}</text></view></view>
+    <view class="room-surface"><button bindtap="toggleSurface">汤面 · {{surfaceExpanded ? '收起' : '展开'}}</button><view class="serif surface-text {{surfaceExpanded ? 'expanded' : ''}}">{{room.surface}}</view></view>
+    <view class="host-voice-bar"><button bindtap="toggleHostVoice" disabled="{{recording}}">{{hostVoiceEnabled ? '人声已开 · 关闭' : '开启自然人声'}}</button><button bindtap="readSurface" disabled="{{recording}}">听题</button><button bindtap="replayHostVoice" disabled="{{recording}}">重播</button></view>
+    <view wx:if="{{hostVoiceStatus}}" class="host-voice-status">{{hostVoiceStatus}}</view>
+    <view wx:if="{{room.state === 'waiting'}}" class="turn-banner"><text>等待朋友入座 · 至少两人开局</text><button wx:if="{{room.isHost}}" bindtap="start" disabled="{{busy || room.members.length < 2}}">开始推理 ↗</button><text wx:else>等房主开始</text></view>
+    <view wx:elif="{{room.state === 'playing'}}" class="turn-banner"><text>{{room.myTurn ? '轮到你提问' : '轮到 ' + room.turnName}} · {{seconds}} 秒</text><button wx:if="{{room.myTurn}}" bindtap="skip" disabled="{{busy}}">跳过这一轮</button><text wx:else>可以先在下方讨论</text></view>
+    <view class="room-ledger">剩余提问 {{room.maxQuestions - room.questionCount}} / {{room.maxQuestions}} · 提示 {{room.hintCount}} / 3 · {{room.state === 'waiting' ? '开局时确认计分资格' : (room.ranked ? '本题首次挑战 · 可计分' : '本题重玩 · 不重复计分')}}</view>
+    <scroll-view class="room-messages" scroll-y scroll-into-view="{{scrollTarget}}" scroll-with-animation>
+      <view wx:if="{{!room.messages.length}}" class="empty-discussion">朋友入座后，可以先聊聊你们的猜想。</view>
+      <view wx:for="{{room.messages}}" wx:key="id" class="room-message {{item.type}}">
+        <view wx:if="{{item.type !== 'system'}}" class="message-author">{{item.nickname}} · {{item.type === 'discussion' ? '讨论' : (item.type === 'question' ? '正式提问' : '完整猜底')}}</view><view class="message-text">{{item.text}}</view>
+        <view wx:if="{{item.answer}}" class="host-reply"><text class="host-name">AI 主持</text><text>{{item.answerLabel}}。{{item.answerNote}}</text></view>
+      </view>
+      <view wx:if="{{room.active}}" class="room-system">{{room.active.status === 'unknown' ? '这一条结果尚未确认，可以查询或跳过。' : 'AI 正在判断，请稍候…'}}</view>
+      <view wx:if="{{room.solution}}" class="room-ending"><view class="serif panel-title">{{room.state === 'solved' ? '我们找到真相了。' : '故事的另一面。'}}</view><view>{{room.solution}}</view><view class="score-line">本局共同得分 {{room.points}} · {{room.ranked ? '已记入你的好友协作榜' : '本次重玩不重复计分'}}</view><button class="primary" bindtap="leaderboard">看看好友协作榜 ↗</button></view>
+      <view id="room-message-end" class="room-end-marker"></view>
+    </scroll-view>
+    <view wx:if="{{error || connection}}" class="room-error compact">{{error || connection}}</view>
+    <view wx:if="{{room.state === 'playing' || room.state === 'waiting'}}" class="room-composer">
+      <view class="room-modes"><button class="{{mode === 'discussion' ? 'selected' : ''}}" data-mode="discussion" bindtap="switchMode">和大家讨论</button><button class="{{mode === 'question' ? 'selected' : ''}}" data-mode="question" bindtap="switchMode" disabled="{{!room.myTurn}}">向 AI 提问</button><button class="{{mode === 'guess' ? 'selected' : ''}}" data-mode="guess" bindtap="switchMode" disabled="{{!room.myTurn}}">我猜到了</button></view>
+      <view wx:if="{{mode !== 'discussion' && !room.myTurn}}" class="room-system">轮次已变化，你的草稿已保留；轮到你时再提交。</view>
+      <view wx:if="{{voiceError || voiceStatus}}" class="room-system">{{voiceError || voiceStatus}}</view><button wx:if="{{voicePending}}" class="small-link" bindtap="checkVoice">检查转写结果</button><button wx:if="{{recoveredTranscript}}" class="small-link" bindtap="useTranscript">使用刚才的识别文字</button>
+      <textarea class="room-draft" value="{{draft}}" bindinput="input" maxlength="{{mode === 'guess' ? 500 : 200}}" placeholder="{{mode === 'discussion' ? '和朋友聊聊你的猜想，不会提交给 AI…' : (mode === 'guess' ? '讲清人物、经过和原因…' : '一次问一个是非问题…')}}" disabled="{{recording}}"></textarea>
+      <view class="room-input-actions"><button class="secondary room-record {{recording ? 'recording' : ''}}" bindtouchstart="recordStart" catchtouchmove="recordMove" bindtouchend="recordEnd" bindtouchcancel="recordCancel" disabled="{{busy || voiceBusy || voicePending}}">{{recording ? (cancelling ? '松手取消' : '录音 ' + recordSeconds + ' 秒') : '按住说话'}}</button><button class="primary" bindtap="submit" disabled="{{busy || recording || !draft || (mode !== 'discussion' && (!room.myTurn || pending || room.active))}}">{{mode === 'discussion' ? '发送讨论' : (mode === 'guess' ? '提交猜底' : '确认提问')}}</button></view>
+      <view class="room-bottom"><button wx:if="{{pending}}" bindtap="checkResult">查询原结果</button><button wx:if="{{room.myTurn}}" bindtap="hint" disabled="{{room.hintCount >= 3 || busy || room.active}}">解锁提示</button><button wx:if="{{room.isHost && room.state === 'playing'}}" bindtap="reveal">结束并揭底</button><button bindtap="leave">退出房间</button></view>
+    </view>
+    <view wx:else class="room-bottom finished"><button bindtap="home">回到首页</button><button bindtap="leave">离开这桌</button></view>
+  </block>
+</view>
+<view wx:if="{{privacyNeeded}}" class="privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">录音先转文字，由你核对后发送。发送讨论时，房间成员会看到确认的文字。</view><button class="text-link" bindtap="privacy">录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>

@@ -25,6 +25,8 @@ Page({
     }
   },
   chooseStory() { this.setData({ scrollTarget: 'story-list' }) },
+  friends() { const id = storage.read('hgt:' + storage.owner() + ':room'); wx.navigateTo({ url: '/pages/room/index' + (id ? '?id=' + id : '') }) },
+  leaderboard() { wx.navigateTo({ url: '/pages/leaderboard/index' }) },
   tutorial() { wx.navigateTo({ url: '/pages/tutorial/index' }) },
   async start(e) {
     if (!this.data.canStart || this._starting) {
