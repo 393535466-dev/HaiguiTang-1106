@@ -92,7 +92,7 @@
     }
     requireMini(file);
     const definition = definitions[file];
-    const page = Object.assign({}, definition, { route, data: structuredClone(definition.data || {}), _previewFile: file });
+    const page = Object.assign({}, definition, { route, data: structuredClone(definition.data || {}), _previewFile: file, _previewURL: '/' + route + target.search });
     page.setData = function (patch, callback) { Object.assign(this.data, patch); if (this === topPage()) scheduleRender(); if (callback) queueMicrotask(callback); };
     pages.push(page);
     location.hash = '/' + route + target.search;
@@ -122,7 +122,7 @@
       if (pages.length <= 1) return navigate({ url: '/pages/home/index' }, 'redirect');
       const count = Math.min(options.delta || 1, pages.length - 1);
       for (let index = 0; index < count; index++) { const page = pages.pop(); if (page.onUnload) page.onUnload(); }
-      const current = topPage(); location.hash = '/' + current.route; if (current.onShow) current.onShow(); render(); complete(options);
+      const current = topPage(); location.hash = current._previewURL; if (current.onShow) current.onShow(); render(); complete(options);
     },
     showToast: toast, showModal: modal, showActionSheet: actionSheet,
     showLoading(options) { this.hideLoading(); const node = document.createElement('div'); node.className = 'preview-loading'; const label = document.createElement('div'); label.textContent = options.title || '加载中…'; node.append(label); overlays.append(node); },
@@ -215,13 +215,15 @@
       return fragment;
     }
     if (node.tagName.toLowerCase() === 'block') return renderChildren(node, scope, page, key);
-    const tag = { view: 'div', text: 'span', 'scroll-view': 'div', button: 'button', textarea: 'textarea' }[node.tagName.toLowerCase()] || 'div';
+    const tag = { view: 'div', text: 'span', image: 'img', img: 'img', 'scroll-view': 'div', button: 'button', textarea: 'textarea' }[node.tagName.toLowerCase()] || 'div';
     const element = document.createElement(tag); element.dataset.nodeKey = key;
     if (tag === 'button') element.type = 'button';
     for (const attribute of node.attributes) {
       const name = attribute.name;
       if (name.startsWith('wx:') || /^(bind|catch)/.test(name)) continue;
       const value = interpolate(attribute.value, scope);
+      if (tag === 'img' && name === 'src') { element.src = String(value || ''); element.alt = ''; element.draggable = false; continue; }
+      if (tag === 'img' && name === 'mode') { element.style.objectFit = value === 'aspectFill' ? 'cover' : 'contain'; continue; }
       if (name === 'disabled') { element.disabled = Boolean(value); continue; }
       if (name === 'value') { element.value = value == null ? '' : String(value); continue; }
       if (['class', 'id', 'style', 'placeholder', 'maxlength'].includes(name) || name.startsWith('aria-') || name.startsWith('data-')) element.setAttribute(name, value == null ? '' : String(value));
@@ -273,6 +275,15 @@
     renderSequence++;
   }
   window.addEventListener('resize', scheduleRender);
+  window.addEventListener('hashchange', () => {
+    const url = location.hash.slice(1) || '/pages/home/index';
+    if (topPage()?._previewURL === url) return;
+    const previous = pages.map(p => p._previewURL).lastIndexOf(url);
+    if (previous >= 0) {
+      while (pages.length > previous + 1) { const p = pages.pop(); if (p.onUnload) p.onUnload(); }
+      if (topPage().onShow) topPage().onShow(); render();
+    } else navigate({ url }, 'push');
+  });
   for (const [nativeEvent, logical] of [['pointermove', 'touchmove'], ['pointerup', 'touchend'], ['pointercancel', 'touchcancel']]) {
     window.addEventListener(nativeEvent, event => {
       if (!gesture || gesture.pointerId !== event.pointerId) return;

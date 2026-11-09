@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const COOKIE = '__Secure-hgt-mobile-test';
-const assets = new Set(['/', '/bundle.js', '/runtime.js', '/voice.js', '/recorder.wav.min.js', '/preview.css', '/preview-status']);
+const assets = new Set(['/', '/bundle.js', '/runtime.js', '/voice.js', '/recorder.wav.min.js', '/preview.css', '/preview-status', '/assets/brand/logo-red-cyan-v6.png', '/assets/brand/torn-eye-home-v1.png']);
 const posts = new Set(['/api', '/audio', '/preview-player']);
 function equal(a, b) {
   const aa = Buffer.from(String(a || '')), bb = Buffer.from(String(b));

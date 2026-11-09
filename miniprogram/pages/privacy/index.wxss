@@ -1,19 +1,8 @@
-.privacy-page{padding:44rpx 39rpx calc(35rpx + env(safe-area-inset-bottom))}
-.privacy-page-title{font-size:64rpx;line-height:1.35;font-weight:600;margin:24rpx 0 27rpx}
-.privacy-page-title text{display:block}
-.privacy-intro{font-size:27rpx;line-height:1.9;color:#75826b;margin-bottom:41rpx}
-.privacy-section{position:relative;border-top:1rpx solid #d2dbc5;padding:27rpx 0 31rpx}
-.privacy-no{position:absolute;right:0;top:33rpx;font-size:20rpx;color:#a3b094}
-.privacy-section-title{font-size:35rpx;margin-bottom:19rpx;font-weight:600}
-.privacy-paragraph{font-size:25rpx;color:#75826c;line-height:1.95;margin-top:15rpx}
-.privacy-note{padding:25rpx;background:#ebe9d9;border-radius:13rpx;color:#8d8468;font-size:23rpx;line-height:1.9;margin:9rpx 0 28rpx}
-.privacy-page .primary{margin-top:17rpx}
-.privacy-page .secondary{font-size:24rpx}
-
-.privacy-page{background:#f6f3eb;padding:37rpx 36rpx calc(35rpx + env(safe-area-inset-bottom))}
-.privacy-page-title{font-size:62rpx}
-.privacy-intro{font-size:28rpx;color:#687e60}
-.privacy-section-title{font-size:35rpx}
-.privacy-paragraph{font-size:27rpx;color:#657b5d}
-.privacy-note{font-size:24rpx;color:#80724f;border-radius:17rpx;background:#eee8d7}
-.privacy-page .primary,.privacy-page .secondary{width:100%;min-height:88rpx;font-size:26rpx}
+.privacy-page{height:100vh;overflow:hidden;background:#f6f3eb;padding:22rpx 36rpx calc(20rpx + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.privacy-head{display:flex;justify-content:space-between;align-items:center;font-size:23rpx;color:#78876d;flex-shrink:0}.privacy-head button{font-size:25rpx;min-height:44px;color:#39553f}
+.privacy-card{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:30rpx 0}
+.privacy-page-title{font-size:44rpx;line-height:1.5;margin:18rpx 0;color:#2c4a38}
+.privacy-paragraph{font-size:26rpx;line-height:1.85;margin-top:15rpx;color:#65795c}
+.privacy-pagination{display:flex;align-items:center;justify-content:space-between;font-size:23rpx;flex-shrink:0;padding:9rpx 0}.privacy-pagination button{font-size:24rpx;min-height:44px}
+.privacy-page .primary,.privacy-page .secondary{font-size:25rpx;width:100%;min-height:44px;flex-shrink:0;padding:20rpx;margin-top:10rpx}
+@media(max-height:700px){.privacy-card{padding:10rpx 0}.privacy-page-title{font-size:35rpx;margin:14rpx 0}.privacy-paragraph{font-size:24rpx;line-height:1.75;margin-top:10rpx}}

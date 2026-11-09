@@ -77,6 +77,11 @@ function createPreviewServer(options = {}) {
       if (req.method !== 'GET' && req.method !== 'HEAD') return respond(res, 405, '{}');
       if (url.pathname === '/bundle.js') return respond(res, 200, bundle(), 'text/javascript; charset=utf-8');
       if (url.pathname === '/preview-status') return respond(res, 200, JSON.stringify({ mode: provider.mode, ...provider.ready() }));
+      const publicAssets = new Set(['/assets/brand/logo-red-cyan-v6.png', '/assets/brand/torn-eye-home-v1.png']);
+      if (publicAssets.has(url.pathname)) {
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff' });
+        return res.end(fs.readFileSync(path.join(root, 'miniprogram', url.pathname)));
+      }
       const staticFiles = { '/': ['index.html', 'text/html; charset=utf-8'], '/runtime.js': ['runtime.js', 'text/javascript; charset=utf-8'], '/voice.js': ['voice.js', 'text/javascript; charset=utf-8'], '/recorder.wav.min.js': ['vendor/recorder.wav.min.js', 'text/javascript; charset=utf-8'], '/preview.css': ['preview.css', 'text/css; charset=utf-8'] };
       if (staticFiles[url.pathname]) {
         const [file, mime] = staticFiles[url.pathname];

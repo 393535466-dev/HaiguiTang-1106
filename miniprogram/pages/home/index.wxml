@@ -1,26 +1,26 @@
-<scroll-view class="home-scroll" scroll-y scroll-into-view="{{scrollTarget}}" scroll-with-animation>
-  <view class="home-page">
-    <view class="brand"><view class="brand-mark serif">汤</view><view><view class="brand-name">一碗海龟汤</view><view class="brand-sub">好奇心俱乐部</view></view><button class="brand-rank" bindtap="leaderboard" aria-label="查看排行榜"><text class="rank-symbol">♧</text><text>风云榜</text></button></view>
-    <view class="hero">
-      <view class="hero-eyebrow"><view class="tiny-star">✦</view><text>一段故事，一点不寻常</text></view>
-      <view class="hero-title serif">故事有<text class="title-break">另一面。</text></view>
-      <view class="hero-copy">你负责好奇，AI 负责回答。<text class="copy-break">问一句是或否，把真相拼回来。</text></view>
-      <view class="bowl-scene" aria-hidden="true"><view class="orbit orbit-one"></view><view class="orbit orbit-two"></view><text class="scene-spark">✦</text><view class="steam steam-one"></view><view class="steam steam-two"></view><view class="bowl-rim"></view><view class="bowl-body"><text class="bowl-question serif">?</text></view><view class="bowl-foot"></view><view class="bowl-shadow"></view><view class="bowl-seal serif"><view>另有</view><view>隐情</view></view></view>
-      <button wx:if="{{continuing}}" class="primary hero-button" bindtap="resume">继续未完的故事 <text class="arrow">↗</text></button>
-      <button wx:else class="primary hero-button" bindtap="chooseStory">挑一碗，慢慢猜 <text class="arrow">↗</text></button>
-      <view class="hero-meta"><text>一个人也能玩</text><text>·</text><text>支持语音提问</text></view>
+<view class="route-page {{screen === 'cover' ? 'cover-page' : 'inner-page'}}">
+  <block wx:if="{{screen === 'cover'}}">
+    <image class="cover-art" src="/assets/brand/torn-eye-home-v1.png" mode="aspectFill" aria-hidden="true"></image>
+    <view class="cover-brand"><image class="brand-logo" src="/assets/brand/logo-red-cyan-v6.png" mode="aspectFit"></image><view>一碗海龟汤<text>故事，总有另一面</text></view></view>
+    <view class="cover-heading"><view class="cover-kicker">LOOK CLOSER.</view><view class="cover-title serif">你看到的，<text>未必是真相。</text></view></view>
+    <view class="cover-footer"><view class="cover-caption">一个反常的故事，等你问出真相。</view><button class="hero-button" bindtap="enter">进入游戏 <text>↗</text></button><view class="cover-footnote">AI 主持 · 文字 / 语音 · 单人 / 好友</view><button class="cover-privacy" bindtap="privacy">录音与隐私说明</button></view>
+  </block>
+  <block wx:else>
+    <view class="route-header"><button bindtap="back" aria-label="返回上一步">‹</button><view><image class="mini-logo" src="/assets/brand/logo-red-cyan-v6.png" mode="aspectFit"></image><text>一碗海龟汤</text></view><text class="route-step">{{screen === 'mode' ? '01 / 02' : '02 / 02'}}</text></view>
+    <view wx:if="{{screen === 'mode'}}" class="mode-content">
+      <view class="route-kicker">CHOOSE YOUR TABLE</view><view class="route-title serif">今晚，怎么探个究竟？</view><view class="route-copy">一个人追问，或和朋友一起找答案。</view>
+      <view class="mode-cards"><button class="mode-card" bindtap="chooseStory"><view class="mode-number">01</view><view class="mode-card-copy"><view>独自推理</view><text>和 AI 主持，一问一答</text></view><text class="mode-arrow">↗</text></button><button class="mode-card friends-card" bindtap="friends"><view class="mode-number">02</view><view class="mode-card-copy"><view>和朋友一起玩</view><text>2～6 人同桌，45 秒轮流提问</text></view><text class="mode-arrow">↗</text></button></view>
+      <button wx:if="{{continuing}}" class="resume-link" bindtap="resume">继续未完的单人故事 ↗</button>
+      <button class="tutorial-entry" bindtap="tutorial"><text>?</text><view>第一次玩？跟着做一遍</view><text>↗</text></button>
+      <view class="route-bottom"><button bindtap="leaderboard">查看排行榜 ↗</button><button bindtap="privacy">录音与隐私说明</button></view>
     </view>
-    <view class="social-entry"><button class="friends-entry" bindtap="friends"><view class="friends-icon" aria-hidden="true"><view></view><view></view></view><view><view class="entry-title">和朋友一起玩 <text>↗</text></view><view class="entry-copy">2～6 人同桌，把线索聊出来</view></view></button></view>
-    <button class="tutorial-entry" bindtap="tutorial"><view class="tutorial-icon">?</view><view><view class="tutorial-entry-title">第一次玩？跟着做一遍</view><view class="tutorial-entry-copy">从提问到猜底，边玩边学</view></view><text class="tutorial-arrow">↗</text></button>
-    <view class="section-heading" id="story-list"><view><view class="eyebrow">STORIES TO SIP</view><view class="section-title serif">今天喝哪碗？</view></view><view class="story-count">{{puzzles.length}} 则故事</view></view>
-    <view class="status-line"><view class="status-dot {{statusKind}}"></view><text>{{statusText}}</text><button class="refresh" bindtap="load" disabled="{{loading}}" aria-label="重新检查连接">{{loading ? '连接中' : '刷新'}}</button></view>
-    <view wx:if="{{error}}" class="notice setup-notice">{{error}}</view>
-    <button wx:for="{{puzzles}}" wx:key="id" class="story-card story-{{index}}" bindtap="start" data-id="{{item.id}}" disabled="{{!canStart || !item.id}}">
-      <view class="card-illustration" aria-hidden="true"><view wx:if="{{index === 0}}" class="ticket-art"><text>CINEMA</text><view class="ticket-line"></view><view class="ticket-line short"></view><text class="ticket-star">✦</text></view><view wx:elif="{{index === 1}}" class="book-art"><view></view><view></view><text>!</text></view><view wx:else class="photo-art"><view class="photo-sun"></view><view class="photo-hill"></view><text>?</text></view><text class="art-number serif">0{{index + 1}}</text></view>
-      <view class="card-main"><view class="card-top"><text class="pill">{{item.difficulty}}</text><text class="card-category">日常悬疑</text></view><view class="card-title serif">{{item.title}}</view><view class="card-teaser">{{item.teaser}}</view><view class="card-bottom"><text>{{canStart ? '打开这个故事' : '等待主持人就绪'}}</text><text>↗</text></view></view>
-    </button>
-    <view class="how-section"><view class="how-heading serif">三步，走近真相。</view><view class="how-row"><text class="how-no">01</text><view><view class="how-title">读故事</view><view class="how-copy">先找到那一点不寻常。</view></view></view><view class="how-row"><text class="how-no">02</text><view><view class="how-title">问是非</view><view class="how-copy">打字或说话，一次问一件事。</view></view></view><view class="how-row"><text class="how-no">03</text><view><view class="how-title">讲真相</view><view class="how-copy">切到「我猜到了」，说出完整解释。</view></view></view></view>
-    <view class="home-footer"><text class="footer-mark serif">汤</text><text>好奇心常在，答案不着急。</text><button bindtap="privacy">录音与隐私说明 ↗</button></view>
-  </view>
-</scroll-view>
+    <view wx:else class="stories-content">
+      <view class="route-kicker">PICK A MYSTERY</view><view class="route-title serif">从哪件怪事开始？</view>
+      <view class="story-stage"><view class="story-meta"><text>STORY 0{{storyIndex + 1}}</text><text>{{puzzle ? puzzle.difficulty : '暂无题目'}}</text></view><view class="story-number serif" aria-hidden="true">0{{storyIndex + 1}}</view><view class="story-card-title serif">{{puzzle ? puzzle.title : '正在整理故事'}}</view><view class="story-card-teaser">{{puzzle ? puzzle.teaser : '请稍后重新检查连接。'}}</view><view class="story-rule"></view><text class="story-stage-note">看似寻常的细节，可能藏着答案。</text></view>
+      <view class="story-pagination"><button bindtap="moveStory" data-direction="-1" disabled="{{storyIndex === 0}}">← 上一题</button><text>{{puzzles.length ? storyIndex + 1 : 0}} / {{puzzles.length}}</text><button bindtap="moveStory" data-direction="1" disabled="{{storyIndex >= puzzles.length - 1}}">下一题 →</button></view>
+      <view class="route-status"><view class="status-dot {{statusKind}}"></view><text>{{statusText}}</text><button bindtap="load" disabled="{{loading}}">刷新</button></view>
+      <view wx:if="{{error}}" class="route-error">{{error}}</view><button class="story-card route-primary" bindtap="start" data-id="{{puzzle ? puzzle.id : ''}}" disabled="{{!canStart || !puzzle}}">开始这个故事 <text>↗</text></button>
+    </view>
+  </block>
+</view>
 <view wx:if="{{privacyNeeded}}" class="privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">仅在你主动按住时录音。录音会发送到云端及第三方识别服务，转成文字供你确认。</view><button class="text-link" bindtap="privacy">阅读录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>

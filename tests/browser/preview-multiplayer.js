@@ -16,7 +16,7 @@ async function main() {
     for (const p of [a, b]) p.on('pageerror', e => errors.push(e.message));
     const base = 'http://127.0.0.1:' + server.address().port;
     const roomReady = p => p.waitForFunction(() => window.__preview.page.data.room?.state === 'playing');
-    await a.goto(base); await a.getByRole('button', { name: '和朋友一起玩' }).click();
+    await a.goto(base); await a.getByRole('button', { name: '进入游戏' }).click(); await a.getByRole('button', { name: '和朋友一起玩' }).click();
     await a.getByPlaceholder('输入昵称，最多12字').fill('小林'); await a.getByRole('button', { name: '创建好友房' }).click();
     await a.waitForFunction(() => window.__preview.page.data.room?.state === 'waiting');
     const roomId = await a.evaluate(() => window.__preview.page.data.room.id);
@@ -60,7 +60,7 @@ async function main() {
       await a.screenshot({ path: process.env.PREVIEW_SCREENSHOT_DIR + '/friends-desktop.png' });
       await b.screenshot({ path: process.env.PREVIEW_SCREENSHOT_DIR + '/friends-rank-mobile.png' });
     }
-    await a.getByRole('button', { name: '回到首页', exact: true }).click(); await a.getByRole('button', { name: '和朋友一起玩' }).click(); await a.waitForFunction(() => window.__preview.page.data.room?.state === 'solved');
+    await a.getByRole('button', { name: '回到首页', exact: true }).click(); await a.getByRole('button', { name: '进入游戏' }).click(); await a.getByRole('button', { name: '和朋友一起玩' }).click(); await a.waitForFunction(() => window.__preview.page.data.room?.state === 'solved');
     assert.deepEqual(errors, []);
     console.log('Multiplayer browser passed: independent identities, create/join, editable guest recording, discussion sync without AI, turn handoff, reload with draft, shared result, identical ranking points and room resume. No real AI calls.');
   } finally { if (browser) await browser.close(); await new Promise(resolve => server.close(resolve)); }

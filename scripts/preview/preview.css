@@ -73,3 +73,11 @@ body{margin:0;background:#e9ecdf;color:#264333;font-family:-apple-system,BlinkMa
 
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}
 }
+/* Full-screen app: routes replace the former long landing-page preview. */
+body{background:#090c0d;overflow:hidden}
+.preview-banner,.preview-guide,.device-status,.native-nav{display:none}
+.preview-stage{height:100dvh;display:flex;align-items:stretch;padding:0;gap:0}
+.device{width:100%;max-width:520px;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+.mini-screen{height:100dvh;min-height:0}
+.mini-screen img{display:block;max-width:100%}
+@media(max-width:700px){.preview-stage{display:block;height:100dvh}.device{max-width:none}.mini-screen{height:100dvh}}

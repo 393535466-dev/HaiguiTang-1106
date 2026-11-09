@@ -145,3 +145,26 @@
 .room-input-actions button{min-height:44px}
 .room-modes button{min-height:36px}
 .room-back{min-width:34px;min-height:44px}
+.room-page{overflow:hidden}
+.room-messages{min-height:0}
+.room-setup{display:flex;flex-direction:column;overflow:hidden;padding:0 32rpx 16rpx}
+.room-setup .lobby-intro{padding:12rpx 0 6rpx;background:transparent;border:0;text-align:left;margin:0}
+.room-setup .lobby-title{font-size:33rpx}
+.room-setup .setup-copy{font-size:23rpx;margin:10rpx 0;line-height:1.7}
+.room-setup .field-label{margin:16rpx 0 10rpx}
+.room-setup .short-field{flex-shrink:0;min-height:44px}
+.room-setup .lobby-tabs{flex-shrink:0;margin-top:22rpx}
+.room-setup .setup-panel{margin-top:16rpx;flex:1;min-height:0;display:flex;flex-direction:column}
+.selected-puzzle{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;background:#e9edde;border:1rpx solid #d0d9c7;border-radius:16rpx;padding:15rpx 22rpx}
+.selected-puzzle .field-label{font-size:19rpx;color:#7d8d71;margin:0 0 10rpx}
+.selected-puzzle .option-title{font-size:34rpx}
+.selected-puzzle .option-level{margin-top:6rpx}
+.puzzle-pagination{display:flex;justify-content:space-between;align-items:center;font-size:22rpx;flex-shrink:0;margin:6rpx 0}
+.puzzle-pagination button{font-size:23rpx;min-height:44px}
+.room-setup .primary{min-height:44px;padding:20rpx;flex-shrink:0}
+.room-setup .lobby-note{font-size:20rpx;padding:12rpx 0 0;line-height:1.5;flex-shrink:0}
+.room-setup .room-error{margin-top:8rpx;font-size:22rpx;padding:9rpx 12rpx;flex-shrink:0}
+.room-setup .join-panel{justify-content:center}
+.room-setup .join-panel .code-field{margin:16rpx 0 30rpx}
+@media(max-height:700px){.room-setup .lobby-title{font-size:30rpx}.room-setup .lobby-intro .setup-copy{margin:5rpx 0}.room-setup .lobby-tabs{margin-top:16rpx}.room-setup .field-label{margin-top:10rpx}.selected-puzzle .setup-copy{font-size:22rpx}.selected-puzzle .option-title{font-size:30rpx}.selected-puzzle .field-label{display:none}}
+.surface-text.expanded{max-height:18vh}

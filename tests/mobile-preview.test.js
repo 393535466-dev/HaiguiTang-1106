@@ -31,6 +31,8 @@ test('mobile entry requires an unexpired invite, sets a secure cookie and hides 
   for (const flag of ['HttpOnly', 'Secure', 'SameSite=Strict']) assert.ok(cookie.includes(flag));
   const headers = { Cookie: cookie.split(';')[0] };
   const page = await request('/', { headers }); assert.equal(page.status, 200); assert.equal(page.headers.get('referrer-policy'), 'no-referrer');
+  const image = await request('/assets/brand/logo-red-cyan-v6.png', { headers }); assert.equal(image.status, 200); assert.equal(image.headers.get('content-type'), 'image/png');
+  assert.equal((await request('/assets/brand/logo-red-cyan-v6.png')).status, 403);
   for (const route of ['/.env.preview.local', '/.preview-data/preview-state.json', '/cloudfunctions/game/data/puzzles.js']) assert.equal((await request(route, { headers })).status, 404);
   expire(); assert.equal((await request('/', { headers })).status, 410);
 });

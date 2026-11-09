@@ -111,3 +111,6 @@
 .input-actions button{min-height:44px}
 .mode-item{min-height:36px}
 .back-button,.more-toggle{min-width:38px;min-height:44px}
+.game-page{overflow:hidden}
+.message-scroll{min-height:0}
+.surface-body.expanded{max-height:18vh}

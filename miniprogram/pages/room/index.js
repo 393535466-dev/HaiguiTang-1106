@@ -5,7 +5,7 @@ const PracticeVoice = require('../../utils/practice-voice')
 const HostVoice = require('../../utils/host-voice')
 const modal = options => new Promise(resolve => wx.showModal(Object.assign({}, options, { success: resolve })))
 Page({
-  data: { room: null, nickname: '', roomCode: '', lobbyMode: 'create', puzzles: [], selectedPuzzle: '', loading: true, busy: false, error: '', connection: '',
+  data: { room: null, nickname: '', roomCode: '', lobbyMode: 'create', puzzles: [], puzzleIndex: 0, puzzle: null, selectedPuzzle: '', loading: true, busy: false, error: '', connection: '',
     mode: 'discussion', draft: '', pending: false, seconds: 45, recording: false, cancelling: false, recordSeconds: 0,
     voiceBusy: false, voicePending: false, voiceError: '', voiceStatus: '', recoveredTranscript: '', privacyNeeded: false, scrollTarget: '', surfaceExpanded: false },
   onLoad(options) {
@@ -28,7 +28,7 @@ Page({
       if (!this._roomId && !this.data.roomCode) this._roomId = storage.read('hgt:' + storage.owner() + ':room') || ''
       const result = await api.call('getProfile'), list = await api.call('listPuzzles')
       if (!this._alive) return
-      this.setData({ nickname: result.profile.nickname, puzzles: list.puzzles, selectedPuzzle: list.puzzles[0]?.id || '', loading: false })
+      this.setData({ nickname: result.profile.nickname, puzzles: list.puzzles, puzzleIndex: 0, puzzle: list.puzzles[0] || null, selectedPuzzle: list.puzzles[0]?.id || '', loading: false })
       this._ready = true
       if (this._roomId) {
         const draft = storage.draft('room-' + this._roomId)
@@ -46,6 +46,10 @@ Page({
   },
   codeInput(e) { this.setData({ roomCode: e.detail.value.replace(/\D/g, '').slice(0, 6) }) },
   choosePuzzle(e) { this.setData({ selectedPuzzle: e.currentTarget.dataset.id }) },
+  movePuzzle(e) {
+    const puzzleIndex = this.data.puzzleIndex + Number(e.currentTarget.dataset.direction)
+    if (!this.data.busy && puzzleIndex >= 0 && puzzleIndex < this.data.puzzles.length) this.setData({ puzzleIndex, puzzle: this.data.puzzles[puzzleIndex], selectedPuzzle: this.data.puzzles[puzzleIndex].id })
+  },
   async enter(action) {
     if (this.data.busy) return
     this.setData({ busy: true, error: '' })

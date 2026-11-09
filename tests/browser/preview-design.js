@@ -26,21 +26,30 @@ async function main() {
       assert.ok(result.horizontal, 'no horizontal page overflow'); assert.ok(result.inside, selector + ' remains in the usable screen');
     }
     await page.goto(base); await page.waitForFunction(() => !window.__preview.page.data.loading);
+    await page.waitForFunction(()=>[...document.querySelectorAll('.cover-art,.brand-logo')].every(i=>i.complete&&i.naturalWidth>0));
     for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:1320,height:1000}]) {
       await page.setViewportSize(viewport); await layout('.hero-button'); await shot('home-' + viewport.width);
     }
     await page.setViewportSize({width:390,height:844}); await frame();
     await page.locator('.hero-button').click(); await frame();
-    assert.ok(await page.locator('.home-scroll').evaluate(e=>e.scrollTop>100),'pick a story scrolls directly to the story list');
+    assert.equal(await page.evaluate(()=>window.__preview.page.data.screen),'mode');
+    await page.setViewportSize({width:320,height:568});await layout('.route-bottom');await shot('mode-small');
+    await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories'&&!window.__preview.page.data.loading);await layout('.story-card');await shot('stories-small');
+    await page.getByRole('button',{name:'下一题',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.storyIndex),1);
+    await page.goBack();await page.waitForFunction(()=>window.__preview.page.data.screen==='mode');
+    await page.goForward();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories');
+    await page.waitForFunction(()=>!window.__preview.page.data.loading);
+    if(await page.evaluate(()=>window.__preview.page.data.storyIndex>0))await page.getByRole('button',{name:'上一题',exact:false}).click();
+    await page.setViewportSize({width:390,height:844});
     await page.locator('.story-card').first().click(); await page.waitForFunction(() => window.__preview.page.data.session?.state === 'playing');
     await layout('.send-button'); await shot('solo-mobile');
     await page.locator('.draft-input').fill(puzzles[0].testCases.find(c=>c.answer==='yes').text); await page.getByRole('button',{name:'确认提问'}).click();
     await page.waitForFunction(()=>window.__preview.page.data.session?.messages.length===1);
     await page.setViewportSize({width:320,height:568}); await layout('.send-button'); await shot('solo-small');
-    await page.locator('[data-page="/pages/room/index"]').click(); await page.waitForFunction(()=>!window.__preview.page.data.loading);
+    await page.getByRole('button',{name:'返回故事列表',exact:true}).click();await page.locator('.route-header button').click();await page.getByRole('button',{name:'和朋友一起玩'}).click(); await page.waitForFunction(()=>!window.__preview.page.data.loading);
     await page.getByRole('button',{name:'加入好友房',exact:true}).click(); await page.getByPlaceholder('输入六位房间号').fill('123');
     assert.equal(await page.getByRole('button',{name:'加入房间',exact:true}).isDisabled(),true);
-    await page.setViewportSize({width:390,height:844}); await shot('join-mobile');
+    await layout('.join-panel .primary'); await page.setViewportSize({width:390,height:844}); await shot('join-mobile');
     await page.getByRole('button',{name:'我来组一桌',exact:true}).click(); await page.getByPlaceholder('输入昵称，最多12字').fill('小林');
     await page.getByRole('button',{name:'创建好友房',exact:true}).click(); await page.waitForFunction(()=>window.__preview.page.data.room?.state==='waiting');
     const roomId = await page.evaluate(()=>window.__preview.page.data.room.id), tokens=[];
@@ -80,13 +89,18 @@ async function main() {
     await page.waitForFunction(()=>{const e=document.querySelector('.room-messages');return e.scrollHeight-e.clientHeight-e.scrollTop<3;});await shot('result-mobile');
     assert.equal(await page.locator('.team-score>div>span').evaluate(e=>getComputedStyle(e).display),'block');
     await page.getByRole('button',{name:'看看好友协作榜'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);await shot('ranking-mobile');
-    await page.setViewportSize({width:320,height:568});await layout('.my-score');
+    await page.setViewportSize({width:320,height:568});await layout('.my-score');await layout('.rank-pagination');assert.equal(await page.locator('.rank-row').count(),3);await page.getByRole('button',{name:'下一页',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.pageIndex),1);await shot('ranking-small');
     await page.getByRole('button',{name:'单人榜',exact:true}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.rank-empty').count(),1);
-    await page.locator('[data-page="/pages/home/index"]').click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
+    await page.getByRole('button',{name:'回到首页',exact:false}).click();await page.getByRole('button',{name:'进入游戏'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
     await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).click();await page.waitForFunction(()=>window.__preview.page.data.judgeReady);await layout('.tutorial-footer');await shot('tutorial-small');
-    await page.goto(base+'/?mode=unconfigured');await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.story-card').first().isDisabled(),true);await shot('not-ready-small');
+    await page.getByRole('button',{name:'跳过练习',exact:false}).click();
+    await page.getByRole('button',{name:'录音与隐私说明',exact:true}).click();
+    const count=await page.evaluate(()=>window.__preview.page.data.sections.length);
+    for(let i=0;i<count;i++){await layout('.privacy-card');await layout('.privacy-page .primary');await layout('.privacy-paragraph:last-child');if(i<count-1)await page.getByRole('button',{name:'下一页',exact:false}).click();}
+    await shot('privacy-small');
+    await page.goto(base+'/?mode=unconfigured');await page.getByRole('button',{name:'进入游戏'}).click();await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.story-card').first().isDisabled(),true);await shot('not-ready-small');
     assert.deepEqual(errors,[]);
-    console.log('Design browser checks passed: 320/390/430/1320 layouts, six-member room, readable discussion/verdict/result, join flow, live countdown with IME, rankings/empty state, tutorial and unavailable state. No real model calls.');
+    console.log('Design browser checks passed: single-screen cover/mode/story routes, assets loaded, browser back/forward, 320/390/430/1320 layouts, six-member room, discussion/verdict/result, join flow, countdown with IME, paged rankings/privacy, tutorial and unavailable state. No real model calls.');
   } finally { if(browser)await browser.close();await new Promise(resolve=>server.close(resolve)); }
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

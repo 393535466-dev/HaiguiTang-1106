@@ -50,3 +50,12 @@
 .points-rule>text:last-child{color:#8f6943}
 .rank-rules>text{display:block;font-size:22rpx;line-height:1.85;color:#7b8068;margin-top:18rpx}
 .rank-footer{text-align:center;color:#8a8b76;font-size:22rpx;padding:32rpx 0 8rpx}
+.rank-page{height:100vh;overflow:hidden;display:flex;flex-direction:column;padding:16rpx 32rpx calc(14rpx + env(safe-area-inset-bottom))}
+.rank-top{flex-shrink:0}.rank-hero{padding:8rpx 0 0;flex-shrink:0}.rank-title{font-size:39rpx;line-height:1.4;margin:10rpx 0}.rank-title text{display:inline}.rank-sub,.rank-emblem,.rank-hero .eyebrow{display:none}
+.rank-tabs{margin:16rpx 0;flex-shrink:0}.rank-tabs button{padding:15rpx 8rpx;min-height:44px;font-size:25rpx}
+.my-score{padding:20rpx 24rpx;flex-shrink:0}.score-number{font-size:59rpx}.my-score-label{font-size:22rpx}.score-stats{font-size:20rpx}
+.rank-heading{font-size:29rpx;margin:16rpx 0 0;flex-shrink:0}.rank-description{margin-bottom:10rpx;font-size:20rpx}.rank-list{flex:1;min-height:0}.rank-row{padding:18rpx 5rpx}.rank-player>view{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}.rank-player{font-size:25rpx}.rank-avatar{width:50rpx;height:50rpx}
+.rank-pagination{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;font-size:22rpx;color:#6d8062;margin-top:12rpx}.rank-pagination button{font-size:23rpx;min-height:44px}.rank-page>.text-link{font-size:22rpx;min-height:36px}.rank-footer{padding:6rpx 0 0;font-size:19rpx;flex-shrink:0}
+.rank-empty{padding:20rpx 14rpx;font-size:22rpx;margin-top:5rpx;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}.empty-rank-mark{display:none}.empty-rank-title{font-size:29rpx}.rank-empty .secondary{margin-top:12rpx;font-size:23rpx;min-height:44px;padding:14rpx}
+.rank-rules{margin:20rpx 0;flex:1;display:flex;flex-direction:column;justify-content:center}.rule-copy{font-size:29rpx;line-height:1.9;color:#657557}.rank-rules .rank-pagination{margin:40rpx 0 30rpx}.rank-rules .primary{font-size:26rpx;min-height:44px}
+@media(max-height:700px){.rank-title{font-size:33rpx;margin:4rpx 0}.rank-tabs{margin:9rpx 0}.my-score{padding:14rpx 20rpx}.score-number{font-size:47rpx}.rank-heading{margin-top:10rpx}.rank-row{padding:12rpx 3rpx}.rank-footer{display:none}.rank-pagination{margin-top:6rpx}}
