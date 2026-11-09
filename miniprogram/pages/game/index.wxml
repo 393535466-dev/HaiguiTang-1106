@@ -1,6 +1,6 @@
-<view class="game-page">
-  <view wx:if="{{loading}}" class="loading-page"><view class="loading-symbol serif">汤</view><view class="loading-title serif">打开单人推理 · AI 主持</view><view class="muted">正在恢复这段故事…</view></view>
-  <view wx:elif="{{!session}}" class="empty-page"><view class="eyebrow">STORY NOT READY</view><view class="empty-title serif">这碗汤还没盛好</view><view class="empty-copy">{{error || '没有找到这一局，回首页重新选择故事。'}}</view><button class="primary" bindtap="home">回到故事列表</button><button class="text-link" bindtap="initialize">重新检查连接</button></view>
+<view class="paper-theme game-page">
+  <view wx:if="{{loading}}" class="paper-theme loading-page"><view class="loading-symbol serif">汤</view><view class="loading-title serif">打开单人推理 · AI 主持</view><view class="muted">正在恢复这段故事…</view></view>
+  <view wx:elif="{{!session}}" class="paper-theme empty-page"><view class="eyebrow">STORY NOT READY</view><view class="empty-title serif">这碗汤还没盛好</view><view class="empty-copy">{{error || '没有找到这一局，回首页重新选择故事。'}}</view><button class="primary" bindtap="home">回到故事列表</button><button class="text-link" bindtap="initialize">重新检查连接</button></view>
   <block wx:else>
     <view class="game-header"><button class="back-button" bindtap="home" aria-label="返回故事列表">‹</button><view class="game-heading"><view class="game-kicker">单人推理 · AI 主持</view><view class="game-title serif">{{session.title}}</view></view><button class="more-toggle" bindtap="more" aria-label="更多操作">···</button></view>
     <view class="surface-card"><view class="surface-top"><text class="surface-label">汤 面</text><text class="pill">{{session.difficulty}}</text><button class="surface-toggle" bindtap="toggleSurface">{{surfaceExpanded ? '收起 −' : '展开 +'}}</button></view><view class="surface-body serif {{surfaceExpanded ? 'expanded' : ''}}">{{session.surface}}</view></view>
@@ -45,4 +45,4 @@
     <view wx:else class="ended-toolbar"><button bindtap="clear">清空本局记录</button><button bindtap="privacy">录音与隐私说明</button></view>
   </block>
 </view>
-<view wx:if="{{privacyNeeded}}" class="privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">只在你主动按住时录音。录音将发送到云端及第三方识别服务，转成文字供你确认。你也可以用文字继续。</view><button class="text-link" bindtap="privacy">阅读录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>
+<view wx:if="{{privacyNeeded}}" class="paper-theme privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">只在你主动按住时录音。录音将发送到云端及第三方识别服务，转成文字供你确认。你也可以用文字继续。</view><button class="text-link" bindtap="privacy">阅读录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>

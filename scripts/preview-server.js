@@ -5,7 +5,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { gzipSync } = require('node:zlib');
+const { gzipSync, brotliCompressSync, constants: zlibConstants } = require('node:zlib');
 const { createService } = require('../cloudfunctions/game/lib/service');
 const { createMemoryStore } = require('../cloudfunctions/game/lib/store-memory');
 const { createPreviewProvider } = require('./preview-provider');
@@ -13,11 +13,14 @@ const { createPreviewAudio } = require('./preview-audio');
 const puzzles = require('../cloudfunctions/game/data/puzzles');
 const root = path.resolve(__dirname, '..');
 const webpAssets = Object.freeze({
+  '/assets/brand/black-paper-v1.jpg': '/assets/brand/black-paper-v1.webp',
+  '/assets/brand/torn-kraft-v1.png': '/assets/brand/torn-kraft-v1.webp',
   '/assets/brand/logo-red-cyan-v7.png': '/assets/brand/logo-red-cyan-v7.webp',
   '/assets/brand/torn-entry-button-v2.png': '/assets/brand/torn-entry-button-v2.webp',
   '/assets/brand/torn-eye-open-v3.jpg': '/assets/brand/torn-eye-open-v3.webp',
   '/assets/brand/torn-eye-closed-v3.jpg': '/assets/brand/torn-eye-closed-v3.webp'
 });
+const fontResponses = new Map();
 function accepts(req, header, type) {
   return String(req.headers[header] || '').split(',').some(entry => {
     const [coding, ...params] = entry.trim().split(';');
@@ -28,7 +31,7 @@ function accepts(req, header, type) {
 function bundle() {
   const files = {};
   const add = (file, kind) => { files['/' + file.replace(/^miniprogram\//, '')] = { kind, source: fs.readFileSync(path.join(root, file), 'utf8') }; };
-  for (const file of ['app.js', 'app.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
+  for (const file of ['app.js', 'app.wxss', 'theme.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
   for (const page of ['home', 'game', 'tutorial', 'privacy', 'room', 'leaderboard']) for (const ext of ['js', 'wxml', 'wxss']) add(`miniprogram/pages/${page}/index.${ext}`, ext);
   return 'window.__miniFiles=' + JSON.stringify(files).replace(/</g, '\\u003c') + ';';
 }
@@ -100,8 +103,15 @@ function createPreviewServer(options = {}) {
       const publicAssets = require('./preview-assets');
       if (Object.hasOwn(publicAssets, url.pathname)) {
         const webp = webpAssets[url.pathname] && accepts(req, 'accept', 'image/webp');
-        const bytes = fs.readFileSync(path.join(root, 'miniprogram', webp ? webpAssets[url.pathname] : url.pathname));
-        res.writeHead(200, { 'Content-Type': webp ? 'image/webp' : publicAssets[url.pathname], 'Content-Length': bytes.length, Vary: 'Accept', 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff' });
+        let bytes = fs.readFileSync(path.join(root, 'miniprogram', webp ? webpAssets[url.pathname] : url.pathname));
+        const font = publicAssets[url.pathname] === 'font/ttf';
+        const encoding = font && (accepts(req, 'accept-encoding', 'br') ? 'br' : accepts(req, 'accept-encoding', 'gzip') ? 'gzip' : '');
+        if (encoding) {
+          const cacheKey = url.pathname + ':' + encoding;
+          if (!fontResponses.has(cacheKey)) fontResponses.set(cacheKey, encoding === 'br' ? brotliCompressSync(bytes, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 6 } }) : gzipSync(bytes));
+          bytes = fontResponses.get(cacheKey);
+        }
+        res.writeHead(200, { 'Content-Type': webp ? 'image/webp' : publicAssets[url.pathname], 'Content-Length': bytes.length, Vary: font ? 'Accept-Encoding' : 'Accept', 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff', ...(encoding ? { 'Content-Encoding': encoding } : {}) });
         return res.end(req.method === 'HEAD' ? undefined : bytes);
       }
       const staticFiles = { '/': ['index.html', 'text/html; charset=utf-8'], '/runtime.js': ['runtime.js', 'text/javascript; charset=utf-8'], '/voice.js': ['voice.js', 'text/javascript; charset=utf-8'], '/recorder.wav.min.js': ['vendor/recorder.wav.min.js', 'text/javascript; charset=utf-8'], '/preview.css': ['preview.css', 'text/css; charset=utf-8'] };

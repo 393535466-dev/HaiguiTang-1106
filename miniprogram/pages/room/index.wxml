@@ -1,4 +1,4 @@
-<view class="room-page">
+<view class="paper-theme room-page">
   <view class="room-header"><button class="room-back" bindtap="home" aria-label="返回首页">‹</button><view class="room-heading"><view class="eyebrow">{{room ? '好友同桌 · 一起推理' : 'FRIENDS AT THE TABLE'}}</view><view class="serif room-title">{{room ? room.title : '好奇心，凑一桌。'}}</view></view><button class="small-link" bindtap="leaderboard">排行榜 ↗</button></view>
   <view wx:if="{{loading}}" class="room-loading"><view class="loading-orbit serif">汤</view><view>正在准备好友桌…</view></view>
   <view wx:elif="{{!room}}" class="room-setup">
@@ -39,4 +39,4 @@
     <view wx:else class="room-bottom finished"><button bindtap="home">回到首页</button><button bindtap="leave">离开这桌</button></view>
   </block>
 </view>
-<view wx:if="{{privacyNeeded}}" class="privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">录音先转文字，由你核对后发送。发送讨论时，房间成员会看到确认的文字。</view><button class="text-link" bindtap="privacy">录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>
+<view wx:if="{{privacyNeeded}}" class="paper-theme privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">录音先转文字，由你核对后发送。发送讨论时，房间成员会看到确认的文字。</view><button class="text-link" bindtap="privacy">录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>

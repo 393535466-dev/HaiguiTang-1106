@@ -7,26 +7,28 @@ const puzzles = require('../cloudfunctions/game/data/puzzles');
 const answerTypes = new Set(['yes', 'no', 'irrelevant', 'unspecified', 'clarify']);
 const guessTypes = new Set(['solved', 'incomplete', 'incorrect', 'uncertain']);
 
-test('three authored puzzles provide complete private facts and independently authored answer fixtures', () => {
-  assert.equal(puzzles.length, 3);
-  assert.equal(new Set(puzzles.map(p => p.id)).size, 3);
-  assert.equal(puzzles.reduce((sum, p) => sum + p.testCases.length, 0), 60);
+test('ten graded workshop stories and three original stories provide private facts and authored fixtures', () => {
+  assert.equal(puzzles.length, 13);
+  assert.equal(new Set(puzzles.map(p => p.id)).size, 13);
+  const workshop = puzzles.filter(p => p.collection === 'workshop-20261109');
+  assert.deepEqual(workshop.map(p => p.level), [1,2,3,4,5,6,7,8,9,10]);
+  assert.deepEqual(['悬疑','温情','无厘头'].map(genre => workshop.filter(p => p.genre === genre).length), [6,2,2]);
   for (const puzzle of puzzles) {
     for (const field of ['id', 'version', 'title', 'difficulty', 'teaser', 'surface', 'solution', 'source', 'license']) {
       assert.equal(typeof puzzle[field], 'string', `${puzzle.id}: missing ${field}`);
       assert.ok(puzzle[field].trim(), `${puzzle.id}: blank ${field}`);
     }
-    assert.ok(puzzle.facts.length >= 8, `${puzzle.id}: facts too sparse`);
+    assert.ok(puzzle.facts.length >= (puzzle.collection ? 5 : 8), `${puzzle.id}: facts too sparse`);
     assert.ok(puzzle.requiredPoints.length >= 2, `${puzzle.id}: missing causal rubric`);
     assert.ok(puzzle.criticalContradictions.length >= 2);
-    assert.ok(puzzle.unspecifiedDetails.length >= 2);
+    assert.ok(puzzle.unspecifiedDetails.length >= (puzzle.collection ? 1 : 2));
     assert.ok(puzzle.irrelevantDetails.length >= 1);
     assert.ok(puzzle.acceptableVariants.length >= 2);
     assert.equal(puzzle.hints.length, 3);
     assert.equal(new Set(puzzle.hints).size, 3);
     assert.equal(puzzle.license, 'Project-original');
     assert.ok(puzzle.source.includes('原创'));
-    assert.equal(puzzle.testCases.length, 20);
+    if (puzzle.collection) assert.ok(puzzle.testCases.length >= 7); else assert.equal(puzzle.testCases.length, 20);
     const expectedByQuestion = new Map();
     for (const fixture of puzzle.testCases) {
       assert.ok(fixture.text.trim());
@@ -44,6 +46,14 @@ test('three authored puzzles provide complete private facts and independently au
       assert.ok(fixture.text.trim());
       assert.ok(guessTypes.has(fixture.answer));
     }
+  }
+});
+test('public catalog matches the playable lineup without private story fields', () => {
+  const catalog = require('../miniprogram/data/catalog');
+  assert.deepEqual(catalog.map(p => p.id), puzzles.map(p => p.id));
+  for (const item of catalog) {
+    for (const key of Object.keys(item)) assert.ok(['id','title','difficulty','teaser','level','genre','contentTags'].includes(key));
+    assert.ok(!['solution','facts','requiredPoints','testCases'].some(key => key in item));
   }
 });
 

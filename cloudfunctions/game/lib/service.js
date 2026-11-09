@@ -229,7 +229,8 @@ function createService({ store, provider, audio, puzzles, clock = Date.now,
       const state = await provider.ready();
       return { configured: !!(state.textReady && state.voiceReady), textReady: !!state.textReady, voiceReady: !!state.voiceReady, environment: 'cloud', ownerKey: HASH(uid).slice(0,24) };
     }
-    if (action === 'listPuzzles') return { puzzles: puzzles.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty, teaser: p.teaser })) };
+    if (action === 'listPuzzles') return { puzzles: puzzles.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty, teaser: p.teaser,
+      ...(p.level ? { level: p.level, genre: p.genre, contentTags: p.contentTags } : {}) })) };
     if (action === 'startSolo' || action === 'startVoicePractice' || action === 'startTutorial') {
       const practice = action === 'startVoicePractice';
       const tutorial = action === 'startTutorial';

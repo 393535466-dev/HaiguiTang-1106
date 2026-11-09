@@ -35,11 +35,11 @@ async function main() {
     await startup.close();
     // Artwork failures can be retried without leaving the story or blanking the UI.
     const missingArt = await browser.newPage({ viewport: { width: 390, height: 844 } });
-    await missingArt.route('**/torn-entry-button-v2.png', route => route.abort());
+    await missingArt.route('**/torn-kraft-v1.png', route => route.abort());
     await missingArt.goto(base);
     await missingArt.getByRole('button', { name: '重载画面 ↻' }).waitFor();
     assert.equal(await missingArt.getByRole('button', { name: '进入游戏', exact: true }).isVisible(), true);
-    await missingArt.unroute('**/torn-entry-button-v2.png');
+    await missingArt.unroute('**/torn-kraft-v1.png');
     await missingArt.getByRole('button', { name: '重载画面 ↻' }).click();
     await missingArt.waitForFunction(() => window.__preview.page.data.eyeReady && document.querySelector('.torn-button-art').naturalWidth > 0);
     assert.equal(await missingArt.getByRole('button', { name: '重载画面 ↻' }).count(), 0);
@@ -57,8 +57,12 @@ async function main() {
     await page.goto(base); await page.waitForFunction(() => !window.__preview.page.data.loading);
     await page.waitForFunction(()=>window.__preview.page.data.eyeReady && [...document.querySelectorAll('.cover-art,.brand-logo,.torn-button-art')].every(i=>i.complete&&i.naturalWidth>0));
     await page.evaluate(()=>document.fonts.ready);
-    assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupBrush','进入游戏')),true);
-    for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:700,height:600},{width:900,height:650},{width:1320,height:1000}]) {
+    assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupHand','进入游戏')),true);
+    assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupDisplay','CHOOSE')),true);
+    assert.equal(await page.locator('.cover-brand').innerText(), '海龟汤');
+    assert.equal(await page.locator('.entry-arrow').count(), 0);
+    assert.equal(await page.locator('.cover-tutorial').innerText(), '第一次玩？跟着做一遍');
+    for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:488,height:676},{width:700,height:600},{width:900,height:650},{width:1320,height:1000}]) {
       await page.setViewportSize(viewport); await layout('.hero-button'); await layout('.cover-tutorial'); await layout('.cover-privacy');
       assert.equal(await page.evaluate(() => {
         const box = selector => document.querySelector(selector).getBoundingClientRect();
@@ -79,7 +83,14 @@ async function main() {
     assert.equal(await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).count(),0);
     await page.setViewportSize({width:320,height:568});await layout('.route-bottom');await shot('mode-small');
     await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories'&&!window.__preview.page.data.loading);await layout('.story-card');await shot('stories-small');
-    await page.getByRole('button',{name:'下一题',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.storyIndex),1);
+    assert.equal(await page.evaluate(()=>window.__preview.page.data.puzzles.length),13);
+    for(let i=0;i<10;i++){
+      await page.waitForFunction(({i,title})=>window.__preview.page.data.storyIndex===i&&document.querySelector('.story-stage').innerText.includes(title),{i,title:puzzles[i].title});
+      assert.ok((await page.locator('.story-stage').innerText()).includes(puzzles[i].title));
+      assert.ok((await page.locator('.story-stage').innerText()).includes('难度 '+(i+1)+' / 10'));
+      if(i<9)await page.getByRole('button',{name:'下一题',exact:false}).click();
+    }
+    for(let i=9;i>1;i--){await page.getByRole('button',{name:'上一题',exact:false}).click();await page.waitForFunction(i=>window.__preview.page.data.storyIndex===i-1,i)}
     await page.goBack();await page.waitForFunction(()=>window.__preview.page.data.screen==='mode');
     await page.goForward();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories');
     await page.waitForFunction(()=>!window.__preview.page.data.loading);
@@ -148,7 +159,7 @@ async function main() {
     await shot('privacy-small');
     await page.goto(base+'/?mode=unconfigured');await page.getByRole('button',{name:'进入游戏'}).click();await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.story-card').first().isDisabled(),true);await shot('not-ready-small');
     assert.deepEqual(errors,[]);
-    console.log('Design browser checks passed: single-screen cover/mode/story routes, assets loaded, browser back/forward, 320/390/430/700/900/1320 layouts, slow/failed startup and artwork recovery, six-member room, discussion/verdict/result, join flow, countdown with IME, paged rankings/privacy, tutorial and unavailable state. No real model calls.');
+    console.log('Design browser checks passed: single-screen cover/mode/story routes, assets loaded, browser back/forward, 320/390/430/488/700/900/1320 layouts, slow/failed startup and artwork recovery, six-member room, discussion/verdict/result, join flow, countdown with IME, paged rankings/privacy, tutorial and unavailable state. No real model calls.');
   } finally { if(browser)await browser.close();await new Promise(resolve=>server.close(resolve)); }
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

@@ -28,7 +28,8 @@
   const modules = {}, definitions = {}, pages = [];
   let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null, renderedPage = null;
   const domTemplates = {};
-  const baseStyles = files['/app.wxss'].source;
+  const baseStyles = files['/app.wxss'].source.replace(/@import\s+["']theme\.wxss["'];?/, '');
+  const themeStyles = files['/theme.wxss'].source;
   const style = document.createElement('style'); document.head.append(style);
 
   function pathResolve(name, parent) {
@@ -256,7 +257,7 @@
     const currentCount = conversation?.messages?.length;
     const contentKey = JSON.stringify([conversation?.messages?.slice(-1)[0]?.id, conversation?.state, conversation?.hintCount, conversation?.active?.requestId || conversation?.activeRequestId]);
     const stem = page._previewFile.replace(/\.js$/, '');
-    const nextStyles = css(baseStyles + '\n' + files[stem + '.wxss'].source);
+    const nextStyles = css(baseStyles + '\n' + files[stem + '.wxss'].source + '\n' + themeStyles);
     if (style.textContent !== nextStyles) style.textContent = nextStyles;
     // Health replies, image loads and viewport changes must not discard artwork
     // that is still downloading, or restart its blink animation on every repaint.

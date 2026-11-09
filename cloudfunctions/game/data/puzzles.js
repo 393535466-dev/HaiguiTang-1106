@@ -238,4 +238,4 @@ const puzzles = [
   }
 ];
 
-module.exports = puzzles;
+module.exports = [...require('./workshop-20261109.json'), ...puzzles];

@@ -1,4 +1,4 @@
-<view class="tutorial-page">
+<view class="paper-theme tutorial-page">
   <view class="tutorial-header"><view><view class="eyebrow">第一次喝汤</view><view class="tutorial-title serif">跟着玩一遍</view></view><button class="skip-button" bindtap="exit">{{returnToGame ? '回到游戏' : '跳过练习'}} ↗</button></view>
   <view class="practice-label">{{judgeMode === 'fixture' ? '开发测试 · 固定测试裁判' : 'AI 主持 · 用你自己的话来问'}}</view>
 <view class="host-voice-bar"><button bindtap="toggleHostVoice" disabled="{{recording}}">{{hostVoiceEnabled ? '人声已开 · 关闭' : '开启自然人声'}}</button><button bindtap="readSurface" disabled="{{recording}}">听题</button><button bindtap="replayHostVoice" disabled="{{recording}}">重播</button></view><view wx:if="{{hostVoiceStatus}}" class="host-voice-status">{{hostVoiceStatus}}</view>
@@ -47,4 +47,4 @@
     <view class="footer-links"><button wx:if="{{step > 0 && !sessionEnded}}" bindtap="previous" disabled="{{recording || voiceBusy || judgeBusy || judgePending}}">← 上一步</button><button wx:elif="{{sessionEnded}}" bindtap="restart">重新练习</button><text>第 {{step + 1}} / 4 步</text></view>
   </view>
 </view>
-<view wx:if="{{privacyNeeded}}" class="privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">只在你主动按住时录音。录音将发送到云端及第三方识别服务，转成文字供你确认。你也可以用文字继续。</view><button class="text-link" bindtap="privacy">阅读录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>
+<view wx:if="{{privacyNeeded}}" class="paper-theme privacy-backdrop"><view class="privacy-dialog"><view class="privacy-title serif">开麦之前，先说清楚</view><view class="privacy-body">只在你主动按住时录音。录音将发送到云端及第三方识别服务，转成文字供你确认。你也可以用文字继续。</view><button class="text-link" bindtap="privacy">阅读录音与隐私说明</button><button id="agree-privacy" class="primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">同意并继续</button><button class="secondary" bindtap="declinePrivacy">暂不使用语音</button></view></view>

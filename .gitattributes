@@ -1,0 +1,2 @@
+# Preserve the upstream font license in its original CP932/CRLF bytes.
+docs/fonts/aoyagi/usage-original.txt -text -diff

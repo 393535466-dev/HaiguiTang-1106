@@ -47,7 +47,7 @@ test('mobile entry requires an unexpired invite, sets a secure cookie and hides 
   const fallback = await request('/assets/brand/torn-entry-button-v2.png', { headers: { ...headers, Accept: 'image/webp;q=0,image/png' } });
   assert.equal(fallback.headers.get('content-type'), 'image/png');
   assert.equal(page.headers.get('cache-control'), 'no-store');
-  for (const route of ['/.env.preview.local', '/.preview-data/preview-state.json', '/cloudfunctions/game/data/puzzles.js']) assert.equal((await request(route, { headers })).status, 404);
+  for (const route of ['/.env.preview.local', '/.preview-data/preview-state.json', '/cloudfunctions/game/data/puzzles.js', '/cloudfunctions/game/data/workshop-20261109.json', '/design/story-workshop/2026-11-09/drafts.json']) assert.equal((await request(route, { headers })).status, 404);
   expire(); assert.equal((await request('/', { headers })).status, 410);
 });
 test('mobile gateway rejects cross-site requests and never gives callers the local owner identity', async t => {
@@ -81,4 +81,25 @@ test('mobile entry compresses startup files and preserves encoding through the g
   assert.ok(bytes.length < Buffer.byteLength(text) / 2);
   const page = await request('/', { headers });
   assert.match(await page.text(), /id="preview-boot"/);
+});
+
+test('requested fonts keep original bytes after HTTP compression through the invitation gateway', async t => {
+  const { request, enter } = await setup(t);
+  const headers = { Cookie: (await enter()).split(';')[0] };
+  const fs = require('node:fs'), path = require('node:path'), zlib = require('node:zlib');
+  for (const name of ['pinru-v1.ttf', 'aoyagi-v1.ttf']) {
+    const original = fs.readFileSync(path.join(__dirname, '../miniprogram/assets/fonts', name));
+    for (const encoding of ['br', 'gzip', 'br;q=0,gzip;q=0']) {
+      const response = await request('/assets/fonts/' + name, { headers: { ...headers, 'Accept-Encoding': encoding } });
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('content-type'), 'font/ttf');
+      assert.equal(response.headers.get('vary'), 'Accept-Encoding');
+      const raw = Buffer.from(await response.arrayBuffer());
+      const selected = response.headers.get('content-encoding');
+      assert.equal(selected, encoding.startsWith('br;q=0') ? null : encoding);
+      const decoded = selected === 'br' ? zlib.brotliDecompressSync(raw) : selected === 'gzip' ? zlib.gunzipSync(raw) : raw;
+      assert.deepEqual(decoded, original);
+      if (selected) assert.ok(raw.length < original.length * .85);
+    }
+  }
 });

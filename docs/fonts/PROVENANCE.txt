@@ -1,0 +1,42 @@
+Font asset research, 2026-11-09
+
+Downloaded assets (original bytes, no glyph editing, conversion, or subsetting)
+1. PinRuShouXieTi-fonthubs.ttf
+   Font family: 品如手写体. Designer: 林芳柽. Manufacturer: 品如设计.
+   Internal version: Version 1.000;August 16, 2021;FontCreator 14.0.0.2790 64-bit.
+   Size: 6,044,336 bytes. SHA256: 6d942850c4e6e51261433e163c397563965110a4a7b3877260d722e59fa93070
+   Downloaded from the public preview font URL exposed by https://www.fonthubs.com/fonts/font-10
+   Direct URL: https://bucket.fonthubs.com/f7df7c3d-4198-4dcd-9601-1ed30da04453.ttf
+   FontHubs is a distribution mirror, NOT the author. Its license summaries are contradictory and must not be treated as authoritative.
+   Author original release URL: https://www.zcool.com.cn/work/ZMjE0MjQyMDg=.html
+   Original release currently gives an anti-bot response to automated fetching.
+   Archived image of author release / license statement: https://www.maoken.com/wp-content/uploads/2020/02/01-18-1024x356.png
+   Saved evidence: pinru-license.png (visually inspected).
+   That screenshot identifies lendylin and says the font can be used permanently for free commercially, and asks not to resell it.
+   Author-authored supporting article: https://www.zcool.com.cn/article/ZNjE3Mzk2.html
+   That article identifies the author's font, links a font collection, and has a dated 2021.8.16 update explaining the author fixed earlier Japanese-region font identification errors. This date matches the downloaded font's internal version date. Matching dates alone do not prove identical binary provenance.
+   Secondary archive: https://www.maoken.com/freefonts/2930.html (saved pinru-maoken.html).
+   This archive distinguishes its own experience-based usage interpretation from the author's statement. Its restrictions on editing are not a verbatim author license; its embedded-font status is explicitly unknown.
+   No author-supplied clause explicitly permitting WOFF/WOFF2 conversion, subsetting, glyph editing, or broad software/web redistribution was located. No conversion or subsetting was performed. Broad free-commercial statement is not a detailed open-source license.
+   Font OS/2.fsType is 8 (editable embedding flag), but font metadata does not independently settle the scope of the copyright permission.
+
+2. aoyagi/aoyagireisyosimo_ttf_2_01.ttf
+   Original official distribution page: https://opentype.jp/aoyagireisho.htm
+   Original ZIP: https://opentype.jp/bin/aoyagireisyosimo_ttf_2_01.zip (saved as aoyagi.zip).
+   Font family: aoyagireisyosimo2 / 青柳隷書SIMO2_T. Version 2.01.
+   Calligraphy: 青柳衡山. Font creation / copyright: SIMO.
+   Size: 4,412,684 bytes. SHA256: a4c55ad5f72e65a482931d967725e97ff206eb3019c87281d9e5514a63bb8db9
+   Accompanying author instructions: aoyagi/フォントの使用方法.txt (CP932), aoyagi-license-utf8.txt (decoded transcription).
+   Author explanation included as aoyagi/フォントの解説.pdf and .doc.
+   Instructions permit free use including commercial use and free redistribution anywhere. Redistribution must be free and include the usage instructions and explanation document. They state notice is unnecessary for use/redistribution (book/magazine inclusion has a separate notice sentence).
+   These instructions have no explicit WOFF2-conversion or subsetting clause. Some third-party summaries say modification is permitted, but the original packet's text does not explicitly discuss this; preserve the original TTF under the requested conservative implementation.
+
+Coverage and implementation detail
+- Both fonts have outlines for CHOOSE YOUR TABLE.
+- PinRu has outlines for all characters in 你看到的未必是真相进入游戏海龟汤今晚怎么探个究竟.
+- Aoyagi lacks actual outlines for 你进戏龟汤晚么 in that test string.
+- PinRu covers all 528 distinct Han characters found in the current miniprogram/pages/**/*.wxml and **/*.js source at inspection time.
+- Aoyagi has 12,204 Han cmap entries but only 6,356 Han characters with nonempty outlines. Many entries map to empty glyphs, so a plain font-family fallback chain alone is insufficient; a mapped empty glyph can render blank rather than fall back.
+- aoyagi-nonempty-unicode-range.css contains a CSS unicode-range declaration selecting only nonempty outline codepoints plus intentional whitespace. This changes CSS character eligibility only and does not alter the original font. Apply it inside the Aoyagi @font-face block, with PinRu next in the family stack.
+- font-coverage.json contains exact hashes, byte sizes, missing-character lists, and tests.
+- Full original TTFs total approximately 10.46 MB decimal; copying raw fonts into a WeChat mini-program package may exceed its asset/package constraints. Loading strategy and actual target browser/mini-program rendering need parent-task validation.

@@ -11,7 +11,9 @@ async function main() {
   const provider = createProvider({ env });
   if (!provider.ready().textReady) throw Object.assign(new Error(), { code: 'CONFIG_REQUIRED' });
   const full = process.argv.includes('--full');
-  const selected = full ? puzzles : puzzles.slice(0, 1);
+  const collection = process.argv.find(a => a.startsWith('--collection='))?.slice('--collection='.length);
+  const selected = collection ? puzzles.filter(p => p.collection === collection) : full ? puzzles : puzzles.slice(0, 1);
+  if (!selected.length) throw Object.assign(new Error(), { code: 'EMPTY_COLLECTION' });
   const results = [];
   for (const puzzle of selected) {
     for (const kind of ['question', 'guess']) {
@@ -35,14 +37,14 @@ async function main() {
     process.stdout.write(puzzle.id + ': ' + results.filter(r => r.puzzleId === puzzle.id && r.passed).length + '/' + results.filter(r => r.puzzleId === puzzle.id).length + '\n');
     if (['PROVIDER_AUTH', 'CONFIG_REQUIRED', 'RATE_LIMITED'].includes(results.at(-1)?.error)) break;
   }
-  const summary = { realModel: true, model: env.LLM_MODEL || 'qwen-plus', timestamp: new Date().toISOString(),
+  const summary = { realModel: true, model: env.LLM_MODEL || 'qwen-plus', collection: collection || null, timestamp: new Date().toISOString(),
     passed: results.filter(r => r.passed).length, total: results.length,
     inputTokens: results.reduce((s, r) => s + (r.usage?.inputTokens || 0), 0),
     outputTokens: results.reduce((s, r) => s + (r.usage?.outputTokens || 0), 0),
     maxMs: Math.max(...results.map(r => r.elapsedMs)) };
   const dir = path.resolve(__dirname, '../.preview-data'); fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'ai-eval-latest.json'), JSON.stringify({ summary, results }, null, 2), { mode: 0o600 });
-  fs.writeFileSync(path.join(dir, 'ai-eval-' + summary.model.replace(/[^a-zA-Z0-9_-]/g, '_') + '.json'), JSON.stringify({ summary, results }, null, 2), { mode: 0o600 });
+  fs.writeFileSync(path.join(dir, 'ai-eval-' + [summary.model, collection].filter(Boolean).join('-').replace(/[^a-zA-Z0-9_-]/g, '_') + '.json'), JSON.stringify({ summary, results }, null, 2), { mode: 0o600 });
   console.log(JSON.stringify(summary));
   console.log(JSON.stringify({ failures: results.filter(r => !r.passed).map(r => ({ puzzleId: r.puzzleId, kind: r.kind, text: r.text, expected: r.expected, actual: r.actual, error: r.error })) }));
   if (summary.passed !== summary.total) process.exitCode = 1;

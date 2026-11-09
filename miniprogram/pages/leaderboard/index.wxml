@@ -1,4 +1,4 @@
-<view class="rank-page">
+<view class="paper-theme rank-page">
   <view class="rank-top"><button class="text-link" bindtap="home">‹ 回到首页</button><text>好奇心俱乐部</text></view>
   <view wx:if="{{!rulesOpen}}" class="rank-hero"><view class="eyebrow">THE CURIOUS MINDS</view><view class="rank-title serif">好奇心，<text>有回响。</text></view><view class="rank-emblem" aria-hidden="true"><text class="serif">?</text><view>✦</view></view><view class="rank-sub">每一次认真推理，都值得被记住。</view></view>
   <block wx:if="{{!rulesOpen}}"><view class="rank-tabs"><button class="{{mode === 'solo' ? 'selected' : ''}}" data-mode="solo" bindtap="switchMode">单人榜</button><button class="{{mode === 'friends' ? 'selected' : ''}}" data-mode="friends" bindtap="switchMode">好友协作榜</button></view>

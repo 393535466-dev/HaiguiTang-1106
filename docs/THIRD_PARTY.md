@@ -20,7 +20,15 @@
 
 当前选择复用录音组件并接现有百炼服务，省去另行部署开源语音模型的 GPU、推理服务和运维工作。没有引入第三方海龟汤游戏代码或题库。
 
-## 首页毛笔字
+## 当前指定字体（2026-11-09）
+
+使用品如手写体（林芳柽）与青柳隶书体（青柳衡山书法、SIMO 制字）。品如用于主要标题、正文和输入，青柳用于品牌及英文小标。两份 TTF 均保留下载时的原始字节，没有改字形、裁字或转换字体格式；HTTP Brotli/gzip 只压缩传输，浏览器解压后与原文件相同。
+
+品如作者的免费商用声明截图、来源链和二进制哈希保存在 [字体溯源记录](fonts/PROVENANCE.txt)。下载源为 FontHubs 镜像，作者原始发布页有反爬限制；免费商用声明不是完整开源许可证，未获得另行出售字体或任意改制的授权。青柳来自[作者发行页](https://opentype.jp/aoyagireisho.htm)，随项目保留 [原使用说明](fonts/aoyagi/usage-original.txt) 与 [字体解说](fonts/aoyagi/explanation.pdf)。
+
+青柳中部分简体汉字虽有编码却无字形轮廓，CSS 通过 `unicode-range` 排除空字形，使这些字回退到品如，避免缺字；没有修改原字体。具体资源和生成记录见 [纸面主题素材记录](paper-theme-assets.txt)。
+
+## 历史首页毛笔字（当前已替换）
 
 首页使用 [Ma Shan Zheng](https://github.com/googlefonts/mashanzheng) 接近用户提供的毛笔字参考；未声称识别出了参考图的原字体。采用 Google Fonts 提供的首页字符子集，通过 fontTools 转为 WOFF2，运行时字体别名为 SoupBrush。字体从项目自身目录加载，玩家打开页面时无需连接 Google Fonts。
 

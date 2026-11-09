@@ -1,0 +1,39 @@
+Paper theme and requested fonts — 2026-11-09
+
+Current usage
+- Product header: 海龟汤, no secondary brand tagline.
+- Main Chinese copy, page titles, questions and input: 品如手写体 / SoupHand, weight 400; no synthetic bold.
+- Brand and small English marks: 青柳隶书体 / SoupDisplay, with SoupHand fallback.
+- No entry or first-tutorial arrows. Dark coarse-paper pages; warm kraft openings for large cards and dialogs.
+- Full page stays fixed; message areas can scroll; story/ranking/privacy use pagination.
+
+Runtime files
+miniprogram/theme.wxss
+miniprogram/assets/fonts/pinru-v1.ttf
+miniprogram/assets/fonts/aoyagi-v1.ttf
+miniprogram/assets/brand/black-paper-v1.jpg
+miniprogram/assets/brand/black-paper-v1.webp
+miniprogram/assets/brand/torn-kraft-v1.png
+miniprogram/assets/brand/torn-kraft-v1.webp
+Font sources, hashes and license evidence: docs/fonts/PROVENANCE.txt, pinru-author-statement.png and aoyagi/.
+Original font bytes are unchanged. SoupDisplay unicode-range excludes blank encoded glyphs based on actual outlines, allowing Chinese fallback. HTTP Brotli/gzip keeps the original decoded bytes. These full TTF files require a separate native-mini-program delivery plan; H5 is the verified target of this change.
+
+Generated material
+Built-in image_gen used; generated masters copied into design/brand in the working project. Runtime exports are checked in. Existing user-approved logo and eye/blink frames are retained.
+
+Black paper source:
+/Users/yangx/.codex/generated_images/01a14a8d-ab22-72c0-8360-b034f00d64a0/exec-951bbf09-a91f-4d42-a684-2f2bbe442bb3.png
+Local master: design/brand/black-paper-v1-master.png
+Prompt intent: edit the existing black torn-eye homepage artwork into a continuous sheet of deep-black fibrous coarse paper, remove the eye and opening, preserve the original black paper material, no writing or objects. Used as the shared dark background.
+Export: macOS sips, JPEG quality 75, maximum dimension 1200. H5 WebP same dimensions, browser Canvas encoding quality 0.88.
+
+Kraft opening source:
+/Users/yangx/.codex/generated_images/01a14a8d-ab22-72c0-8360-b034f00d64a0/exec-efd5d51b-e718-4a7d-8b00-29953ced668e.png
+Local master: design/brand/torn-kraft-v1-master.png
+Prompt intent: replace the red interior of the existing small torn-black-paper button with warm aged beige kraft paper matching the homepage eye; natural uneven frayed fibers and black torn flaps, blank interior, transparent outer background, no letters, arrows or symbols. Wide small UI asset with usable central space.
+Export: macOS sips, PNG maximum width 1000, preserve alpha. H5 WebP same dimensions, browser Canvas encoding quality 0.88. CSS nine-slice reuses the texture while preserving edge thickness on tall cards; text is live and editable, not baked into art.
+
+Cleanup candidate exec-a281ce7b-8c2c-4a27-b59c-75f6e4166291.png was reviewed but not adopted: no material improvement over the selected source. Original generated files are retained.
+
+Script integration
+cloudfunctions/game/data/workshop-20261109.json contains ten user-requested workshop stories, private answers, facts, causal rubrics, three hints and authored question/guess fixtures. miniprogram/data/catalog.js contains only public selection metadata. New stories precede the original three, whose IDs remain stable for existing sessions. Levels are editorial estimates, pending blind playtests.
