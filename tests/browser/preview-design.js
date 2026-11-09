@@ -15,6 +15,35 @@ async function main() {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } }), errors = [];
     page.on('pageerror', e => errors.push(e.message));
     const base = 'http://127.0.0.1:' + server.address().port;
+    // A delayed/failed script must leave a visible, recoverable page rather than black.
+    const startup = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await startup.addInitScript(() => { window.structuredClone = undefined; });
+    let release;
+    const held = new Promise(resolve => { release = resolve; });
+    await startup.route('**/bundle.js', async route => { await held; await route.continue(); });
+    await startup.goto(base, { waitUntil: 'commit' });
+    await startup.getByText('正在打开故事…', { exact: true }).waitFor();
+    release(); await startup.waitForFunction(() => window.__preview?.page.data.eyeReady);
+    assert.equal(await startup.locator('#preview-boot').count(), 0);
+    await startup.unroute('**/bundle.js');
+    await startup.route('**/runtime.js', route => route.abort());
+    await startup.reload({ waitUntil: 'domcontentloaded' });
+    await startup.getByText('页面未能完整加载，请重新打开故事。', { exact: true }).waitFor();
+    await startup.unroute('**/runtime.js');
+    await startup.getByRole('button', { name: '重新加载', exact: true }).click();
+    await startup.waitForFunction(() => window.__preview?.page.data.eyeReady);
+    await startup.close();
+    // Artwork failures can be retried without leaving the story or blanking the UI.
+    const missingArt = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await missingArt.route('**/torn-entry-button-v2.png', route => route.abort());
+    await missingArt.goto(base);
+    await missingArt.getByRole('button', { name: '重载画面 ↻' }).waitFor();
+    assert.equal(await missingArt.getByRole('button', { name: '进入游戏', exact: true }).isVisible(), true);
+    await missingArt.unroute('**/torn-entry-button-v2.png');
+    await missingArt.getByRole('button', { name: '重载画面 ↻' }).click();
+    await missingArt.waitForFunction(() => window.__preview.page.data.eyeReady && document.querySelector('.torn-button-art').naturalWidth > 0);
+    assert.equal(await missingArt.getByRole('button', { name: '重载画面 ↻' }).count(), 0);
+    await missingArt.close();
     const shot = async name => { if (dir) await page.screenshot({ path: path.join(dir, 'design-' + name + '.png') }); };
     const frame = () => page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
     async function layout(selector) {
@@ -29,8 +58,13 @@ async function main() {
     await page.waitForFunction(()=>window.__preview.page.data.eyeReady && [...document.querySelectorAll('.cover-art,.brand-logo,.torn-button-art')].every(i=>i.complete&&i.naturalWidth>0));
     await page.evaluate(()=>document.fonts.ready);
     assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupBrush','进入游戏')),true);
-    for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:1320,height:1000}]) {
+    for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:700,height:600},{width:900,height:650},{width:1320,height:1000}]) {
       await page.setViewportSize(viewport); await layout('.hero-button'); await layout('.cover-tutorial'); await layout('.cover-privacy');
+      assert.equal(await page.evaluate(() => {
+        const box = selector => document.querySelector(selector).getBoundingClientRect();
+        const screen = box('#mini-screen'), brand = box('.cover-brand'), heading = box('.cover-heading'), footer = box('.cover-footer');
+        return brand.bottom < heading.top && heading.bottom < screen.height * .4 && footer.top > screen.height * .6 && document.documentElement.scrollHeight <= innerHeight;
+      }), true, 'title and footer leave the eye clear, with no whole-page scrolling');
       assert.equal(await page.evaluate(()=>{const b=document.querySelector('.hero-button').getBoundingClientRect(),t=document.querySelector('.cover-tutorial').getBoundingClientRect(),f=document.querySelector('.cover-footnote').getBoundingClientRect();return t.top>=b.bottom-1&&t.bottom<=f.top+1}),true,'tutorial is between entry and capability caption');
       await page.locator('.eye-blink').evaluate(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}));await shot('home-' + viewport.width);
     }
@@ -114,7 +148,7 @@ async function main() {
     await shot('privacy-small');
     await page.goto(base+'/?mode=unconfigured');await page.getByRole('button',{name:'进入游戏'}).click();await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.story-card').first().isDisabled(),true);await shot('not-ready-small');
     assert.deepEqual(errors,[]);
-    console.log('Design browser checks passed: single-screen cover/mode/story routes, assets loaded, browser back/forward, 320/390/430/1320 layouts, six-member room, discussion/verdict/result, join flow, countdown with IME, paged rankings/privacy, tutorial and unavailable state. No real model calls.');
+    console.log('Design browser checks passed: single-screen cover/mode/story routes, assets loaded, browser back/forward, 320/390/430/700/900/1320 layouts, slow/failed startup and artwork recovery, six-member room, discussion/verdict/result, join flow, countdown with IME, paged rankings/privacy, tutorial and unavailable state. No real model calls.');
   } finally { if(browser)await browser.close();await new Promise(resolve=>server.close(resolve)); }
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

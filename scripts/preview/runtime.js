@@ -26,7 +26,7 @@
   };
   const localStore = guest ? identityStore : localStorage;
   const modules = {}, definitions = {}, pages = [];
-  let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null;
+  let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null, renderedPage = null;
   const domTemplates = {};
   const baseStyles = files['/app.wxss'].source;
   const style = document.createElement('style'); document.head.append(style);
@@ -92,7 +92,8 @@
     }
     requireMini(file);
     const definition = definitions[file];
-    const page = Object.assign({}, definition, { route, data: structuredClone(definition.data || {}), _previewFile: file, _previewURL: '/' + route + target.search });
+    // Page definitions contain JSON data; older mobile WebViews lack structuredClone.
+    const page = Object.assign({}, definition, { route, data: JSON.parse(JSON.stringify(definition.data || {})), _previewFile: file, _previewURL: '/' + route + target.search });
     page.setData = function (patch, callback) { Object.assign(this.data, patch); if (this === topPage()) scheduleRender(); if (callback) queueMicrotask(callback); };
     pages.push(page);
     location.hash = '/' + route + target.search;
@@ -150,10 +151,10 @@
   }
   function events(node, element, scope, page) {
     for (const attribute of node.attributes) {
-      const match = attribute.name.match(/^(bind|catch):?(tap|input|load|touchstart|touchmove|touchend|touchcancel|agreeprivacyauthorization)$/);
+      const match = attribute.name.match(/^(bind|catch):?(tap|input|load|error|touchstart|touchmove|touchend|touchcancel|agreeprivacyauthorization)$/);
       if (!match) continue;
       const logical = match[2];
-      const nativeEvent = { tap: 'click', input: 'input', load: 'load', touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup', touchcancel: 'pointercancel', agreeprivacyauthorization: 'click' }[logical];
+      const nativeEvent = { tap: 'click', input: 'input', load: 'load', error: 'error', touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup', touchcancel: 'pointercancel', agreeprivacyauthorization: 'click' }[logical];
       const dispatch = event => {
         if (match[1] === 'catch') event.stopPropagation();
         if (logical === 'touchstart') {
@@ -255,8 +256,20 @@
     const currentCount = conversation?.messages?.length;
     const contentKey = JSON.stringify([conversation?.messages?.slice(-1)[0]?.id, conversation?.state, conversation?.hintCount, conversation?.active?.requestId || conversation?.activeRequestId]);
     const stem = page._previewFile.replace(/\.js$/, '');
-    style.textContent = css(baseStyles + '\n' + files[stem + '.wxss'].source);
-    appRoot.replaceChildren(renderChildren(template(stem + '.wxml'), page.data, page, 'p'));
+    const nextStyles = css(baseStyles + '\n' + files[stem + '.wxss'].source);
+    if (style.textContent !== nextStyles) style.textContent = nextStyles;
+    // Health replies, image loads and viewport changes must not discard artwork
+    // that is still downloading, or restart its blink animation on every repaint.
+    const images = new Map(renderedPage === page ? [...appRoot.querySelectorAll('img')].map(img => [img.dataset.nodeKey + '|' + img.src, img]) : []);
+    const content = renderChildren(template(stem + '.wxml'), page.data, page, 'p');
+    for (const img of content.querySelectorAll('img')) {
+      const existing = images.get(img.dataset.nodeKey + '|' + img.src);
+      if (!existing) continue;
+      for (const attribute of [...existing.attributes]) if (!img.hasAttribute(attribute.name)) existing.removeAttribute(attribute.name);
+      for (const attribute of img.attributes) if (existing.getAttribute(attribute.name) !== attribute.value) existing.setAttribute(attribute.name, attribute.value);
+      img.replaceWith(existing);
+    }
+    appRoot.replaceChildren(content); renderedPage = page;
     for (const [key, top] of scrolls) { const element = appRoot.querySelector('[data-node-key="' + key + '"]'); if (element) element.scrollTop = top; }
     if (activeKey) { const input = appRoot.querySelector('[data-node-key="' + activeKey + '"]'); if (input && input.tagName === 'TEXTAREA') { input.focus({ preventScroll: true }); if (selection) input.setSelectionRange(selection[0], selection[1]); } }
     if (page.data.scrollTarget && (page._renderedScrollTarget !== page.data.scrollTarget || currentCount !== lastCount || contentKey !== page._renderedContentKey)) {

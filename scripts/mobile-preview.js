@@ -43,9 +43,11 @@ function createMobileGateway({ publicOrigin, accessToken, expiresAt, upstreamPor
     // Public callers may never inherit the local owner's identity by omitting a header.
     if (['/api', '/audio'].includes(url.pathname) && !/^[a-f0-9]{48}$/.test(String(req.headers['x-preview-player'] || ''))) return finish(401, '玩家身份已过期，请刷新页面。');
     const headers = { host: '127.0.0.1:' + upstreamPort };
-    for (const key of ['content-type', 'content-length', 'x-preview-player']) if (req.headers[key]) headers[key] = req.headers[key];
+    for (const key of ['content-type', 'content-length', 'accept', 'accept-encoding', 'x-preview-player']) if (req.headers[key]) headers[key] = req.headers[key];
     const upstream = http.request({ hostname: '127.0.0.1', port: upstreamPort, method: req.method, path: url.pathname + url.search, headers }, response => {
-      res.writeHead(response.statusCode, { 'Content-Type': response.headers['content-type'] || 'application/octet-stream' });
+      const responseHeaders = { 'Content-Type': response.headers['content-type'] || 'application/octet-stream' };
+      for (const key of ['content-encoding', 'content-length', 'vary']) if (response.headers[key]) responseHeaders[key] = response.headers[key];
+      res.writeHead(response.statusCode, responseHeaders);
       response.pipe(res);
     });
     upstream.setTimeout(70000, () => upstream.destroy(new Error('timeout')));

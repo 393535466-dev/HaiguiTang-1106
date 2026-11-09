@@ -38,6 +38,14 @@ test('mobile entry requires an unexpired invite, sets a secure cookie and hides 
     assert.equal(asset.headers.get('cache-control'), 'private, max-age=9');
     assert.equal((await request(route)).status, 403);
   }
+  const optimized = await request('/assets/brand/torn-entry-button-v2.png', { headers: { ...headers, Accept: 'image/webp,image/png' } });
+  assert.equal(optimized.headers.get('content-type'), 'image/webp');
+  assert.equal(optimized.headers.get('vary'), 'Accept');
+  const bytes = Buffer.from(await optimized.arrayBuffer());
+  assert.equal(bytes.subarray(8,12).toString(), 'WEBP');
+  assert.ok(bytes.length < 50000);
+  const fallback = await request('/assets/brand/torn-entry-button-v2.png', { headers: { ...headers, Accept: 'image/webp;q=0,image/png' } });
+  assert.equal(fallback.headers.get('content-type'), 'image/png');
   assert.equal(page.headers.get('cache-control'), 'no-store');
   for (const route of ['/.env.preview.local', '/.preview-data/preview-state.json', '/cloudfunctions/game/data/puzzles.js']) assert.equal((await request(route, { headers })).status, 404);
   expire(); assert.equal((await request('/', { headers })).status, 410);
@@ -58,4 +66,19 @@ test('mobile gateway rejects cross-site requests and never gives callers the loc
   assert.equal((await api(b, 'getRoom', { roomId: room.id })).error.code, 'ROOM_FORBIDDEN');
   const joined = (await api(b, 'joinRoom', { roomId: room.id })).data.room;
   assert.equal(joined.members.length, 2); assert.equal(joined.isHost, false);
+});
+test('mobile entry compresses startup files and preserves encoding through the gateway', async t => {
+  const { request, enter } = await setup(t);
+  const headers = { Cookie: (await enter()).split(';')[0] };
+  const plain = await request('/bundle.js', { headers: { ...headers, 'Accept-Encoding': 'gzip;q=0' } });
+  const compressed = await request('/bundle.js', { headers: { ...headers, 'Accept-Encoding': 'gzip' } });
+  assert.equal(plain.headers.get('content-encoding'), null);
+  assert.equal(compressed.headers.get('content-encoding'), 'gzip');
+  assert.equal(compressed.headers.get('vary'), 'Accept-Encoding');
+  assert.equal(compressed.headers.get('cache-control'), 'no-store');
+  const bytes = Buffer.from(await compressed.arrayBuffer()), text = await plain.text();
+  assert.equal(require('node:zlib').gunzipSync(bytes).toString(), text);
+  assert.ok(bytes.length < Buffer.byteLength(text) / 2);
+  const page = await request('/', { headers });
+  assert.match(await page.text(), /id="preview-boot"/);
 });

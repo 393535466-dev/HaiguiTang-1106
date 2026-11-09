@@ -5,12 +5,25 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { gzipSync } = require('node:zlib');
 const { createService } = require('../cloudfunctions/game/lib/service');
 const { createMemoryStore } = require('../cloudfunctions/game/lib/store-memory');
 const { createPreviewProvider } = require('./preview-provider');
 const { createPreviewAudio } = require('./preview-audio');
 const puzzles = require('../cloudfunctions/game/data/puzzles');
 const root = path.resolve(__dirname, '..');
+const webpAssets = Object.freeze({
+  '/assets/brand/logo-red-cyan-v7.png': '/assets/brand/logo-red-cyan-v7.webp',
+  '/assets/brand/torn-entry-button-v2.png': '/assets/brand/torn-entry-button-v2.webp',
+  '/assets/brand/torn-eye-open-v3.jpg': '/assets/brand/torn-eye-open-v3.webp',
+  '/assets/brand/torn-eye-closed-v3.jpg': '/assets/brand/torn-eye-closed-v3.webp'
+});
+function accepts(req, header, type) {
+  return String(req.headers[header] || '').split(',').some(entry => {
+    const [coding, ...params] = entry.trim().split(';');
+    return coding === type && !params.some(p => /^\s*q\s*=\s*0(?:\.0*)?\s*$/.test(p));
+  });
+}
 
 function bundle() {
   const files = {};
@@ -22,6 +35,13 @@ function bundle() {
 function respond(res, status, body, type = 'application/json; charset=utf-8') {
   res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
   res.end(body);
+}
+function respondStatic(req, res, body, type) {
+  let bytes = Buffer.isBuffer(body) ? body : Buffer.from(body);
+  const gzip = bytes.length > 1024 && accepts(req, 'accept-encoding', 'gzip');
+  if (gzip) bytes = gzipSync(bytes);
+  res.writeHead(200, { 'Content-Type': type, 'Content-Length': bytes.length, 'Cache-Control': 'no-store', Vary: 'Accept-Encoding', 'X-Content-Type-Options': 'nosniff', ...(gzip ? { 'Content-Encoding': 'gzip' } : {}) });
+  res.end(req.method === 'HEAD' ? undefined : bytes);
 }
 async function readJSON(req) {
   let body = '', bytes = 0;
@@ -75,17 +95,19 @@ function createPreviewServer(options = {}) {
         return respond(res, 200, JSON.stringify(output));
       }
       if (req.method !== 'GET' && req.method !== 'HEAD') return respond(res, 405, '{}');
-      if (url.pathname === '/bundle.js') return respond(res, 200, bundle(), 'text/javascript; charset=utf-8');
+      if (url.pathname === '/bundle.js') return respondStatic(req, res, bundle(), 'text/javascript; charset=utf-8');
       if (url.pathname === '/preview-status') return respond(res, 200, JSON.stringify({ mode: provider.mode, ...provider.ready() }));
       const publicAssets = require('./preview-assets');
       if (Object.hasOwn(publicAssets, url.pathname)) {
-        res.writeHead(200, { 'Content-Type': publicAssets[url.pathname], 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff' });
-        return res.end(fs.readFileSync(path.join(root, 'miniprogram', url.pathname)));
+        const webp = webpAssets[url.pathname] && accepts(req, 'accept', 'image/webp');
+        const bytes = fs.readFileSync(path.join(root, 'miniprogram', webp ? webpAssets[url.pathname] : url.pathname));
+        res.writeHead(200, { 'Content-Type': webp ? 'image/webp' : publicAssets[url.pathname], 'Content-Length': bytes.length, Vary: 'Accept', 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff' });
+        return res.end(req.method === 'HEAD' ? undefined : bytes);
       }
       const staticFiles = { '/': ['index.html', 'text/html; charset=utf-8'], '/runtime.js': ['runtime.js', 'text/javascript; charset=utf-8'], '/voice.js': ['voice.js', 'text/javascript; charset=utf-8'], '/recorder.wav.min.js': ['vendor/recorder.wav.min.js', 'text/javascript; charset=utf-8'], '/preview.css': ['preview.css', 'text/css; charset=utf-8'] };
       if (staticFiles[url.pathname]) {
         const [file, mime] = staticFiles[url.pathname];
-        return respond(res, 200, fs.readFileSync(path.join(__dirname, 'preview', file)), mime);
+        return respondStatic(req, res, fs.readFileSync(path.join(__dirname, 'preview', file)), mime);
       }
       respond(res, 404, '{}');
     } catch (_) { respond(res, 500, JSON.stringify({ error: '本地服务未能完成请求，请检查配置后重试。' })); }

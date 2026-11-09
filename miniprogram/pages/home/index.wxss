@@ -17,14 +17,15 @@
 .cover-caption{font-size:39rpx;color:#c8c2b3;letter-spacing:3rpx;line-height:1.25;margin-bottom:0}
 .cover-caption text{display:block}
 .hero-button{position:relative;display:flex;align-items:center;justify-content:center;gap:27rpx;width:100%;height:180rpx;min-height:76px;background:transparent;color:#fff2de;border-radius:0;padding:0;font-size:52rpx;letter-spacing:5rpx;isolation:isolate}
-.torn-button-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
-.entry-label{line-height:1;padding-bottom:3rpx;text-shadow:0 2rpx 8rpx #3d050a}
-.entry-arrow{font-family:serif;font-size:33rpx;line-height:1;color:#ead7c4}
+.torn-button-art{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.entry-label{position:relative;z-index:1;line-height:1;padding-bottom:3rpx;text-shadow:0 2rpx 8rpx #3d050a}
+.entry-arrow{position:relative;z-index:1;font-family:serif;font-size:33rpx;line-height:1;color:#ead7c4}
 .hero-button:focus-visible{outline:1px dashed #e7cfa9;outline-offset:0}
 .cover-tutorial{display:block;margin:0 auto;min-height:44px;font-size:23rpx;color:#c7c0b2;letter-spacing:1rpx;padding:8rpx 16rpx;line-height:1.5}
 .cover-tutorial text{margin-left:12rpx;color:#ba887b}
 .cover-footnote{font-size:18rpx;letter-spacing:2rpx;color:#9b9e99;margin-top:5rpx}
 .cover-privacy{font-size:17rpx;color:#87918a;padding:12rpx 0;min-height:32px;margin:2rpx auto 0}
+.cover-art-retry{position:absolute;right:24rpx;top:calc(115rpx + env(safe-area-inset-top));padding:6rpx 14rpx;min-height:36px;font-size:21rpx;line-height:1.4;border:1px solid #777;color:#ddd7ca;background:#151818}
 .inner-page{display:flex;flex-direction:column;padding:calc(20rpx + env(safe-area-inset-top)) 40rpx calc(30rpx + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 100% 0,#1d2c31 0,transparent 60%),#111414}
 .route-header{display:flex;align-items:center;justify-content:space-between;gap:16rpx;flex-shrink:0;height:85rpx}
 .route-header>button{font-size:48rpx;min-width:40px;min-height:44px;text-align:left}

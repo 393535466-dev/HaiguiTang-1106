@@ -16,3 +16,6 @@ Font sources:
 https://github.com/googlefonts/mashanzheng
 https://github.com/google/fonts/tree/main/ofl/mashanzheng
 https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng
+
+2026-11-09 display/loading fix: runtime now uses torn-eye-open-v3.jpg and torn-eye-closed-v3.jpg (macOS sips, maximum dimension 1422, JPEG quality 75), logo-red-cyan-v7.png (192 square), and torn-entry-button-v2.png (1000 wide). Only export dimensions/encoding changed; original geometry, colors and alpha are retained. Original generated masters and earlier exports remain. Combined runtime images: 864,947 bytes, down from 3,350,873 bytes (74.2%).
+H5 delivery additionally negotiates WebP only when the image request advertises image/webp. These are same-dimension Canvas WebP exports at quality 0.85; PNG/JPEG remain the fallback (including clients declining WebP). WebP total: 324,638 bytes (90.3% below the previous runtime total); Vary: Accept is preserved through the invitation gateway.

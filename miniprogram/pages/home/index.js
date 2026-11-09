@@ -3,7 +3,7 @@ const storage = require('../../utils/storage')
 const catalog = require('../../data/catalog')
 
 Page({
-  data: { screen: 'cover', coverActive: true, eyeReady: false, storyIndex: 0, puzzle: catalog[0], puzzles: catalog, loading: true, canStart: false, continuing: '', statusText: '正在检查连接', statusKind: 'waiting', error: '', privacyNeeded: false },
+  data: { screen: 'cover', coverActive: true, eyeReady: false, artError: false, artRetry: '', storyIndex: 0, puzzle: catalog[0], puzzles: catalog, loading: true, canStart: false, continuing: '', statusText: '正在检查连接', statusKind: 'waiting', error: '', privacyNeeded: false },
   onLoad(options = {}) { this._alive = true; this._eyeFrames = {}; this.setData({ screen: ['mode', 'stories'].includes(options.screen) ? options.screen : 'cover' }) },
   onShow() { this._alive = true; this.setData({ coverActive: true }); this.load() },
   onHide() { this.setData({ coverActive: false }) },
@@ -13,6 +13,8 @@ Page({
     this._eyeFrames[e.currentTarget.dataset.frame] = true
     if (this._eyeFrames.open && this._eyeFrames.closed && !this.data.eyeReady) this.setData({ eyeReady: true })
   },
+  coverAssetFailed() { if (this._alive && !this.data.artError) this.setData({ artError: true, eyeReady: false }) },
+  retryCoverArt() { this._eyeFrames = {}; this.setData({ artError: false, eyeReady: false, artRetry: '?retry=' + Date.now() }) },
   onPullDownRefresh() { this.load().finally(() => wx.stopPullDownRefresh()) },
   async load() {
     this.setData({ loading: true, error: '' })
