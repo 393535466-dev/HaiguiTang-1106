@@ -18,6 +18,7 @@
     "prepare:wechat": "node scripts/prepare-wechat.js",
     "test:browser-multiplayer": "node tests/browser/preview-multiplayer.js",
     "test:browser-design": "node tests/browser/preview-design.js",
-    "test:browser-carousel": "node tests/browser/preview-carousel.js"
+    "test:browser-carousel": "node tests/browser/preview-carousel.js",
+    "test:browser-sheet": "node tests/browser/preview-sheet.js"
   }
 }

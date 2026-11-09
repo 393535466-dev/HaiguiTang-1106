@@ -28,3 +28,12 @@ test('a neighbor tap selects once and suppresses the synthetic click after a swi
   p.selectStoryCard(event(180,100,2));assert.equal(p.data.storyIndex,1);
   p._ignoreCarouselTapUntil=0;p.selectStoryCard(event(180,100,2));assert.equal(p.data.storyIndex,2);
 });
+test('only a deliberate active-card tap starts; swipes, neighbors and synthetic clicks never double-start', () => {
+  const p=page('storyIndex'); let starts=0;p.activateStory=()=>starts++;
+  p.storyTouchStart(event(180,100));p.storyTouchEnd(event(80,100,0,true));assert.equal(starts,0);
+  p.selectStoryCard(event(80,100,1));assert.equal(starts,0);
+  p.storyTouchStart(event(180,100,1));p.storyTouchEnd(event(181,100,1,true));assert.equal(starts,1);
+  p.selectStoryCard(event(181,100,1));assert.equal(starts,1);
+  p._ignoreCarouselTapUntil=0;p.selectStoryCard(event(181,100,2));assert.equal(p.data.storyIndex,2);assert.equal(starts,1);
+  p.data.busy=true;p.selectStoryCard(event(181,100,2));assert.equal(starts,1);
+});

@@ -82,7 +82,7 @@ Page({
     if (!session || session.id !== this._sessionId || !this._alive) return
     const decorated = presentation.session(session)
     if (this._host) this._host.sync(session)
-    this.setData({ session: decorated, scrollTarget: 'message-end' })
+    this.setData({ session: decorated, scrollTarget: decorated.messages.length || decorated.hints.length || decorated.ended ? 'message-end' : 'story-surface' })
     if (decorated.ended) {
       storage.clearLast(session.id); storage.clearDraft(session.id)
       this._clearPending()
@@ -277,6 +277,8 @@ Page({
     if (this.data.recording || this.data.busy) { wx.showToast({ title: '当前操作完成后，再打开练习', icon: 'none' }); return }
     wx.navigateTo({ url: '/pages/tutorial/index' })
   },
+  profile() { wx.navigateTo({ url: '/pages/account/index?screen=profile' }) },
+  settings() { wx.navigateTo({ url: '/pages/account/index?screen=settings' }) },
   privacy() { wx.navigateTo({ url: '/pages/privacy/index' }) },
   agreePrivacy() { getApp().resolvePrivacy(true); this.setData({ privacyNeeded: false }) },
   declinePrivacy() { getApp().resolvePrivacy(false); this.setData({ privacyNeeded: false }) },

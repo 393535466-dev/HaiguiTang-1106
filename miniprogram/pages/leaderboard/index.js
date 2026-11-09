@@ -14,5 +14,5 @@ Page({
   movePage(e) { const pageIndex = this.data.pageIndex + Number(e.currentTarget.dataset.direction); if (pageIndex >= 0 && pageIndex < this.data.pageCount) this.setData({ pageIndex, viewRows: this.data.rows.slice(pageIndex * 3, pageIndex * 3 + 3) }) },
   toggleRules() { this.setData({ rulesOpen: !this.data.rulesOpen, ruleIndex: 0 }) },
   moveRule(e) { const ruleIndex = this.data.ruleIndex + Number(e.currentTarget.dataset.direction); if (ruleIndex >= 0 && ruleIndex < this.data.rules.length) this.setData({ ruleIndex }) },
-  home() { wx.redirectTo({ url: '/pages/home/index' }) }
+  home() { if (getCurrentPages().length > 1) wx.navigateBack({ delta: 1 }); else wx.redirectTo({ url: '/pages/home/index?screen=mode' }) }
 })

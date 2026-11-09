@@ -28,8 +28,8 @@
   const modules = {}, definitions = {}, pages = [];
   let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null, renderedPage = null;
   const domTemplates = {};
-  const baseStyles = files['/app.wxss'].source.replace(/@import\s+["'](?:theme|carousel|fonts)\.wxss["'];?/g, '');
-  const themeStyles = files['/fonts.wxss'].source + '\n' + files['/theme.wxss'].source + '\n' + files['/carousel.wxss'].source;
+  const baseStyles = files['/app.wxss'].source.replace(/@import\s+["'](?:theme|carousel|layout|fonts)\.wxss["'];?/g, '');
+  const themeStyles = files['/fonts.wxss'].source + '\n' + files['/theme.wxss'].source + '\n' + files['/carousel.wxss'].source + '\n' + files['/layout.wxss'].source;
   const style = document.createElement('style'); document.head.append(style);
 
   function pathResolve(name, parent) {
@@ -290,7 +290,7 @@
       const target = document.getElementById(page.data.scrollTarget);
       if (target) {
         const scroller = target.closest('[data-scroll-view]');
-        const alignStart = page.data.scrollTarget === 'story-list' || page.data.scrollTarget.startsWith('practice-top');
+        const alignStart = ['story-list', 'story-surface', 'room-story-surface'].includes(page.data.scrollTarget) || page.data.scrollTarget.startsWith('practice-top');
         // A countdown repaint would cancel an unfinished native smooth scroll.
         // Finish inside the local scroller without moving the surrounding page.
         if (scroller && /^(room-)?message-end$/.test(page.data.scrollTarget)) scroller.scrollTop = scroller.scrollHeight;

@@ -71,7 +71,7 @@ async function main() {
         const screen = box('#mini-screen'), brand = box('.cover-brand'), heading = box('.cover-heading'), footer = box('.cover-footer');
         return brand.bottom < heading.top && heading.bottom < screen.height * .4 && footer.top > screen.height * .6 && document.documentElement.scrollHeight <= innerHeight;
       }), true, 'title and footer leave the eye clear, with no whole-page scrolling');
-      assert.equal(await page.evaluate(()=>{const b=document.querySelector('.hero-button').getBoundingClientRect(),t=document.querySelector('.cover-tutorial').getBoundingClientRect(),f=document.querySelector('.cover-footnote').getBoundingClientRect();return t.top>=b.bottom-1&&t.bottom<=f.top+1}),true,'tutorial is between entry and capability caption');
+      assert.equal(await page.evaluate(()=>{const b=document.querySelector('.hero-button').getBoundingClientRect(),t=document.querySelector('.cover-tutorial').getBoundingClientRect(),f=document.querySelector('.cover-privacy').getBoundingClientRect();return !document.querySelector('.cover-footnote')&&t.top>=b.bottom-1&&t.bottom<=f.top+1}),true,'tutorial is between entry and privacy link');
       await page.locator('.eye-blink').evaluate(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}));await shot('home-' + viewport.width);
     }
     await page.setViewportSize({width:390,height:844}); await frame();
@@ -104,7 +104,7 @@ async function main() {
     await page.locator('.draft-input').fill(puzzles[0].testCases.find(c=>c.answer==='yes').text); await page.getByRole('button',{name:'确认提问'}).click();
     await page.waitForFunction(()=>window.__preview.page.data.session?.messages.length===1);
     await page.setViewportSize({width:320,height:568}); await layout('.send-button'); await shot('solo-small');
-    await page.getByRole('button',{name:'返回故事列表',exact:true}).click();await page.locator('.route-header button').click();await page.getByRole('button',{name:'和朋友一起玩'}).click(); await page.waitForFunction(()=>!window.__preview.page.data.loading);
+    await page.getByRole('button',{name:'返回故事列表',exact:true}).click();await page.locator('.route-header>button').click();await page.getByRole('button',{name:'和朋友一起玩'}).click(); await page.waitForFunction(()=>!window.__preview.page.data.loading);
     await page.getByRole('button',{name:'加入好友房',exact:true}).click(); await page.getByPlaceholder('输入六位房间号').fill('123');
     assert.equal(await page.getByRole('button',{name:'加入房间',exact:true}).isDisabled(),true);
     await layout('.join-panel .primary'); await page.setViewportSize({width:390,height:844}); await shot('join-mobile');
@@ -135,7 +135,7 @@ async function main() {
     await page.waitForFunction(()=>!window.__preview.page.data.busy);
     for(const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932}]) {
       await page.setViewportSize(viewport);await layout('.room-input-actions');assert.ok(await page.locator('.room-record').evaluate(e=>e.getBoundingClientRect().height>=44));await shot('room-'+viewport.width);
-      if(viewport.width===320) assert.equal(await page.locator('.surface-text').evaluate(e=>getComputedStyle(e).webkitLineClamp),'1','class names ending in text keep their own CSS');
+      if(viewport.width===320) assert.equal(await page.locator('.surface-text').evaluate(e=>getComputedStyle(e).webkitLineClamp),'none','the full story is readable inside the shared scrolling sheet');
     }
     await page.setViewportSize({width:390,height:844});await frame();
     await page.getByRole('button',{name:'向 AI 提问',exact:true}).click();await page.locator('.room-draft').fill(puzzles[0].testCases.find(c=>c.answer==='yes').text);
@@ -149,13 +149,13 @@ async function main() {
     await page.getByRole('button',{name:'看看好友协作榜'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);await shot('ranking-mobile');
     await page.setViewportSize({width:320,height:568});await layout('.my-score');await layout('.rank-pagination');assert.equal(await page.locator('.rank-row').count(),3);await page.getByRole('button',{name:'下一页',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.pageIndex),1);await shot('ranking-small');
     await page.getByRole('button',{name:'单人榜',exact:true}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.rank-empty').count(),1);
-    await page.getByRole('button',{name:'回到首页',exact:false}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
+    await page.locator('.rank-top button').click();await page.waitForFunction(()=>window.__preview.page.data.room);await page.getByRole('button',{name:'返回首页',exact:true}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
     await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).click();await page.waitForFunction(()=>window.__preview.page.data.judgeReady);await layout('.tutorial-footer');await shot('tutorial-small');
     const practice=require('../../cloudfunctions/game/data/tutorial');
     await page.getByRole('button',{name:'读懂了，试着提问'}).click();await page.locator('.practice-input').fill(practice.testCases[0].text);await page.getByRole('button',{name:'确认提问'}).click();await page.waitForFunction(()=>window.__preview.page.data.questionResult==='no');
     await page.getByRole('button',{name:'下一步，试试提示'}).click();await page.getByRole('button',{name:'试着看一条提示'}).click();await page.getByRole('button',{name:'有想法了，试着猜底'}).click();
     await page.locator('.guess-input').fill(practice.guessCases[0].text);await page.getByRole('button',{name:'提交猜底'}).click();await page.getByRole('button',{name:'去选一碗汤'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories');
-    await page.locator('.route-header button').click();await page.waitForFunction(()=>window.__preview.page.data.screen==='mode');await page.locator('.route-header button').click();await page.waitForFunction(()=>window.__preview.page.data.screen==='cover');
+    await page.locator('.route-header>button').click();await page.waitForFunction(()=>window.__preview.page.data.screen==='mode');await page.locator('.route-header>button').click();await page.waitForFunction(()=>window.__preview.page.data.screen==='cover');
     await page.getByRole('button',{name:'录音与隐私说明',exact:true}).click();
     const count=await page.evaluate(()=>window.__preview.page.data.sections.length);
     for(let i=0;i<count;i++){await layout('.privacy-card');await layout('.privacy-page .primary');await layout('.privacy-paragraph:last-child');if(i<count-1)await page.getByRole('button',{name:'下一页',exact:false}).click();}

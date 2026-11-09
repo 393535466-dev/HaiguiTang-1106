@@ -62,6 +62,7 @@ Page(Object.assign({
     } catch (e) { if (this._alive) this.setData({ error: api.message(e) }) }
     finally { if (this._alive) this.setData({ busy: false }) }
   },
+  activateStory() { if (!this.data.loading && this.data.selectedPuzzle && !this.data.busy) return this.create() },
   create() { this.enter('createRoom') }, join() { this.enter('joinRoom') },
   apply(room) {
     if (!this._alive || !room || room.id !== this._roomId) return
@@ -72,7 +73,7 @@ Page(Object.assign({
     const members = room.members.map(m => ({ ...m, initial: Array.from(m.nickname || '友')[0] }))
     this._host.sync(room)
     this.setData({ room: Object.assign({}, room, { messages, members }), loading: false, connection: '', seconds: Math.max(0, Math.ceil((room.turnDeadlineAt - Date.now()) / 1000)),
-      scrollTarget: (latest && latest.id !== oldLast?.id) || (room.solution && !old?.solution) ? 'room-message-end' : '' })
+      scrollTarget: !old ? 'room-story-surface' : ((latest && latest.id !== oldLast?.id) || (room.solution && !old?.solution) ? 'room-message-end' : '') })
     storage.write('hgt:' + storage.owner() + ':room', room.id)
     if (room.state === 'playing' && room.active?.mine && !this._pending) {
       this._pending = { requestId: room.active.requestId, revision: -1 }; this.setData({ pending: true })
@@ -168,6 +169,8 @@ Page(Object.assign({
   recordStart(e) { if (!this.data.room || this.data.busy || this.data.recording) return; this._host.stop(); this._voice.start(e, { revision: this._revision, mode: this.data.mode, roomId: this._roomId }) },
   recordMove(e) { this._voice.move(e) }, recordEnd() { this._voice.end() }, recordCancel() { this._voice.cancel() }, checkVoice() { this._voice.check() },
   async useTranscript() { const c = await modal({ title: '使用识别文字？', content: '将替换当前草稿，仍需你确认发送。' }); if (c.confirm) { this.edit(this.data.recoveredTranscript); this.setData({ recoveredTranscript: '' }) } },
+  profile() { wx.navigateTo({ url: '/pages/account/index?screen=profile' }) },
+  settings() { wx.navigateTo({ url: '/pages/account/index?screen=settings' }) },
   privacy() { wx.navigateTo({ url: '/pages/privacy/index' }) },
   agreePrivacy() { getApp().resolvePrivacy(true); this.setData({ privacyNeeded: false }) }, declinePrivacy() { getApp().resolvePrivacy(false); this.setData({ privacyNeeded: false }) }
 }, carousel.handlers('puzzleIndex')))

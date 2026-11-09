@@ -50,6 +50,7 @@ Page(Object.assign({
   friends() { const id = storage.read('hgt:' + storage.owner() + ':room'); wx.navigateTo({ url: '/pages/room/index' + (id ? '?id=' + id : '') }) },
   leaderboard() { wx.navigateTo({ url: '/pages/leaderboard/index' }) },
   tutorial() { wx.navigateTo({ url: '/pages/tutorial/index' }) },
+  activateStory() { if (this.data.canStart && this.data.puzzle) return this.start({ currentTarget: { dataset: { id: this.data.puzzle.id } } }) },
   async start(e) {
     if (!this.data.canStart || this._starting) {
       if (!this.data.canStart) wx.showToast({ title: '请先完成云端配置', icon: 'none' })
@@ -65,6 +66,8 @@ Page(Object.assign({
     finally { this._starting = false; wx.hideLoading() }
   },
   resume() { if (this.data.continuing) wx.navigateTo({ url: '/pages/game/index?id=' + encodeURIComponent(this.data.continuing) }) },
+  profile() { wx.navigateTo({ url: '/pages/account/index?screen=profile' }) },
+  settings() { wx.navigateTo({ url: '/pages/account/index?screen=settings' }) },
   privacy() { wx.navigateTo({ url: '/pages/privacy/index' }) },
   agreePrivacy() { getApp().resolvePrivacy(true); this.setData({ privacyNeeded: false }) },
   declinePrivacy() { getApp().resolvePrivacy(false); this.setData({ privacyNeeded: false }) }

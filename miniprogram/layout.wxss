@@ -1,0 +1,59 @@
+/* Shared play sheet and compact utility navigation. */
+.paper-theme .cover-brand{font-size:49rpx;line-height:1.2;align-items:center}
+.paper-theme .cover-brand>.brush{font-family:SoupHand,"Kaiti SC",serif;line-height:1.2}
+.paper-theme .route-header,.paper-theme .game-header,.paper-theme .room-header{display:grid;grid-template-columns:36px minmax(0,1fr) 132px;gap:8px;align-items:center;min-height:56px;height:auto}
+.paper-theme .route-header>view:not(.header-tools){min-width:0;gap:8rpx;white-space:nowrap}
+.paper-theme .route-header .mini-logo{width:36rpx;height:44rpx;flex-shrink:0}
+.paper-theme .header-tools{display:flex;align-items:center;justify-content:flex-end;gap:0;width:132px;letter-spacing:0}
+.paper-theme .header-tools .tool-button{display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:0;border-image:none;background:transparent;color:#e4d8bf}
+.paper-theme .tool-button image,.paper-theme .tool-button img{display:block;width:29px;height:29px}
+.paper-theme .tool-person{width:24px;height:26px;position:relative}
+.paper-theme .tool-person:before{content:'';position:absolute;left:8px;top:1px;width:8px;height:8px;border:1.5px solid currentColor;border-radius:50%}
+.paper-theme .tool-person:after{content:'';position:absolute;left:3px;bottom:1px;width:18px;height:11px;border:1.5px solid currentColor;border-radius:11px 11px 3px 3px}
+.paper-theme .tool-settings{width:24px;height:24px;display:flex;flex-direction:column;justify-content:space-around}
+.paper-theme .tool-settings>view{position:relative;height:1.5px;background:currentColor;width:23px}
+.paper-theme .tool-settings>view:after{content:'';position:absolute;width:5px;height:5px;border:1.5px solid currentColor;border-radius:50%;top:-3px;left:5px;background:#161717}
+.paper-theme .tool-settings>view:nth-child(2):after{left:14px}
+.paper-theme .game-title,.paper-theme .room-title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:34rpx;line-height:1.4;margin:0;overflow:hidden}
+.paper-theme .route-bottom{align-items:flex-end;gap:12rpx}
+.paper-theme .route-bottom .resume-link{margin:0 0 0 auto;padding:8rpx 0;text-align:right;font-size:24rpx}
+.paper-theme .route-bottom button:first-child{font-size:22rpx}
+.paper-theme .story-leaf{filter:saturate(.7)}
+.paper-theme .game-page,.paper-theme .room-page{overflow:hidden}
+.paper-theme .conversation-paper{flex:1;min-height:0;display:flex;margin:8rpx 24rpx 10rpx;padding:34rpx 10rpx;border:12rpx solid transparent;border-image:url('/assets/brand/torn-kraft-v1.png') 120 120 100 120 fill / 46rpx 35rpx / 0 stretch;color:#342b20;overflow:hidden;background-color:#dfcba5;background-clip:content-box}
+.paper-theme .conversation-paper .message-scroll,.paper-theme .conversation-paper .room-messages{flex:1;min-height:0;height:100%;width:100%;padding:0;margin:0;overflow-y:auto;overscroll-behavior:contain}
+.paper-theme .conversation-paper .message-content{padding:0 14rpx 10rpx}
+.paper-theme .conversation-paper .room-messages{padding:0 14rpx}
+.paper-theme .conversation-paper .surface-card,.paper-theme .conversation-paper .room-surface,.paper-theme .conversation-paper .message-entry,.paper-theme .conversation-paper .room-message,.paper-theme .conversation-paper .hints-panel,.paper-theme .conversation-paper .ending,.paper-theme .conversation-paper .room-ending{background:none;border:0;border-image:none;box-shadow:none;border-radius:0;margin:0;padding:16rpx 0}
+.paper-theme .conversation-paper .surface-card,.paper-theme .conversation-paper .room-surface{padding:4rpx 0 20rpx;border-bottom:1rpx solid #aa916c66}
+.paper-theme .conversation-paper .surface-body,.paper-theme .conversation-paper .surface-text{display:block;max-height:none;overflow:visible;-webkit-line-clamp:unset;font-size:30rpx;line-height:1.75;margin-top:10rpx}
+.paper-theme .conversation-paper .surface-toggle,.paper-theme .conversation-paper .room-surface button>text:last-child{display:none}
+.paper-theme .conversation-paper .room-surface button{pointer-events:none}
+.paper-theme .conversation-paper .message-entry,.paper-theme .conversation-paper .room-message,.paper-theme .conversation-paper .hints-panel,.paper-theme .conversation-paper .ending,.paper-theme .conversation-paper .room-ending{border-bottom:1rpx solid #aa916c66}
+.paper-theme .conversation-paper .entry-question,.paper-theme .conversation-paper .message-text{font-size:30rpx;line-height:1.7}
+.paper-theme .conversation-paper .answer-note,.paper-theme .conversation-paper .host-note{font-size:27rpx;line-height:1.6}
+.paper-theme .conversation-paper .entry-feedback{font-size:23rpx;min-height:32px}
+.paper-theme .conversation-paper .room-message.system .message-text,.paper-theme .conversation-paper .room-system{color:#756044}
+.paper-theme .conversation-paper .room-message.discussion,.paper-theme .conversation-paper .room-message.own-message{margin:0}
+.paper-theme .host-voice-bar{padding:0 34rpx;gap:24rpx}
+.paper-theme .host-voice-bar button{min-height:32px;padding:4rpx 0}
+.paper-theme .ledger-bar{margin:2rpx 34rpx 6rpx}
+.paper-theme .composer,.paper-theme .room-composer{background:transparent;border:0;box-shadow:none;padding-top:6rpx}
+.paper-theme .input-actions .record-button,.paper-theme .input-actions .send-button,.paper-theme .room-input-actions .room-record,.paper-theme .room-input-actions .primary{background:transparent;border:0;border-image:none;box-shadow:none;color:#f5efdf;padding:12rpx 8rpx;min-height:44px}
+.paper-theme .input-actions .record-button.recording,.paper-theme .room-input-actions .room-record.recording{color:#e8c88a;outline:1px solid #bfa678;outline-offset:-5px}
+.paper-theme .input-actions .record-button.cancelling{color:#f0a794;outline-color:#da9480}
+.paper-theme .input-actions button[disabled],.paper-theme .room-input-actions button[disabled]{opacity:.45}
+.paper-theme .room-code-line{padding-top:0;padding-bottom:4rpx;flex-shrink:0}
+.paper-theme .room-members{padding-top:0;padding-bottom:4rpx;flex-shrink:0;flex-wrap:nowrap;overflow-x:auto}
+.paper-theme .member-chip{flex-shrink:0}
+.paper-theme .room-ledger{padding-top:2rpx;padding-bottom:4rpx}
+.paper-theme .turn-banner{margin-top:4rpx;margin-bottom:4rpx;padding:8rpx 15rpx;min-height:0}
+.paper-theme .turn-note{display:none}
+.paper-theme .turn-clock{width:49rpx;height:49rpx;min-width:49rpx}
+.paper-theme .turn-title{font-size:25rpx}
+.paper-theme .composer .draft-container,.paper-theme .room-composer .room-input-box{padding:24rpx 16rpx 10rpx}
+.paper-theme .room-input-actions{margin-top:6rpx}
+.paper-theme .room-modes button{font-size:24rpx}
+.paper-theme .conversation-paper .ending .primary,.paper-theme .conversation-paper .room-ending .primary{border:1px solid #ae9163;border-image:none;background:#d7c097}
+@media(max-width:360px){.paper-theme .route-header,.paper-theme .game-header,.paper-theme .room-header{grid-template-columns:28px minmax(0,1fr) 132px;gap:3px}.paper-theme .route-header .mini-logo{display:none}.paper-theme .game-title,.paper-theme .room-title{font-size:32rpx}.paper-theme .route-bottom .resume-link{font-size:22rpx}}
+@media(max-height:700px){.paper-theme .cover-brand{font-size:40rpx}.paper-theme .conversation-paper{margin-top:4rpx;padding-top:28rpx;padding-bottom:28rpx}.paper-theme .host-voice-bar button{min-height:30px}.paper-theme .composer-toolbar{margin-bottom:5rpx}.paper-theme .room-members .member-avatar{width:38rpx;height:38rpx;font-size:20rpx}.paper-theme .room-members .member-label{font-size:20rpx}.paper-theme .room-code-line button{min-height:28px}.paper-theme .room-code-number{font-size:27rpx}.paper-theme .room-composer .room-draft{height:78rpx;min-height:78rpx}.paper-theme .room-bottom{padding-top:0;padding-bottom:0}.paper-theme .room-bottom button{min-height:28px}.paper-theme .composer-footer{margin-top:0}.paper-theme .input-actions{margin-top:4rpx}}

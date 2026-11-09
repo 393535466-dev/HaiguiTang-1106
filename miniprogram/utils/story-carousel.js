@@ -1,4 +1,4 @@
-// Public selection metadata only. A gesture chooses a story; it never starts a game.
+// Public selection metadata only. Swipes select; a deliberate active-card tap starts.
 function cards(puzzles, current) {
   return puzzles.map((p, index) => ({ id: p.id, title: p.title, teaser: p.teaser,
     difficulty: p.difficulty, genre: p.genre || '轻推理', index,
@@ -14,15 +14,20 @@ function select(page, key, index) {
   return true
 }
 function point(event) { return event.touches?.[0] || event.changedTouches?.[0] }
+function tap(page, key, index) {
+  if (page.data.busy || page._starting) return
+  if (index === page.data[key] && page.activateStory) page.activateStory()
+  else select(page, key, index)
+}
 function handlers(key) {
   return {
     selectStoryCard(e) {
       if (Date.now() < (this._ignoreCarouselTapUntil || 0)) return
-      select(this, key, Number(e.currentTarget.dataset.index))
+      tap(this, key, Number(e.currentTarget.dataset.index))
     },
     storyTouchStart(e) {
       const p = point(e)
-      if (!p || this.data.busy) return
+      if (!p || this.data.busy || this._starting) return
       this._storyGesture = { x: p.clientX, y: p.clientY, lastX: p.clientX, lastY: p.clientY, index: Number(e.currentTarget.dataset.index) }
     },
     storyTouchMove(e) {
@@ -40,7 +45,7 @@ function handlers(key) {
       this._ignoreCarouselTapUntil = Date.now() + 350
       let index = this.data[key]
       if (Math.abs(dx) >= 36 && Math.abs(dx) > Math.abs(dy) * 1.2) index += dx < 0 ? 1 : -1
-      else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) index = g.index
+      else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { this.setData({ carouselShift: 0, carouselDragging: false }); tap(this, key, g.index); return }
       if (!select(this, key, index)) this.setData({ carouselShift: 0, carouselDragging: false })
     },
     storyTouchCancel() { this._storyGesture = null; this._ignoreCarouselTapUntil = Date.now() + 350; this.setData({ carouselShift: 0, carouselDragging: false }) }

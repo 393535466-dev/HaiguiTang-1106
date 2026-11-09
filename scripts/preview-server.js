@@ -34,8 +34,8 @@ function accepts(req, header, type) {
 function bundle() {
   const files = {};
   const add = (file, kind) => { files['/' + file.replace(/^miniprogram\//, '')] = { kind, source: fs.readFileSync(path.join(root, file), 'utf8') }; };
-  for (const file of ['app.js', 'app.wxss', 'theme.wxss', 'carousel.wxss', 'fonts.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/story-carousel.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
-  for (const page of ['home', 'game', 'tutorial', 'privacy', 'room', 'leaderboard']) for (const ext of ['js', 'wxml', 'wxss']) add(`miniprogram/pages/${page}/index.${ext}`, ext);
+  for (const file of ['app.js', 'app.wxss', 'theme.wxss', 'carousel.wxss', 'layout.wxss', 'fonts.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/story-carousel.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
+  for (const page of ['home', 'game', 'tutorial', 'privacy', 'room', 'leaderboard', 'account']) for (const ext of ['js', 'wxml', 'wxss']) add(`miniprogram/pages/${page}/index.${ext}`, ext);
   return 'window.__miniFiles=' + JSON.stringify(files).replace(/</g, '\\u003c') + ';';
 }
 function respond(res, status, body, type = 'application/json; charset=utf-8') {

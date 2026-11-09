@@ -1,5 +1,5 @@
 <view class="paper-theme rank-page">
-  <view class="rank-top"><button class="text-link" bindtap="home">‹ 回到首页</button><text>好奇心俱乐部</text></view>
+  <view class="rank-top"><button class="text-link" bindtap="home">‹ 返回</button><text>好奇心俱乐部</text></view>
   <view wx:if="{{!rulesOpen}}" class="rank-hero"><view class="eyebrow">THE CURIOUS MINDS</view><view class="rank-title serif">好奇心，<text>有回响。</text></view><view class="rank-emblem" aria-hidden="true"><text class="serif">?</text><view>✦</view></view><view class="rank-sub">每一次认真推理，都值得被记住。</view></view>
   <block wx:if="{{!rulesOpen}}"><view class="rank-tabs"><button class="{{mode === 'solo' ? 'selected' : ''}}" data-mode="solo" bindtap="switchMode">单人榜</button><button class="{{mode === 'friends' ? 'selected' : ''}}" data-mode="friends" bindtap="switchMode">好友协作榜</button></view>
   <view class="my-score"><view class="my-score-label"><text>我的{{mode === 'friends' ? '协作' : '推理'}}成绩</text><text class="score-star">✦</text></view><view class="score-bottom"><view class="score-number serif">{{me ? me.points : 0}}<text> 分</text></view><view class="score-stats"><view><text>{{me ? me.wins : 0}}</text> 次成功</view><view><text>{{me ? me.played : 0}}</text> 次挑战</view></view></view></view>

@@ -1,0 +1,14 @@
+<view class="paper-theme account-page">
+  <view class="account-header"><button bindtap="back" aria-label="返回上一页">‹</button><view>{{screen === 'settings' ? '设置' : '我的'}}</view></view>
+  <view wx:if="{{screen === 'profile'}}" class="account-card">
+    <view class="account-title">让同桌的人记住你。</view><view class="account-copy">这个昵称会展示在好友房和排行榜中。</view>
+    <view wx:if="{{loading}}" class="account-copy">正在读取昵称…</view>
+    <block wx:else><view class="account-label">我的昵称</view><textarea class="nickname-field" value="{{nickname}}" bindinput="input" maxlength="12" placeholder="输入昵称，最多12字" auto-height="false" adjust-position="true" show-confirm-bar="false"></textarea><button class="primary" bindtap="save" disabled="{{busy || !nickname || nickname === savedName}}">{{busy ? '正在保存…' : '保存昵称'}}</button></block>
+    <view wx:if="{{saved}}" class="account-copy">昵称已保存。</view><view wx:if="{{error}}" class="account-error">{{error}}</view><button wx:if="{{error}}" class="text-link" bindtap="load">重新读取</button>
+    <button class="account-link" bindtap="leaderboard">查看我的排行</button>
+  </view>
+  <view wx:else class="account-card">
+    <view class="account-title">按你的习惯来。</view><button class="setting-row" bindtap="toggleVoice" aria-label="主持人声音" aria-pressed="{{voiceEnabled}}"><text>主持人声音</text><text class="setting-value">{{voiceEnabled ? '已开启' : '已关闭'}}</text></button><view class="account-copy">控制读题、主持判词和结果播报。录音时会暂停。</view>
+    <button class="account-link" bindtap="privacy">录音与隐私说明</button><button class="account-link" bindtap="tutorial">跟着玩一遍</button><button wx:if="{{canClear}}" class="account-link" bindtap="clearSession">清空本局记录</button>
+  </view>
+</view>

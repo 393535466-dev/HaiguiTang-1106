@@ -5,7 +5,8 @@
     "pages/tutorial/index",
     "pages/privacy/index",
     "pages/room/index",
-    "pages/leaderboard/index"
+    "pages/leaderboard/index",
+    "pages/account/index"
   ],
   "window": {
     "navigationBarTitleText": "一碗海龟汤",

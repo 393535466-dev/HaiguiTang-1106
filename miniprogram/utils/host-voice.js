@@ -52,7 +52,7 @@ class HostVoice {
   stop() { this.generation++; if (this.audio) this.audio.stop(); this.patch({ hostVoiceBusy: false, hostVoiceStatus: '' }) }
   setRecording(value) { this.recording = Boolean(value); if (this.recording) this.stop() }
   hide() { this.visible = false; this.stop() }
-  show() { this.visible = true }
+  show() { this.visible = true; this.enabled = wx.getStorageSync('host_voice_enabled') === true; this.patch({ hostVoiceEnabled: this.enabled }); if (!this.enabled) this.stop() }
   dispose() { this.alive = false; this.hide(); if (this.audio) this.audio.destroy(); this.cache.clear() }
 }
 module.exports = HostVoice
