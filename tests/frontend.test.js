@@ -72,6 +72,24 @@ test('client timeout dispatches once and accepts the original late response with
   assert.equal(dispatches, 1);
 });
 
+test('slow bootstrap can finish after 20 seconds without extending or retrying a paid question', async () => {
+  const module = { exports: {} }, timers = new Map(), pending = new Map(); let id = 0, calls = 0;
+  vm.runInNewContext(source('utils/api.js'), {
+    module, require: () => ({ cloudEnv: 'configured-test-env', functionName: 'game' }),
+    wx: { cloud: { callFunction({ data }) { calls++; return new Promise(resolve => pending.set(data.action, resolve)); } } },
+    setTimeout: (callback, delay) => { timers.set(++id, { callback, delay }); return id; },
+    clearTimeout: key => timers.delete(key), Date, Math, Error, Promise
+  });
+  const status = module.exports.call('status');
+  const question = module.exports.call('askQuestion', { requestId: 'one-paid-call' });
+  const timeout = assert.rejects(question, error => error.code === 'CLIENT_TIMEOUT');
+  for (const timer of [...timers.values()]) if (timer.delay <= 20000) timer.callback();
+  await timeout;
+  pending.get('status')({ result: { ok: true, data: { textReady: true } } });
+  assert.equal((await status).textReady, true);
+  assert.equal(calls, 2, 'no automatic duplicate question or bootstrap request');
+});
+
 test('late transcription preserves a draft edited while speech recognition was running', async () => {
   const { page, storage } = gameFixture();
   page._setPending({ requestId: 'voice-request', kind: 'transcribeAudio', draftVersion: 0 });

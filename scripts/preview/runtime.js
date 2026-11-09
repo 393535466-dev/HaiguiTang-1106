@@ -16,7 +16,7 @@
     if (!guestIdentity) guestIdentity = (async () => {
       let token = identityStore.getItem('hgt-preview-player');
       if (!token) {
-        const response = await fetch('/preview-player', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const response = await fetch('/preview-player', { method: 'POST', priority: 'high', headers: { 'Content-Type': 'application/json' }, body: '{}' });
         if (!response.ok) throw new Error('无法准备玩家身份，请从完整测试链接重新进入');
         token = (await response.json()).token; identityStore.setItem('hgt-preview-player', token);
       }
@@ -106,7 +106,7 @@
     cloud: {
       init() {},
       async callFunction(options) {
-        const response = await fetch('/api', { method: 'POST', headers: { 'Content-Type': 'application/json', ...await window.previewHeaders() }, body: JSON.stringify(options.data) });
+        const response = await fetch('/api', { method: 'POST', priority: 'high', headers: { 'Content-Type': 'application/json', ...await window.previewHeaders() }, body: JSON.stringify(options.data) });
         if (response.status === 401) { identityStore.removeItem('hgt-preview-player'); guestIdentity = null; throw new Error('玩家身份已过期，请刷新页面重新进入。'); }
         if (!response.ok) throw new Error('试玩服务没有接通，请从完整测试链接重新进入');
         return { result: await response.json() };

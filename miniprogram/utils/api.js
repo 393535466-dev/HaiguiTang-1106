@@ -12,12 +12,13 @@ function unwrap(response) {
 }
 function call(action, payload, options) {
   options = options || {}
+  const bootstrap = ['status', 'listPuzzles', 'getProfile'].includes(action)
   if (!config.cloudEnv || !wx.cloud) return Promise.reject(error('CONFIG_REQUIRED', '云环境尚未配置，请按部署说明填入环境 ID。'))
   let timedOut = false
   let timer
   const request = wx.cloud.callFunction({ name: config.functionName, data: Object.assign({ action }, payload || {}) }).then(unwrap)
   const wait = new Promise((resolve, reject) => {
-    timer = setTimeout(() => { timedOut = true; reject(error('CLIENT_TIMEOUT', '等待时间较长，操作可能仍在处理。请先检查结果，避免重复调用。')) }, options.timeout || 15000)
+    timer = setTimeout(() => { timedOut = true; reject(error('CLIENT_TIMEOUT', bootstrap ? '连接检查超时，请点击刷新重新连接。' : '等待时间较长，操作可能仍在处理。请先检查结果，避免重复调用。')) }, options.timeout || (bootstrap ? 45000 : 15000))
     request.then(data => {
       clearTimeout(timer)
       if (timedOut) { if (options.onLate) options.onLate(null, data) } else resolve(data)

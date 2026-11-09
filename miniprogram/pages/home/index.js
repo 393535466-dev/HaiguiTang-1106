@@ -31,7 +31,7 @@ Page(Object.assign({
       this.setData({ puzzles: puzzles || [], carouselCards: carousel.cards(puzzles || [], storyIndex), storyIndex, puzzle: (puzzles || [])[storyIndex] || null, canStart: ready, continuing: storage.lastSession(), loading: false, statusKind: ready ? 'ready' : 'waiting', statusText: ready ? localStatus || (health.voiceReady ? 'AI 主持已就位 · 可以开麦' : 'AI 主持已就位 · 文字提问') : 'AI 主持尚未接入', error: ready ? '' : '请先完成服务端 AI 配置，再开始第一局。' })
     } catch (e) {
       if (!this._alive) return
-      this.setData({ loading: false, canStart: false, continuing: '', statusKind: 'waiting', statusText: '等待云端配置', error: api.message(e) })
+      this.setData({ loading: false, canStart: false, continuing: '', statusKind: 'waiting', statusText: '连接暂未完成', error: api.message(e) })
     }
   },
   enter() { wx.navigateTo({ url: '/pages/home/index?screen=mode' }) },
