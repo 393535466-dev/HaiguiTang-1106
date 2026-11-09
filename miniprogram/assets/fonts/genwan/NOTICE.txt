@@ -1,0 +1,20 @@
+HGT GenWan Web
+
+These WOFF2 files are web delivery subsets of GenWan Min TC Regular (源雲明體丹 R), version 2.100, created by ButTaiwan from GenRyu Serif / Adobe Source Han Serif. The requested Chinese font is commonly called 源云明体 or 源云明宋体 in Chinese font catalogs.
+
+Upstream project: https://github.com/ButTaiwan/genwan-font
+Pinned upstream commit: 25e718615173a3b51099ecc9a6bf4fa558c03fbc
+Upstream file: otf/TC/GenWanMin2TC-R.otf
+
+Upstream copyright/license notice:
+Copyright 2014-2019 Adobe (http://www.adobe.com/), with Reserved Font
+Name 'Source'. Source is a trademark of Adobe in the United States
+and/or other countries.
+
+Font software remains under SIL Open Font License 1.1. See OFL-GenWanMin.txt.
+
+Modifications for this project: Unicode subsetting and WOFF2 compression; internal font names renamed to HGT GenWan Web. Font outlines have not been redrawn. OpenType layout features and necessary substitution glyphs are retained. Original source timestamps are retained for reproducible output. The upstream family name is given only to acknowledge its origin; no upstream endorsement is implied.
+
+The UI subset is the first requested font; other encoded characters are split into 512-code-point packs and loaded through CSS unicode-range. The effective union preserves all 35,349 Unicode code points of the pinned original. CSS font family alias is SoupMincho, weight 400, normal style. Each pack can contain extra shaping glyphs, but its CSS unicode-range is restricted to its assigned code points.
+
+Do not sell these font files by themselves. Preserve this attribution and the OFL when distributing them with the application. Other application code and generated images are not relicensed by the font's OFL.

@@ -1,0 +1,55 @@
+/* Story shelf and text refinements requested on 2026-11-09. */
+.paper-theme{font-family:SoupMincho,"Songti SC",STSong,serif}
+.paper-theme textarea,.paper-theme .surface-body,.paper-theme .surface-text,.paper-theme .practice-surface,.paper-theme .message-text,.paper-theme .entry-question,.paper-theme .entry-feedback,.paper-theme .draft-input,.paper-theme .room-draft,.paper-theme .practice-input,.paper-theme .solution-body,.paper-theme .room-solution,.paper-theme .privacy-body,.paper-theme .privacy-paragraph,.paper-theme .cover-footnote,.paper-theme .route-copy,.paper-theme .mode-card-copy>text,.paper-theme .book-meta,.paper-theme .book-teaser{font-family:SoupMincho,"Songti SC",STSong,serif;font-weight:400}
+.paper-theme .cover-heading{top:11%}
+.paper-theme .mode-main-title{font-family:SoupMincho,"Songti SC",STSong,serif;font-size:48rpx;line-height:1.5;letter-spacing:0;white-space:nowrap}
+.paper-theme .mode-copy{width:384rpx;max-width:100%;font-size:24rpx;line-height:1.8;letter-spacing:0;text-align:justify;text-align-last:justify;margin-top:14rpx}
+.paper-theme .resume-link{margin-top:20rpx}
+.paper-theme .stories-content{padding-top:25rpx}
+.paper-theme .stories-content>.route-title{font-size:43rpx;flex-shrink:0}
+.paper-theme .stories-content>.route-kicker{flex-shrink:0;margin-bottom:8rpx}
+.paper-theme .story-carousel{position:relative;flex:1;min-height:0;width:calc(100% + 80rpx);margin:16rpx -40rpx 0;perspective:1000px;overflow:hidden;touch-action:pan-y;isolation:isolate}
+.paper-theme .story-deck{position:absolute;inset:0;transition:transform 200ms ease-out;transform-style:preserve-3d}
+.paper-theme .story-deck.dragging{transition:none}
+.paper-theme .story-leaf{position:absolute;top:3%;bottom:3%;left:50%;width:75%;padding:0;margin:0;background:transparent;border:0;border-radius:0;box-shadow:none;text-align:left;transform-origin:center;transition:transform 280ms ease,opacity 280ms ease;touch-action:pan-y;user-select:none;overflow:visible}
+.paper-theme .story-leaf.active{z-index:5;transform:translateX(-50%);opacity:1}
+.paper-theme .story-leaf.left-1{z-index:4;transform:translateX(-112%) rotateY(22deg) scale(.86);opacity:.7}
+.paper-theme .story-leaf.right-1{z-index:4;transform:translateX(12%) rotateY(-22deg) scale(.86);opacity:.7}
+.paper-theme .story-leaf.left-2{z-index:3;transform:translateX(-150%) rotateY(28deg) scale(.72);opacity:.35}
+.paper-theme .story-leaf.right-2{z-index:3;transform:translateX(50%) rotateY(-28deg) scale(.72);opacity:.35}
+.paper-theme .story-leaf:focus-visible{outline:1px dashed #e7d3a5;outline-offset:3px}
+.paper-theme .book-paper{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 10rpx 15rpx #0008)}
+.paper-theme .book-picture{position:absolute;top:3%;left:4%;right:4%;height:55%;overflow:hidden;clip-path:polygon(0 0,100% 0,100% 92%,96% 95%,93% 92%,88% 97%,83% 94%,79% 99%,74% 96%,68% 99%,63% 95%,57% 98%,52% 94%,47% 97%,42% 93%,37% 98%,31% 95%,26% 99%,21% 96%,15% 98%,10% 93%,6% 96%,0 92%)}
+.paper-theme .book-art{display:block;width:100%;height:100%;pointer-events:none;object-fit:cover}
+.paper-theme .book-copy{position:absolute;top:60%;left:9%;right:9%;bottom:7%;color:#3d2c19;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.paper-theme .book-meta{display:flex;justify-content:space-between;gap:10rpx;font-size:20rpx;color:#705736;line-height:1.5;flex-shrink:0}
+.paper-theme .book-title{font-family:SoupHand,"Kaiti SC",serif;font-size:40rpx;line-height:1.5;font-weight:400;margin:9rpx 0 8rpx;flex-shrink:0}
+.paper-theme .book-teaser{font-size:24rpx;line-height:1.7;color:#5b452d;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.paper-theme .story-pagination,.paper-theme .puzzle-pagination{margin:3rpx 0;flex-shrink:0;font-family:SoupMincho,"Songti SC",serif;font-size:21rpx;color:#c4b698}
+.paper-theme .story-pagination button,.paper-theme .puzzle-pagination button{font-family:serif;font-size:48rpx;line-height:1;min-height:44px;min-width:44px;color:#e0cfaa}
+.paper-theme .ranking-coin{width:82rpx;height:82rpx;min-width:44px;min-height:44px;background:transparent;flex-shrink:0;padding:0;line-height:1}
+.paper-theme .ranking-coin image,.paper-theme .ranking-coin img{width:100%;height:100%;display:block}
+.paper-theme .room-setup .lobby-capabilities{font-family:SoupMincho,"Songti SC",serif;font-size:22rpx;margin:0 0 14rpx;flex-shrink:0;color:#bbaa89}
+.paper-theme .profile-line{display:flex;gap:18rpx;align-items:center;flex-shrink:0}
+.paper-theme .profile-line .field-label{font-size:24rpx;white-space:nowrap;margin:0;flex-shrink:0;color:#c4b492}
+.paper-theme .profile-line .short-field{flex:1;width:0;min-height:40px;height:74rpx;padding:12rpx 16rpx;font-size:25rpx}
+.paper-theme .room-setup .lobby-tabs{margin:14rpx 0 0;padding:3rpx}
+.paper-theme .room-setup .lobby-tabs button{min-height:40px;padding:12rpx}
+.paper-theme .room-setup .setup-panel{margin-top:8rpx;padding-bottom:0}
+.paper-theme .room-story-carousel{width:calc(100% + 64rpx);margin:2rpx -32rpx 0}
+.paper-theme .room-story-carousel .story-leaf{width:71%}
+.paper-theme .room-story-carousel .book-meta{font-size:18rpx}
+.paper-theme .room-story-carousel .book-title{font-size:36rpx;margin:5rpx 0}
+.paper-theme .room-story-carousel .book-teaser{font-size:22rpx;line-height:1.6;-webkit-line-clamp:2}
+.paper-theme .room-setup .primary{margin-top:0;padding:18rpx;min-height:44px}
+.paper-theme .room-setup .lobby-note{margin:5rpx 0 0;padding:7rpx 0 0;font-size:19rpx}
+.paper-theme .room-setup .join-panel{padding-top:10rpx}
+.preview-modal p{font-family:SoupMincho,"Songti SC",STSong,serif!important}
+@media(max-height:700px){.paper-theme .cover-heading{top:11%}.paper-theme .mode-main-title{font-size:46rpx}.paper-theme .mode-copy{width:368rpx;font-size:23rpx}.paper-theme .book-title{font-size:36rpx;margin:5rpx 0}.paper-theme .book-teaser{font-size:22rpx;line-height:1.6}.paper-theme .stories-content{padding-top:12rpx}.paper-theme .stories-content>.route-title{font-size:40rpx}.paper-theme .room-story-carousel .book-title{font-size:33rpx}.paper-theme .room-story-carousel .book-meta{font-size:17rpx}.paper-theme .room-story-carousel .book-teaser{font-size:21rpx}.paper-theme .room-setup .lobby-capabilities{font-size:21rpx;margin-bottom:8rpx}.paper-theme .room-setup .lobby-note{font-size:18rpx}.paper-theme .room-setup .lobby-tabs{margin-top:8rpx}}
+@media(prefers-reduced-motion:reduce){.paper-theme .story-deck,.paper-theme .story-leaf{transition:none}}
+
+/* Reuse the actual paper alpha for fibrous, uneven illustration edges. */
+.paper-theme .book-picture{top:2%;left:3%;right:3%;height:57%;clip-path:none;mask-image:url('/assets/brand/story-paper-v1.png');-webkit-mask-image:url('/assets/brand/story-paper-v1.png');mask-size:100% 100%;-webkit-mask-size:100% 100%;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat}
+.paper-theme .book-meta,.paper-theme .room-story-carousel .book-meta{font-size:max(19rpx,10px)}
+.paper-theme .book-teaser,.paper-theme .room-story-carousel .book-teaser{font-size:max(24rpx,12px);line-height:1.6}
+.paper-theme .room-story-carousel .book-copy{top:58%;bottom:6%}

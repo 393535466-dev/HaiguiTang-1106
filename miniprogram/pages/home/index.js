@@ -1,9 +1,10 @@
+const carousel = require('../../utils/story-carousel')
 const api = require('../../utils/api')
 const storage = require('../../utils/storage')
 const catalog = require('../../data/catalog')
 
-Page({
-  data: { screen: 'cover', coverActive: true, eyeReady: false, artError: false, artRetry: '', storyIndex: 0, puzzle: catalog[0], puzzles: catalog, loading: true, canStart: false, continuing: '', statusText: '正在检查连接', statusKind: 'waiting', error: '', privacyNeeded: false },
+Page(Object.assign({
+  data: { carouselCards: carousel.cards(catalog, 0), carouselShift: 0, carouselDragging: false, screen: 'cover', coverActive: true, eyeReady: false, artError: false, artRetry: '', storyIndex: 0, puzzle: catalog[0], puzzles: catalog, loading: true, canStart: false, continuing: '', statusText: '正在检查连接', statusKind: 'waiting', error: '', privacyNeeded: false },
   onLoad(options = {}) { this._alive = true; this._eyeFrames = {}; this.setData({ screen: ['mode', 'stories'].includes(options.screen) ? options.screen : 'cover' }) },
   onShow() { this._alive = true; this.setData({ coverActive: true }); this.load() },
   onHide() { this.setData({ coverActive: false }) },
@@ -27,7 +28,7 @@ Page({
       const ready = Boolean(health.textReady && health.gameEnabled !== false)
       const localStatus = health.environment === 'local-fixture' ? '固定测试裁判 · 非真实 AI' : ''
       const storyIndex = Math.min(this.data.storyIndex, Math.max(0, (puzzles || []).length - 1))
-      this.setData({ puzzles: puzzles || [], storyIndex, puzzle: (puzzles || [])[storyIndex] || null, canStart: ready, continuing: storage.lastSession(), loading: false, statusKind: ready ? 'ready' : 'waiting', statusText: ready ? localStatus || (health.voiceReady ? 'AI 主持已就位 · 可以开麦' : 'AI 主持已就位 · 文字提问') : 'AI 主持尚未接入', error: ready ? '' : '请先完成服务端 AI 配置，再开始第一局。' })
+      this.setData({ puzzles: puzzles || [], carouselCards: carousel.cards(puzzles || [], storyIndex), storyIndex, puzzle: (puzzles || [])[storyIndex] || null, canStart: ready, continuing: storage.lastSession(), loading: false, statusKind: ready ? 'ready' : 'waiting', statusText: ready ? localStatus || (health.voiceReady ? 'AI 主持已就位 · 可以开麦' : 'AI 主持已就位 · 文字提问') : 'AI 主持尚未接入', error: ready ? '' : '请先完成服务端 AI 配置，再开始第一局。' })
     } catch (e) {
       if (!this._alive) return
       this.setData({ loading: false, canStart: false, continuing: '', statusKind: 'waiting', statusText: '等待云端配置', error: api.message(e) })
@@ -37,7 +38,7 @@ Page({
   chooseStory() { wx.navigateTo({ url: '/pages/home/index?screen=stories' }) },
   moveStory(e) {
     const storyIndex = this.data.storyIndex + Number(e.currentTarget.dataset.direction)
-    if (storyIndex >= 0 && storyIndex < this.data.puzzles.length) this.setData({ storyIndex, puzzle: this.data.puzzles[storyIndex] })
+    carousel.select(this, 'storyIndex', storyIndex)
   },
   back() {
     const target = this.data.screen === 'stories' ? 'mode' : 'cover', pages = getCurrentPages()
@@ -67,4 +68,4 @@ Page({
   privacy() { wx.navigateTo({ url: '/pages/privacy/index' }) },
   agreePrivacy() { getApp().resolvePrivacy(true); this.setData({ privacyNeeded: false }) },
   declinePrivacy() { getApp().resolvePrivacy(false); this.setData({ privacyNeeded: false }) }
-})
+}, carousel.handlers('storyIndex')))

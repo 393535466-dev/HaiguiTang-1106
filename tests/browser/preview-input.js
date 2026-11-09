@@ -27,6 +27,9 @@ async function main() {
       const previousDraft = await draft(field);
       const original = await input().elementHandle();
       const sentBefore = submissions.length;
+      await page.evaluate(() => window.__preview.page.setData({ inputRegressionTick: Date.now() }));
+      await paint();
+      assert.equal(await original.evaluate(element => element.isConnected && element === document.activeElement), true, 'focused textarea changed before composition began');
       for (let i = 1; i <= pinyin.length; i++) {
         const text = pinyin.slice(0, i);
         await cdp.send('Input.imeSetComposition', { text, selectionStart: text.length, selectionEnd: text.length });

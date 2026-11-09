@@ -57,10 +57,12 @@ async function main() {
     await page.goto(base); await page.waitForFunction(() => !window.__preview.page.data.loading);
     await page.waitForFunction(()=>window.__preview.page.data.eyeReady && [...document.querySelectorAll('.cover-art,.brand-logo,.torn-button-art')].every(i=>i.complete&&i.naturalWidth>0));
     await page.evaluate(()=>document.fonts.ready);
+    assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupMincho','一个故事')),true);
     assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupHand','进入游戏')),true);
     assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupDisplay','CHOOSE')),true);
     assert.equal(await page.locator('.cover-brand').innerText(), '海龟汤');
     assert.equal(await page.locator('.entry-arrow').count(), 0);
+    assert.equal(await page.locator('.cover-caption').count(), 0);
     assert.equal(await page.locator('.cover-tutorial').innerText(), '第一次玩？跟着做一遍');
     for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:488,height:676},{width:700,height:600},{width:900,height:650},{width:1320,height:1000}]) {
       await page.setViewportSize(viewport); await layout('.hero-button'); await layout('.cover-tutorial'); await layout('.cover-privacy');
@@ -73,21 +75,22 @@ async function main() {
       await page.locator('.eye-blink').evaluate(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}));await shot('home-' + viewport.width);
     }
     await page.setViewportSize({width:390,height:844}); await frame();
-    for(const [time,expected] of [[0,0],[704,1],[992,0],[1280,1],[1800,0],[5000,0]]) {
+    for(const [time,expected] of [[0,0],[704,1],[992,0],[1280,0],[1800,0],[5000,0]]) {
       await page.locator('.eye-blink').evaluate((e,t)=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=t}),time);await frame();
-      assert.ok(Math.abs(Number(await page.locator('.eye-blink').evaluate(e=>getComputedStyle(e).opacity))-expected)<.01,'two blinks then a held-open pause');if(time===704)await shot('eye-closed');
+      assert.ok(Math.abs(Number(await page.locator('.eye-blink').evaluate(e=>getComputedStyle(e).opacity))-expected)<.01,'one blink then a held-open pause');if(time===704)await shot('eye-closed');
     }
     await page.emulateMedia({reducedMotion:'reduce'});await frame();assert.equal(await page.locator('.eye-blink').evaluate(e=>getComputedStyle(e).animationName),'none');await page.emulateMedia({reducedMotion:'no-preference'});
     await page.locator('.hero-button').click(); await frame();
     assert.equal(await page.evaluate(()=>window.__preview.page.data.screen),'mode');
+    assert.equal(await page.locator('.mode-main-title').innerText(),'今天，来一探究竟');
     assert.equal(await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).count(),0);
     await page.setViewportSize({width:320,height:568});await layout('.route-bottom');await shot('mode-small');
     await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories'&&!window.__preview.page.data.loading);await layout('.story-card');await shot('stories-small');
     assert.equal(await page.evaluate(()=>window.__preview.page.data.puzzles.length),13);
     for(let i=0;i<10;i++){
-      await page.waitForFunction(({i,title})=>window.__preview.page.data.storyIndex===i&&document.querySelector('.story-stage').innerText.includes(title),{i,title:puzzles[i].title});
-      assert.ok((await page.locator('.story-stage').innerText()).includes(puzzles[i].title));
-      assert.ok((await page.locator('.story-stage').innerText()).includes('难度 '+(i+1)+' / 10'));
+      await page.waitForFunction(({i,title})=>window.__preview.page.data.storyIndex===i&&document.querySelector('.story-leaf.active')?.innerText.includes(title),{i,title:puzzles[i].title});
+      assert.ok((await page.locator('.story-leaf.active').innerText()).includes(puzzles[i].title));
+      assert.ok((await page.locator('.story-leaf.active').innerText()).includes('难度 '+(i+1)+' / 10'));
       if(i<9)await page.getByRole('button',{name:'下一题',exact:false}).click();
     }
     for(let i=9;i>1;i--){await page.getByRole('button',{name:'上一题',exact:false}).click();await page.waitForFunction(i=>window.__preview.page.data.storyIndex===i-1,i)}

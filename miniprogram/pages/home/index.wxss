@@ -2,8 +2,8 @@
 .route-page{position:relative;height:100vh;overflow:hidden;background:#111212;color:#f4f0e7;box-sizing:border-box}
 .cover-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .eye-blink{opacity:0;mask-image:radial-gradient(ellipse 46% 12% at 50% 49.5%,#000 65%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 46% 12% at 50% 49.5%,#000 65%,transparent 100%)}
-.eye-blink.eye-ready{animation:double-blink 6.4s ease-in-out infinite;will-change:opacity}
-@keyframes double-blink{0%,8%,14%,17%,23%,100%{opacity:0}10%,12%,19%,21%{opacity:1}}
+.eye-blink.eye-ready{animation:single-blink 6.4s ease-in-out infinite;will-change:opacity}
+@keyframes single-blink{0%,8%,15%,100%{opacity:0}10%,12%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.eye-blink.eye-ready{animation:none;opacity:0;will-change:auto}}
 .cover-brand{position:absolute;top:calc(28rpx + env(safe-area-inset-top));left:42rpx;display:flex;align-items:center;gap:13rpx;font-size:42rpx;letter-spacing:2rpx;line-height:1.35}
 .brand-logo{width:78rpx;height:88rpx;flex-shrink:0}

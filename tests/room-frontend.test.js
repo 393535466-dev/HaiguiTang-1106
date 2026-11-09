@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),vm=require(
 function page(clock = Date.now) {
  let definition;const writes=[];
  const storage={write:(...a)=>writes.push(a),owner:()=> 'test'};
- vm.runInNewContext(fs.readFileSync(require.resolve('../miniprogram/pages/room/index.js'),'utf8'),{Page:d=>{definition=d},require:name=>name.endsWith('/storage')?storage:name.endsWith('/presentation')?require('../miniprogram/utils/presentation'):function(){},Date:{now:clock},wx:{},getApp:()=>({globalData:{}})});
+ vm.runInNewContext(fs.readFileSync(require.resolve('../miniprogram/pages/room/index.js'),'utf8'),{Page:d=>{definition=d},require:name=>name.endsWith('/story-carousel')?require('../miniprogram/utils/story-carousel'):name.endsWith('/storage')?storage:name.endsWith('/presentation')?require('../miniprogram/utils/presentation'):function(){},Date:{now:clock},wx:{},getApp:()=>({globalData:{}})});
  const p=Object.assign({},definition,{data:structuredClone(definition.data),_alive:true,_roomId:'123456',_host:{sync(){}},setData(v){Object.assign(this.data,v)}});
  return {p,writes};
 }

@@ -13,6 +13,9 @@ const { createPreviewAudio } = require('./preview-audio');
 const puzzles = require('../cloudfunctions/game/data/puzzles');
 const root = path.resolve(__dirname, '..');
 const webpAssets = Object.freeze({
+  ...Object.fromEntries(require('../miniprogram/data/catalog').map(p => ['/assets/stories/' + p.id + '-v1.jpg', '/assets/stories/' + p.id + '-v1.webp'])),
+  '/assets/brand/ranking-coin-v1.png': '/assets/brand/ranking-coin-v1.webp',
+  '/assets/brand/story-paper-v1.png': '/assets/brand/story-paper-v1.webp',
   '/assets/brand/black-paper-v1.jpg': '/assets/brand/black-paper-v1.webp',
   '/assets/brand/torn-kraft-v1.png': '/assets/brand/torn-kraft-v1.webp',
   '/assets/brand/logo-red-cyan-v7.png': '/assets/brand/logo-red-cyan-v7.webp',
@@ -31,7 +34,7 @@ function accepts(req, header, type) {
 function bundle() {
   const files = {};
   const add = (file, kind) => { files['/' + file.replace(/^miniprogram\//, '')] = { kind, source: fs.readFileSync(path.join(root, file), 'utf8') }; };
-  for (const file of ['app.js', 'app.wxss', 'theme.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
+  for (const file of ['app.js', 'app.wxss', 'theme.wxss', 'carousel.wxss', 'fonts.wxss', 'config.js', 'data/catalog.js', 'utils/api.js', 'utils/story-carousel.js', 'utils/storage.js', 'utils/presentation.js', 'utils/tutorial-judge.js', 'utils/host-voice.js', 'utils/practice-voice.js']) add('miniprogram/' + file, path.extname(file).slice(1));
   for (const page of ['home', 'game', 'tutorial', 'privacy', 'room', 'leaderboard']) for (const ext of ['js', 'wxml', 'wxss']) add(`miniprogram/pages/${page}/index.${ext}`, ext);
   return 'window.__miniFiles=' + JSON.stringify(files).replace(/</g, '\\u003c') + ';';
 }

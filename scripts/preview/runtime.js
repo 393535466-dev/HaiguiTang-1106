@@ -28,8 +28,8 @@
   const modules = {}, definitions = {}, pages = [];
   let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null, renderedPage = null;
   const domTemplates = {};
-  const baseStyles = files['/app.wxss'].source.replace(/@import\s+["']theme\.wxss["'];?/, '');
-  const themeStyles = files['/theme.wxss'].source;
+  const baseStyles = files['/app.wxss'].source.replace(/@import\s+["'](?:theme|carousel|fonts)\.wxss["'];?/g, '');
+  const themeStyles = files['/fonts.wxss'].source + '\n' + files['/theme.wxss'].source + '\n' + files['/carousel.wxss'].source;
   const style = document.createElement('style'); document.head.append(style);
 
   function pathResolve(name, parent) {
@@ -164,7 +164,7 @@
         }
         const fn = page[attribute.value];
         if (typeof fn !== 'function') { console.warn('Preview missing handler', attribute.value); return; }
-        const argument = { type: logical, currentTarget: { dataset: Object.assign({}, element.dataset) }, target: { dataset: Object.assign({}, element.dataset) }, detail: { value: event.target.value }, touches: logical === 'touchend' || logical === 'touchcancel' ? [] : [{ clientY: event.clientY || 0, clientX: event.clientX || 0 }] };
+        const argument = { type: logical, currentTarget: { dataset: Object.assign({}, element.dataset) }, target: { dataset: Object.assign({}, element.dataset) }, detail: { value: event.target.value }, changedTouches: [{ clientY: event.clientY || 0, clientX: event.clientX || 0 }], touches: logical === 'touchend' || logical === 'touchcancel' ? [] : [{ clientY: event.clientY || 0, clientX: event.clientX || 0 }] };
         Promise.resolve(fn.call(page, argument)).catch(error => { console.error(error); toast({ title: '预览操作异常：' + error.message }); });
       };
       element.addEventListener(nativeEvent, event => {
@@ -225,7 +225,7 @@
       if (name.startsWith('wx:') || /^(bind|catch)/.test(name)) continue;
       const value = interpolate(attribute.value, scope);
       if (tag === 'img' && name === 'src') { element.src = String(value || ''); element.alt = ''; element.draggable = false; continue; }
-      if (tag === 'img' && name === 'mode') { element.style.objectFit = value === 'aspectFill' ? 'cover' : 'contain'; continue; }
+      if (tag === 'img' && name === 'mode') { element.style.objectFit = value === 'aspectFill' ? 'cover' : value === 'scaleToFill' ? 'fill' : 'contain'; continue; }
       if (name === 'disabled') { element.disabled = Boolean(value); continue; }
       if (name === 'value') { element.value = value == null ? '' : String(value); continue; }
       if (['class', 'id', 'style', 'placeholder', 'maxlength'].includes(name) || name.startsWith('aria-') || name.startsWith('data-')) element.setAttribute(name, value == null ? '' : String(value));
@@ -269,6 +269,19 @@
       for (const attribute of [...existing.attributes]) if (!img.hasAttribute(attribute.name)) existing.removeAttribute(attribute.name);
       for (const attribute of img.attributes) if (existing.getAttribute(attribute.name) !== attribute.value) existing.setAttribute(attribute.name, attribute.value);
       img.replaceWith(existing);
+    }
+    // Status/image replies can repaint between focus and compositionstart.
+    // Keep the focused input's identity in that gap as well as deferring renders
+    // during composition, so the browser's IME never starts on a detached node.
+    if (renderedPage === page && activeKey && active.tagName === 'TEXTAREA') {
+      const replacement = content.querySelector('textarea[data-node-key="' + activeKey + '"]');
+      if (replacement) {
+        for (const attribute of [...active.attributes]) if (!replacement.hasAttribute(attribute.name)) active.removeAttribute(attribute.name);
+        for (const attribute of replacement.attributes) if (active.getAttribute(attribute.name) !== attribute.value) active.setAttribute(attribute.name, attribute.value);
+        if (active.value !== replacement.value) active.value = replacement.value;
+        active.disabled = replacement.disabled;
+        replacement.replaceWith(active);
+      }
     }
     appRoot.replaceChildren(content); renderedPage = page;
     for (const [key, top] of scrolls) { const element = appRoot.querySelector('[data-node-key="' + key + '"]'); if (element) element.scrollTop = top; }

@@ -1,4 +1,6 @@
+@import "fonts.wxss";
 @import "theme.wxss";
+@import "carousel.wxss";
 page{background:#f6f3eb;color:#213e35;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:28rpx;line-height:1.65;box-sizing:border-box}
 view,text,button,textarea{box-sizing:border-box}
 button{margin:0;padding:0;border:0;line-height:1.4;font-size:28rpx;border-radius:0;background:transparent;color:inherit}

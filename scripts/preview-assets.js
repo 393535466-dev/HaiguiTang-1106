@@ -1,6 +1,10 @@
 'use strict';
 // Exact public asset allowlist shared by the local preview and invitation gateway.
 module.exports = Object.freeze({
+  ...require('./font-assets-manifest.json'),
+  ...Object.fromEntries(require('../miniprogram/data/catalog').map(p => ['/assets/stories/' + p.id + '-v1.jpg', 'image/jpeg'])),
+  '/assets/brand/ranking-coin-v1.png': 'image/png',
+  '/assets/brand/story-paper-v1.png': 'image/png',
   '/assets/brand/logo-red-cyan-v6.png': 'image/png',
   '/assets/brand/torn-eye-home-v1.png': 'image/png',
   '/assets/brand/torn-eye-open-v2.jpg': 'image/jpeg',
