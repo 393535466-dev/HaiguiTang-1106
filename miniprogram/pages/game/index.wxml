@@ -31,7 +31,7 @@
         </view>
         <view id="message-end" class="message-end"></view>
       </view>
-    </scroll-view></view>
+    </scroll-view>
     <view wx:if="{{!session.ended}}" class="composer {{recording ? 'is-recording' : ''}}">
       <view class="composer-toolbar"><view class="mode-switch"><button class="mode-item {{mode === 'question' ? 'selected' : ''}}" bindtap="switchMode" data-mode="question" disabled="{{busy || recording}}">继续提问</button><button class="mode-item {{mode === 'guess' ? 'selected' : ''}}" bindtap="switchMode" data-mode="guess" disabled="{{busy || recording}}">我猜到了</button></view><button class="hint-button" bindtap="hint" disabled="{{session.hintCount >= 3}}">✦ 提示 {{session.hintCount || 0}}/3</button></view>
       <view wx:if="{{error}}" class="inline-error">{{error}}</view>
@@ -39,6 +39,9 @@
       <view wx:if="{{pending && !busy}}" class="pending-actions"><button bindtap="checkResult">检查已有结果</button><button wx:if="{{pending.retryable !== false}}" bindtap="retry">主动重试一次 ↗</button></view>
       <view wx:if="{{recoveredTranscript}}" class="recovered-transcript"><text>识别结果可用，当前草稿已保留。</text><button bindtap="useRecoveredTranscript">使用识别文字 ↗</button></view>
       <view class="draft-container"><view class="draft-top"><text>{{draftSource === 'voice' || draftSource === 'edited' ? '核对人名、数字和否定词' : (mode === 'guess' ? '讲清你理解的完整故事' : '把好奇写下来')}}</text><text>{{draft.length}} / {{mode === 'guess' ? 500 : 200}}</text></view><textarea class="draft-input" value="{{draft}}" bindinput="onInput" placeholder="{{mode === 'guess' ? '谁做了什么，为什么会这样？' : '他是故意这样做的吗？'}}" placeholder-style="color:#85927a" maxlength="{{mode === 'guess' ? 500 : 200}}" disabled="{{recording}}" adjust-position="true" cursor-spacing="24" show-confirm-bar="false" auto-height="false"></textarea></view>
+    </view>
+    </view>
+    <view wx:if="{{!session.ended}}" class="composer-actions">
       <view class="input-actions"><button class="record-button {{recording ? 'recording' : ''}} {{cancelling ? 'cancelling' : ''}}" bindtouchstart="recordStart" catchtouchmove="recordMove" bindtouchend="recordEnd" bindtouchcancel="recordCancel" disabled="{{busy}}" aria-label="按住录音，松手转文字，上滑取消"><view class="mic-icon"><view></view></view><text>{{recording ? (cancelling ? '松手取消' : '录音中 ' + recordSeconds + 's · 上滑取消') : ((draftSource === 'voice' || draftSource === 'edited') ? '按住重录' : '按住说话')}}</text></button><button class="send-button" bindtap="submit" disabled="{{busy || recording || !draft}}">{{mode === 'guess' ? '提交猜底' : '确认提问'}} <text>↑</text></button></view>
       <view class="composer-footer"><text>{{session.maxQuestions ? '用完提问次数后自动揭底' : '录音最长约20秒，确认文字后才判题'}}</text><button bindtap="reveal">放弃揭底</button></view>
     </view>

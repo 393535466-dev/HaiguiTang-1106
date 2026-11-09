@@ -12,7 +12,7 @@
     <view wx:if="{{screen === 'mode'}}" class="mode-content">
       <view class="route-kicker">CHOOSE YOUR TABLE</view><view class="route-title serif mode-main-title">今天，来一探究竟</view><view class="route-copy mode-copy">一个人追问，或和朋友一起找答案。</view>
       <view class="mode-cards"><button class="mode-card" bindtap="chooseStory"><view class="mode-number">01</view><view class="mode-card-copy"><view>独自推理</view><text>和 AI 主持，一问一答</text></view></button><button class="mode-card friends-card" bindtap="friends"><view class="mode-number">02</view><view class="mode-card-copy"><view>和朋友一起玩</view><text>2～6 人同桌，45 秒轮流提问</text></view></button></view>
-      <view class="route-bottom"><button bindtap="privacy">录音与隐私说明</button><button wx:if="{{continuing}}" class="resume-link" bindtap="resume">继续未完的单人故事</button></view>
+      <view class="route-bottom"><button class="mode-privacy" bindtap="privacy">录音与隐私说明</button><button wx:if="{{continuing}}" class="resume-link" bindtap="resume">继续未完的单人故事</button></view>
     </view>
     <view wx:else class="stories-content">
       <view class="route-kicker">PICK A MYSTERY</view><view class="route-title serif">从哪件怪事开始？</view>
