@@ -19,8 +19,8 @@ async function setup(t) {
     });
     req.on('error', reject); req.end(options.body);
   });
-  const enter = async () => { const r = await request('/invite/' + secret); assert.equal(r.status, 303); assert.equal(r.headers.get('location'), '/'); return r.headers.get('set-cookie'); };
-  return { request, enter, origin, expire: () => { time = 10000; } };
+  const enter = async () => { const r = await request('/invite/' + secret); assert.equal(r.status, 303); assert.equal(r.headers.get('location'), '/play/' + secret + '/'); return r.headers.get('set-cookie'); };
+  return { request, enter, origin, mount: '/play/' + secret, expire: () => { time = 10000; } };
 }
 test('mobile entry requires an unexpired invite, sets a secure cookie and hides private paths', async t => {
   const { request, enter, expire } = await setup(t);
@@ -66,6 +66,28 @@ test('mobile gateway rejects cross-site requests and never gives callers the loc
   assert.equal((await api(b, 'getRoom', { roomId: room.id })).error.code, 'ROOM_FORBIDDEN');
   const joined = (await api(b, 'joinRoom', { roomId: room.id })).data.room;
   assert.equal(joined.members.length, 2); assert.equal(joined.isHost, false);
+});
+test('capability path works without cookies and preserves all authorization boundaries', async t => {
+  const { request, mount, origin, expire } = await setup(t);
+  assert.equal((await request(mount)).headers.get('location'), mount + '/');
+  assert.equal((await request(mount + '/')).status, 200);
+  assert.equal((await request(mount + '/assets/brand/logo-red-cyan-v7.png')).status, 200);
+  assert.equal((await request(mount + '/assets/fonts/genwan/genwan-ui-v1.woff2')).status, 200);
+  assert.equal((await request('/play/wrong/')).status, 403);
+  assert.equal((await request(mount + '/.env.preview.local')).status, 404);
+  assert.equal((await request(mount + '/cloudfunctions/game/data/puzzles.js')).status, 404);
+  const post = (route, payload, extra = {}) => request(mount + route, { method:'POST', headers:{'Content-Type':'application/json', Origin:origin, ...extra}, body:JSON.stringify(payload) });
+  assert.equal((await post('/preview-player', {}, {Origin:'https://attacker.example'})).status, 403);
+  assert.equal((await post('/api', {action:'status'})).status, 401);
+  const a = (await (await post('/preview-player', {})).json()).token;
+  const b = (await (await post('/preview-player', {})).json()).token;
+  const api = async (token, action, args = {}) => (await (await post('/api', {action, ...args}, {'X-Preview-Player':token})).json());
+  const ownerA = (await api(a, 'status')).data.ownerKey, ownerB = (await api(b, 'status')).data.ownerKey;
+  assert.notEqual(ownerA, ownerB);
+  const room = (await api(a, 'createRoom', {puzzleId:'parking-ticket'})).data.room;
+  assert.equal((await api(b, 'getRoom', {roomId:room.id})).error.code, 'ROOM_FORBIDDEN');
+  assert.equal((await api(b, 'joinRoom', {roomId:room.id})).data.room.members.length, 2);
+  expire(); assert.equal((await request(mount + '/')).status, 410);
 });
 test('mobile entry compresses startup files and preserves encoding through the gateway', async t => {
   const { request, enter } = await setup(t);

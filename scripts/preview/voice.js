@@ -89,7 +89,7 @@
     wx.cloud.uploadFile = async ({ cloudPath, filePath }) => {
       const blob = files.get(filePath);
       if (!blob) throw new Error('录音已清理，请重新录制。');
-      const response = await fetch('/audio?path=' + encodeURIComponent(cloudPath), { method: 'POST', headers: { 'Content-Type': 'audio/wav', ...await window.previewHeaders() }, body: blob });
+      const response = await fetch(window.previewURL('/audio?path=' + encodeURIComponent(cloudPath)), { method: 'POST', headers: { 'Content-Type': 'audio/wav', ...await window.previewHeaders() }, body: blob });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || '录音上传失败，请重新录制。');
       return data;

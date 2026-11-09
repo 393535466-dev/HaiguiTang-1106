@@ -34,11 +34,17 @@ function createMobileGateway({ publicOrigin, accessToken, expiresAt, upstreamPor
       // withholds the new cookie on the redirect and rejects a valid invite.
       // Lax permits that GET; POST origin and player-identity checks still apply.
       res.setHeader('Set-Cookie', COOKIE + '=' + accessToken + '; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=' + Math.max(0, Math.floor((expiresAt - now()) / 1000)));
-      res.writeHead(303, { Location: '/' }); return res.end();
+      // Keep the invitation in the URL so blocked/non-persistent mobile cookies
+      // and copying the address after entry do not lose access.
+      res.writeHead(303, { Location: '/play/' + accessToken + '/' + url.search }); return res.end();
     }
+    const mounted = /^\/play\/([^/]+)(\/.*)?$/.exec(url.pathname);
+    if (mounted && !equal(mounted[1], accessToken)) return finish(403, '测试邀请无效，请使用完整的邀请链接。');
+    if (mounted && !mounted[2]) { res.writeHead(303, { Location: '/play/' + accessToken + '/' + url.search }); return res.end(); }
     const cookies = String(req.headers.cookie || '').split(';').map(v => v.trim());
     const cookie = cookies.find(v => v.startsWith(COOKIE + '='));
-    if (!cookie || !equal(cookie.slice(COOKIE.length + 1), accessToken)) return finish(403, '请先打开朋友发来的完整测试邀请链接。');
+    if (!mounted && (!cookie || !equal(cookie.slice(COOKIE.length + 1), accessToken))) return finish(403, '请先打开朋友发来的完整测试邀请链接。');
+    if (mounted) url.pathname = mounted[2];
     const isPost = req.method === 'POST' && posts.has(url.pathname);
     if (!isPost && !(['GET', 'HEAD'].includes(req.method) && assets.has(url.pathname))) return finish(404, '未找到页面。');
     // Cache only versioned artwork/fonts after authentication. Game data and code stay no-store.

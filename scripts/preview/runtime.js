@@ -5,18 +5,34 @@
   const screen = document.querySelector('#mini-screen');
   const appRoot = document.querySelector('#app');
   const overlays = document.querySelector('#preview-overlays');
+  const inviteMount = /^\/play\/[a-f0-9]{48,128}\//.exec(location.pathname)?.[0];
+  window.previewURL = value => typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? (inviteMount || '/') + value.slice(1) : value;
   const unconfigured = new URLSearchParams(location.search).get('mode') === 'unconfigured';
   const remote = !['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
   const isolatedTab = new URLSearchParams(location.search).get('guest') === '1';
-  const guest = remote || isolatedTab;
-  const identityStore = isolatedTab ? sessionStorage : localStorage;
+  const guest = remote || isolatedTab || Boolean(inviteMount);
+  function browserStorage(name) {
+    try { const storage = window[name], probe = 'hgt-probe-' + Math.random(); storage.setItem(probe, '1'); storage.removeItem(probe); return storage; }
+    catch (_) {
+      // Some mobile privacy modes block Web Storage together with cookies.
+      // Keep this window playable with its own identity, never the local owner.
+      const memory = Object.create(null);
+      Object.defineProperties(memory, {
+        getItem: { value: key => Object.hasOwn(memory, key) ? memory[key] : null },
+        setItem: { value: (key, value) => { memory[key] = String(value); } },
+        removeItem: { value: key => { delete memory[key]; } }
+      });
+      return memory;
+    }
+  }
+  const identityStore = browserStorage(isolatedTab ? 'sessionStorage' : 'localStorage');
   let guestIdentity;
   window.previewHeaders = async () => {
     if (!guest) return {};
     if (!guestIdentity) guestIdentity = (async () => {
       let token = identityStore.getItem('hgt-preview-player');
       if (!token) {
-        const response = await fetch('/preview-player', { method: 'POST', priority: 'high', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const response = await fetch(window.previewURL('/preview-player'), { method: 'POST', priority: 'high', headers: { 'Content-Type': 'application/json' }, body: '{}' });
         if (!response.ok) throw new Error('无法准备玩家身份，请从完整测试链接重新进入');
         token = (await response.json()).token; identityStore.setItem('hgt-preview-player', token);
       }
@@ -24,7 +40,7 @@
     })().catch(error => { guestIdentity = null; throw error; });
     return guestIdentity;
   };
-  const localStore = guest ? identityStore : localStorage;
+  const localStore = identityStore;
   const modules = {}, definitions = {}, pages = [];
   let app, currentModule = '', scheduled = false, renderSequence = 0, toastTimer, composition = null, gesture = null, renderedPage = null;
   const domTemplates = {};
@@ -106,7 +122,7 @@
     cloud: {
       init() {},
       async callFunction(options) {
-        const response = await fetch('/api', { method: 'POST', priority: 'high', headers: { 'Content-Type': 'application/json', ...await window.previewHeaders() }, body: JSON.stringify(options.data) });
+        const response = await fetch(window.previewURL('/api'), { method: 'POST', priority: 'high', headers: { 'Content-Type': 'application/json', ...await window.previewHeaders() }, body: JSON.stringify(options.data) });
         if (response.status === 401) { identityStore.removeItem('hgt-preview-player'); guestIdentity = null; throw new Error('玩家身份已过期，请刷新页面重新进入。'); }
         if (!response.ok) throw new Error('试玩服务没有接通，请从完整测试链接重新进入');
         return { result: await response.json() };
@@ -224,7 +240,7 @@
       const name = attribute.name;
       if (name.startsWith('wx:') || /^(bind|catch)/.test(name)) continue;
       const value = interpolate(attribute.value, scope);
-      if (tag === 'img' && name === 'src') { element.src = String(value || ''); element.alt = ''; element.draggable = false; continue; }
+      if (tag === 'img' && name === 'src') { element.src = window.previewURL(String(value || '')); element.alt = ''; element.draggable = false; continue; }
       if (tag === 'img' && name === 'mode') { element.style.objectFit = value === 'aspectFill' ? 'cover' : value === 'scaleToFill' ? 'fill' : 'contain'; continue; }
       if (name === 'disabled') { element.disabled = Boolean(value); continue; }
       if (name === 'value') { element.value = value == null ? '' : String(value); continue; }
@@ -239,7 +255,7 @@
     const width = screen.getBoundingClientRect().width;
     const height = screen.getBoundingClientRect().height;
     // Translate type selectors only; classes such as .message-text must stay intact.
-    return source.replace(/([\d.]+)rpx/g, (_, n) => (+n * width / 750) + 'px').replace(/100vh/g, height + 'px').replace(/(^|})\s*page\s*\{/g, '$1#mini-screen{').replace(/(^|[}\s,{>+~])(view|text)(?=[\s,.#:{\[>+~]|$)/g, (_, prefix, tag) => prefix + (tag === 'view' ? 'div' : 'span'));
+    return source.replace(/\/assets\//g, window.previewURL('/assets/')).replace(/([\d.]+)rpx/g, (_, n) => (+n * width / 750) + 'px').replace(/100vh/g, height + 'px').replace(/(^|})\s*page\s*\{/g, '$1#mini-screen{').replace(/(^|[}\s,{>+~])(view|text)(?=[\s,.#:{\[>+~]|$)/g, (_, prefix, tag) => prefix + (tag === 'view' ? 'div' : 'span'));
   }
   function scheduleRender() { if (scheduled) return; scheduled = true; requestAnimationFrame(() => { scheduled = false; render(); }); }
   function render() {
@@ -329,7 +345,7 @@
   };
   requireMini('/app.js'); if (app.onLaunch) app.onLaunch();
   navigate({ url: location.hash.slice(1) || '/pages/home/index' }, 'push');
-  fetch('/preview-status').then(r => r.json()).then(status => {
+  fetch(window.previewURL('/preview-status')).then(r => r.json()).then(status => {
     document.querySelector('#preview-mode').textContent = unconfigured ? '未配置界面检查 · 无模型调用' : status.mode === 'fixture' ? '固定裁判测试模式 · 非真实 AI' : status.textReady ? 'AI 语音海龟汤 · ' + (remote ? '手机测试' : '本机体验') : '真实 AI 待接入 · 请配置服务端密钥';
     if (remote) {
       document.querySelector('#preview-detail').textContent = '好奇心俱乐部 · 手机测试';
