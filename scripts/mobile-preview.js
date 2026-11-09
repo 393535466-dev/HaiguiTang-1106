@@ -30,7 +30,10 @@ function createMobileGateway({ publicOrigin, accessToken, expiresAt, upstreamPor
     if (req.headers.origin && req.headers.origin !== origin.origin) return finish(403, '不允许跨站请求。');
     if (req.method === 'GET' && url.pathname.startsWith('/invite/')) {
       if (!equal(url.pathname.slice('/invite/'.length), accessToken)) return finish(403, '测试邀请无效，请使用完整的邀请链接。');
-      res.setHeader('Set-Cookie', COOKIE + '=' + accessToken + '; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=' + Math.max(0, Math.floor((expiresAt - now()) / 1000)));
+      // A chat/site opens this as a cross-site top-level navigation. Strict
+      // withholds the new cookie on the redirect and rejects a valid invite.
+      // Lax permits that GET; POST origin and player-identity checks still apply.
+      res.setHeader('Set-Cookie', COOKIE + '=' + accessToken + '; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=' + Math.max(0, Math.floor((expiresAt - now()) / 1000)));
       res.writeHead(303, { Location: '/' }); return res.end();
     }
     const cookies = String(req.headers.cookie || '').split(';').map(v => v.trim());

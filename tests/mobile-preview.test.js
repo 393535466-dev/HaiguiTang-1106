@@ -28,7 +28,7 @@ test('mobile entry requires an unexpired invite, sets a secure cookie and hides 
   assert.equal((await request('/invite/wrong')).status, 403);
   assert.equal((await request('/', { headers: { Host: 'attacker.example' } })).status, 403);
   const cookie = await enter();
-  for (const flag of ['HttpOnly', 'Secure', 'SameSite=Strict']) assert.ok(cookie.includes(flag));
+  for (const flag of ['HttpOnly', 'Secure', 'SameSite=Lax']) assert.ok(cookie.includes(flag));
   const headers = { Cookie: cookie.split(';')[0] };
   const page = await request('/', { headers }); assert.equal(page.status, 200); assert.equal(page.headers.get('referrer-policy'), 'no-referrer');
   const image = await request('/assets/brand/logo-red-cyan-v6.png', { headers }); assert.equal(image.status, 200); assert.equal(image.headers.get('content-type'), 'image/png');
