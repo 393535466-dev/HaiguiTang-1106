@@ -3,10 +3,16 @@ const storage = require('../../utils/storage')
 const catalog = require('../../data/catalog')
 
 Page({
-  data: { screen: 'cover', storyIndex: 0, puzzle: catalog[0], puzzles: catalog, loading: true, canStart: false, continuing: '', statusText: '正在检查连接', statusKind: 'waiting', error: '', privacyNeeded: false },
-  onLoad(options = {}) { this._alive = true; this.setData({ screen: ['mode', 'stories'].includes(options.screen) ? options.screen : 'cover' }) },
-  onShow() { this._alive = true; this.load() },
+  data: { screen: 'cover', coverActive: true, eyeReady: false, storyIndex: 0, puzzle: catalog[0], puzzles: catalog, loading: true, canStart: false, continuing: '', statusText: '正在检查连接', statusKind: 'waiting', error: '', privacyNeeded: false },
+  onLoad(options = {}) { this._alive = true; this._eyeFrames = {}; this.setData({ screen: ['mode', 'stories'].includes(options.screen) ? options.screen : 'cover' }) },
+  onShow() { this._alive = true; this.setData({ coverActive: true }); this.load() },
+  onHide() { this.setData({ coverActive: false }) },
   onUnload() { this._alive = false },
+  eyeFrameLoaded(e) {
+    if (!this._alive) return
+    this._eyeFrames[e.currentTarget.dataset.frame] = true
+    if (this._eyeFrames.open && this._eyeFrames.closed && !this.data.eyeReady) this.setData({ eyeReady: true })
+  },
   onPullDownRefresh() { this.load().finally(() => wx.stopPullDownRefresh()) },
   async load() {
     this.setData({ loading: true, error: '' })
@@ -31,7 +37,13 @@ Page({
     const storyIndex = this.data.storyIndex + Number(e.currentTarget.dataset.direction)
     if (storyIndex >= 0 && storyIndex < this.data.puzzles.length) this.setData({ storyIndex, puzzle: this.data.puzzles[storyIndex] })
   },
-  back() { if (getCurrentPages().length > 1) wx.navigateBack(); else wx.redirectTo({ url: '/pages/home/index' + (this.data.screen === 'stories' ? '?screen=mode' : '') }) },
+  back() {
+    const target = this.data.screen === 'stories' ? 'mode' : 'cover', pages = getCurrentPages()
+    for (let i = pages.length - 2; i >= 0; i--) {
+      if (pages[i].route === 'pages/home/index' && pages[i].data.screen === target) { wx.navigateBack({ delta: pages.length - 1 - i }); return }
+    }
+    wx.redirectTo({ url: '/pages/home/index' + (target === 'mode' ? '?screen=mode' : '') })
+  },
   friends() { const id = storage.read('hgt:' + storage.owner() + ':room'); wx.navigateTo({ url: '/pages/room/index' + (id ? '?id=' + id : '') }) },
   leaderboard() { wx.navigateTo({ url: '/pages/leaderboard/index' }) },
   tutorial() { wx.navigateTo({ url: '/pages/tutorial/index' }) },

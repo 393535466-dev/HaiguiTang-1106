@@ -18,4 +18,12 @@
 - [官方音色列表](https://help.aliyun.com/zh/model-studio/qwen-tts-voice-list)
 - [模型与价格](https://help.aliyun.com/zh/model-studio/qwen3-tts-flash)
 
-当前选择复用录音组件并接现有百炼服务，省去另行部署开源语音模型的 GPU、推理服务和运维工作。没有引入第三方海龟汤游戏代码、题库或素材。
+当前选择复用录音组件并接现有百炼服务，省去另行部署开源语音模型的 GPU、推理服务和运维工作。没有引入第三方海龟汤游戏代码或题库。
+
+## 首页毛笔字
+
+首页使用 [Ma Shan Zheng](https://github.com/googlefonts/mashanzheng) 接近用户提供的毛笔字参考；未声称识别出了参考图的原字体。采用 Google Fonts 提供的首页字符子集，通过 fontTools 转为 WOFF2，运行时字体别名为 SoupBrush。字体从项目自身目录加载，玩家打开页面时无需连接 Google Fonts。
+
+- 字体文件为 `miniprogram/assets/fonts/soup-brush-home-v1.woff2`。
+- 保留 Copyright 2018 The Ma Shan Zheng Project Authors 与完整 [SIL OFL 1.1](../miniprogram/assets/fonts/OFL-MaShanZheng.txt)。
+- 子集仅覆盖当前首页文字，后续改文案需要重新补齐字形。生成素材及字体来源见 [首页素材记录](home-motion-assets.txt)。

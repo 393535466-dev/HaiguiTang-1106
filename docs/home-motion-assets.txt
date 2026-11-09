@@ -1,0 +1,18 @@
+Homepage interaction update — 2026-11-09
+Built-in image_gen used for the closed-eye frame and torn-button art.
+Closed-eye master: design/brand/torn-eye-closed-v1-master.png
+Runtime blink frames: miniprogram/assets/brand/torn-eye-open-v2.jpg and torn-eye-closed-v2.jpg
+Both JPEG files exported from corresponding generated PNGs using macOS sips, quality 88, no resizing or compositional changes. Original generated masters preserved.
+Button asset: miniprogram/assets/brand/torn-entry-button-v1.png; generated alpha preserved, no pixel postprocessing.
+
+Closed-eye prompt:
+Edit target: the attached existing portrait homepage artwork, a single banknote-engraved eye behind a torn black rough-paper slit. Create exactly one CLOSED-EYE frame to pair with this exact open-eye frame in a blink animation. Precise object edit: change ONLY the actual eye's eyelids and visible eyeball: the upper eyelid has moved naturally down, the eye is fully gently shut, absolutely NO visible iris, pupil or white of the eye. The closed lid must be anatomically plausible, with an elegant curved dark lash seam across the same eye and engraved crosshatching on the closed upper eyelid. Preserve the eye's left and right corner positions, face angle, surrounding engraving, aged cream/black palette, and the identical tear, torn fibers, shadows, rough deep-black paper texture, portrait crop and canvas proportions. The complete canvas including black paper above and below must remain in place so it aligns with the original as an animation frame. No new eyebrow, no second eye, no writing, no UI. Do not reposition or resize the eye or torn opening. Keep every surrounding part unchanged.
+
+Torn-button prompt:
+Create one production UI button background asset, using image 1 ONLY as the reference for realistic torn-through paper form, and image 2 ONLY for the final deep charcoal-black fibrous paper texture and aged tear style. A SMALL elongated horizontal hole torn through thick BLACK coarse paper, irregular jagged natural edges and tiny curled flaps with shadow and subtle warm-grey exposed paper fibers. Through this hole a recessed dark crimson-red flat button surface is visible, softly textured red #a51d2a, darker on the edges. Outer black paper fragments around the opening taper away to a genuinely transparent alpha background. The usable inner hole should be about 4:1 width to height, centered, with a generous unobstructed central region for later text. The whole asset is a compact very wide horizontal strip, approximately 4:1, filling most of its canvas. Photorealistic paper material consistent with the black eye artwork. This is an ASSET, not a screenshot or mockup. No text, no lettering, no arrow, no eye, no white sheet, no rectangular border, no drop shadow outside the small torn-paper frame, no large background margins. Keep the opening small and simple, avoid excessively long spikes. Transparent background required.
+
+Font: Ma Shan Zheng, Google Fonts text subset, converted to WOFF2 with fontTools. Runtime family alias SoupBrush. Copyright and OFL retained in miniprogram/assets/fonts/OFL-MaShanZheng.txt. This approximates the user's brush-lettering reference; it is not an identification of the exact reference typeface.
+Font sources:
+https://github.com/googlefonts/mashanzheng
+https://github.com/google/fonts/tree/main/ofl/mashanzheng
+https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng

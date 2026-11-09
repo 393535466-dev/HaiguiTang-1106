@@ -5,7 +5,8 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const COOKIE = '__Secure-hgt-mobile-test';
-const assets = new Set(['/', '/bundle.js', '/runtime.js', '/voice.js', '/recorder.wav.min.js', '/preview.css', '/preview-status', '/assets/brand/logo-red-cyan-v6.png', '/assets/brand/torn-eye-home-v1.png']);
+const publicAssets = require('./preview-assets');
+const assets = new Set(['/', '/bundle.js', '/runtime.js', '/voice.js', '/recorder.wav.min.js', '/preview.css', '/preview-status', ...Object.keys(publicAssets)]);
 const posts = new Set(['/api', '/audio', '/preview-player']);
 function equal(a, b) {
   const aa = Buffer.from(String(a || '')), bb = Buffer.from(String(b));
@@ -37,6 +38,8 @@ function createMobileGateway({ publicOrigin, accessToken, expiresAt, upstreamPor
     if (!cookie || !equal(cookie.slice(COOKIE.length + 1), accessToken)) return finish(403, '请先打开朋友发来的完整测试邀请链接。');
     const isPost = req.method === 'POST' && posts.has(url.pathname);
     if (!isPost && !(['GET', 'HEAD'].includes(req.method) && assets.has(url.pathname))) return finish(404, '未找到页面。');
+    // Cache only versioned artwork/fonts after authentication. Game data and code stay no-store.
+    if (Object.hasOwn(publicAssets, url.pathname)) res.setHeader('Cache-Control', 'private, max-age=' + Math.min(86400, Math.max(0, Math.floor((expiresAt - now()) / 1000))));
     // Public callers may never inherit the local owner's identity by omitting a header.
     if (['/api', '/audio'].includes(url.pathname) && !/^[a-f0-9]{48}$/.test(String(req.headers['x-preview-player'] || ''))) return finish(401, '玩家身份已过期，请刷新页面。');
     const headers = { host: '127.0.0.1:' + upstreamPort };

@@ -45,7 +45,6 @@ async function main() {
     }
     const base = 'http://127.0.0.1:' + server.address().port;
     await page.goto(base);
-    await page.getByRole('button', { name: '进入游戏' }).click();
     await page.getByRole('button', { name: '第一次玩？跟着做一遍' }).click();
     await page.getByRole('button', { name: '读懂了，试着提问' }).click();
     await compose('xiaozhou', '小周', 'question', '小周');
@@ -78,6 +77,7 @@ async function main() {
     await cdp.send('Input.insertText', { text: '之后，' }); await paint();
     assert.equal(await draft('guess'), '雨停之后，小周');
     await page.getByRole('button', { name: '跳过练习' }).click();
+    await page.getByRole('button', { name: '进入游戏' }).click();
     await page.getByRole('button', { name: '独自推理' }).click();
     await page.locator('.story-card').first().click();
     await page.waitForFunction(() => window.__preview.page.data.session && !window.__preview.page.data.loading);

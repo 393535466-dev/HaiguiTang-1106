@@ -150,10 +150,10 @@
   }
   function events(node, element, scope, page) {
     for (const attribute of node.attributes) {
-      const match = attribute.name.match(/^(bind|catch):?(tap|input|touchstart|touchmove|touchend|touchcancel|agreeprivacyauthorization)$/);
+      const match = attribute.name.match(/^(bind|catch):?(tap|input|load|touchstart|touchmove|touchend|touchcancel|agreeprivacyauthorization)$/);
       if (!match) continue;
       const logical = match[2];
-      const nativeEvent = { tap: 'click', input: 'input', touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup', touchcancel: 'pointercancel', agreeprivacyauthorization: 'click' }[logical];
+      const nativeEvent = { tap: 'click', input: 'input', load: 'load', touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup', touchcancel: 'pointercancel', agreeprivacyauthorization: 'click' }[logical];
       const dispatch = event => {
         if (match[1] === 'catch') event.stopPropagation();
         if (logical === 'touchstart') {

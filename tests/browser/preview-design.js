@@ -26,13 +26,23 @@ async function main() {
       assert.ok(result.horizontal, 'no horizontal page overflow'); assert.ok(result.inside, selector + ' remains in the usable screen');
     }
     await page.goto(base); await page.waitForFunction(() => !window.__preview.page.data.loading);
-    await page.waitForFunction(()=>[...document.querySelectorAll('.cover-art,.brand-logo')].every(i=>i.complete&&i.naturalWidth>0));
+    await page.waitForFunction(()=>window.__preview.page.data.eyeReady && [...document.querySelectorAll('.cover-art,.brand-logo,.torn-button-art')].every(i=>i.complete&&i.naturalWidth>0));
+    await page.evaluate(()=>document.fonts.ready);
+    assert.equal(await page.evaluate(()=>document.fonts.check('24px SoupBrush','进入游戏')),true);
     for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:1320,height:1000}]) {
-      await page.setViewportSize(viewport); await layout('.hero-button'); await shot('home-' + viewport.width);
+      await page.setViewportSize(viewport); await layout('.hero-button'); await layout('.cover-tutorial'); await layout('.cover-privacy');
+      assert.equal(await page.evaluate(()=>{const b=document.querySelector('.hero-button').getBoundingClientRect(),t=document.querySelector('.cover-tutorial').getBoundingClientRect(),f=document.querySelector('.cover-footnote').getBoundingClientRect();return t.top>=b.bottom-1&&t.bottom<=f.top+1}),true,'tutorial is between entry and capability caption');
+      await page.locator('.eye-blink').evaluate(e=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=0}));await shot('home-' + viewport.width);
     }
     await page.setViewportSize({width:390,height:844}); await frame();
+    for(const [time,expected] of [[0,0],[704,1],[992,0],[1280,1],[1800,0],[5000,0]]) {
+      await page.locator('.eye-blink').evaluate((e,t)=>e.getAnimations().forEach(a=>{a.pause();a.currentTime=t}),time);await frame();
+      assert.ok(Math.abs(Number(await page.locator('.eye-blink').evaluate(e=>getComputedStyle(e).opacity))-expected)<.01,'two blinks then a held-open pause');if(time===704)await shot('eye-closed');
+    }
+    await page.emulateMedia({reducedMotion:'reduce'});await frame();assert.equal(await page.locator('.eye-blink').evaluate(e=>getComputedStyle(e).animationName),'none');await page.emulateMedia({reducedMotion:'no-preference'});
     await page.locator('.hero-button').click(); await frame();
     assert.equal(await page.evaluate(()=>window.__preview.page.data.screen),'mode');
+    assert.equal(await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).count(),0);
     await page.setViewportSize({width:320,height:568});await layout('.route-bottom');await shot('mode-small');
     await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories'&&!window.__preview.page.data.loading);await layout('.story-card');await shot('stories-small');
     await page.getByRole('button',{name:'下一题',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.storyIndex),1);
@@ -91,9 +101,13 @@ async function main() {
     await page.getByRole('button',{name:'看看好友协作榜'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);await shot('ranking-mobile');
     await page.setViewportSize({width:320,height:568});await layout('.my-score');await layout('.rank-pagination');assert.equal(await page.locator('.rank-row').count(),3);await page.getByRole('button',{name:'下一页',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.pageIndex),1);await shot('ranking-small');
     await page.getByRole('button',{name:'单人榜',exact:true}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.rank-empty').count(),1);
-    await page.getByRole('button',{name:'回到首页',exact:false}).click();await page.getByRole('button',{name:'进入游戏'}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
+    await page.getByRole('button',{name:'回到首页',exact:false}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
     await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).click();await page.waitForFunction(()=>window.__preview.page.data.judgeReady);await layout('.tutorial-footer');await shot('tutorial-small');
-    await page.getByRole('button',{name:'跳过练习',exact:false}).click();
+    const practice=require('../../cloudfunctions/game/data/tutorial');
+    await page.getByRole('button',{name:'读懂了，试着提问'}).click();await page.locator('.practice-input').fill(practice.testCases[0].text);await page.getByRole('button',{name:'确认提问'}).click();await page.waitForFunction(()=>window.__preview.page.data.questionResult==='no');
+    await page.getByRole('button',{name:'下一步，试试提示'}).click();await page.getByRole('button',{name:'试着看一条提示'}).click();await page.getByRole('button',{name:'有想法了，试着猜底'}).click();
+    await page.locator('.guess-input').fill(practice.guessCases[0].text);await page.getByRole('button',{name:'提交猜底'}).click();await page.getByRole('button',{name:'去选一碗汤'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories');
+    await page.locator('.route-header button').click();await page.waitForFunction(()=>window.__preview.page.data.screen==='mode');await page.locator('.route-header button').click();await page.waitForFunction(()=>window.__preview.page.data.screen==='cover');
     await page.getByRole('button',{name:'录音与隐私说明',exact:true}).click();
     const count=await page.evaluate(()=>window.__preview.page.data.sections.length);
     for(let i=0;i<count;i++){await layout('.privacy-card');await layout('.privacy-page .primary');await layout('.privacy-paragraph:last-child');if(i<count-1)await page.getByRole('button',{name:'下一页',exact:false}).click();}

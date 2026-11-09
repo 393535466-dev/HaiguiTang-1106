@@ -33,6 +33,12 @@ test('mobile entry requires an unexpired invite, sets a secure cookie and hides 
   const page = await request('/', { headers }); assert.equal(page.status, 200); assert.equal(page.headers.get('referrer-policy'), 'no-referrer');
   const image = await request('/assets/brand/logo-red-cyan-v6.png', { headers }); assert.equal(image.status, 200); assert.equal(image.headers.get('content-type'), 'image/png');
   assert.equal((await request('/assets/brand/logo-red-cyan-v6.png')).status, 403);
+  for (const [route,mime] of Object.entries(require('../scripts/preview-assets'))) {
+    const asset = await request(route, { headers }); assert.equal(asset.status, 200); assert.equal(asset.headers.get('content-type'), mime);
+    assert.equal(asset.headers.get('cache-control'), 'private, max-age=9');
+    assert.equal((await request(route)).status, 403);
+  }
+  assert.equal(page.headers.get('cache-control'), 'no-store');
   for (const route of ['/.env.preview.local', '/.preview-data/preview-state.json', '/cloudfunctions/game/data/puzzles.js']) assert.equal((await request(route, { headers })).status, 404);
   expire(); assert.equal((await request('/', { headers })).status, 410);
 });
