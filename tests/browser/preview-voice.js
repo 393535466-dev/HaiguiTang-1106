@@ -20,7 +20,7 @@ async function main() {
     const page = await browser.newPage(), errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto('http://127.0.0.1:' + server.address().port);
-    await page.getByRole('button', { name: '第一次玩？跟着做一遍' }).click();
+    await page.getByRole('button', { name: '新手试玩' }).click();
     await page.getByRole('button', { name: '读懂了，试着提问' }).click();
     const button = () => page.getByRole('button', { name: '按住说话', exact: true });
     await button().click();

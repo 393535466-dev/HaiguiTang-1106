@@ -6,7 +6,6 @@
 .paper-theme .mode-copy{width:384rpx;max-width:100%;font-size:24rpx;line-height:1.8;letter-spacing:0;text-align:justify;text-align-last:justify;margin-top:14rpx}
 .paper-theme .resume-link{margin-top:20rpx}
 .paper-theme .stories-content{padding-top:6rpx}
-.paper-theme .stories-content>.route-title{font-size:35rpx;line-height:1.35;margin-left:40rpx;flex-shrink:0}
 .paper-theme .stories-content>.route-kicker{flex-shrink:0;margin-bottom:8rpx}
 .paper-theme .story-carousel{position:relative;flex:1;min-height:0;width:calc(100% + 80rpx);margin:16rpx -40rpx 0;perspective:1000px;overflow:hidden;touch-action:pan-y;isolation:isolate}
 .paper-theme .story-deck{position:absolute;inset:0;transition:transform 200ms ease-out;transform-style:preserve-3d}
@@ -46,7 +45,7 @@
 .paper-theme .room-setup .lobby-note{margin:5rpx 0 0;padding:7rpx 0 0;font-size:19rpx}
 .paper-theme .room-setup .join-panel{padding-top:10rpx}
 .preview-modal p{font-family:SoupMincho,"Songti SC",STSong,serif!important}
-@media(max-height:700px){.paper-theme .cover-heading{top:11%}.paper-theme .mode-main-title{font-size:46rpx}.paper-theme .mode-copy{width:368rpx;font-size:23rpx}.paper-theme .book-title{font-size:36rpx;margin:5rpx 0}.paper-theme .book-teaser{font-size:22rpx;line-height:1.6}.paper-theme .stories-content{padding-top:0}.paper-theme .stories-content>.route-title{font-size:33rpx}.paper-theme .room-story-carousel .book-title{font-size:33rpx}.paper-theme .room-story-carousel .book-meta{font-size:17rpx}.paper-theme .room-story-carousel .book-teaser{font-size:21rpx}.paper-theme .room-setup .lobby-capabilities{font-size:21rpx;margin-bottom:8rpx}.paper-theme .room-setup .lobby-note{font-size:18rpx}.paper-theme .room-setup .lobby-tabs{margin-top:8rpx}}
+@media(max-height:700px){.paper-theme .cover-heading{top:11%}.paper-theme .mode-main-title{font-size:46rpx}.paper-theme .mode-copy{width:368rpx;font-size:23rpx}.paper-theme .book-title{font-size:36rpx;margin:5rpx 0}.paper-theme .book-teaser{font-size:22rpx;line-height:1.6}.paper-theme .stories-content{padding-top:0}.paper-theme .room-story-carousel .book-title{font-size:33rpx}.paper-theme .room-story-carousel .book-meta{font-size:17rpx}.paper-theme .room-story-carousel .book-teaser{font-size:21rpx}.paper-theme .room-setup .lobby-capabilities{font-size:21rpx;margin-bottom:8rpx}.paper-theme .room-setup .lobby-note{font-size:18rpx}.paper-theme .room-setup .lobby-tabs{margin-top:8rpx}}
 @media(prefers-reduced-motion:reduce){.paper-theme .story-deck,.paper-theme .story-leaf{transition:none}}
 
 .paper-theme .book-meta,.paper-theme .room-story-carousel .book-meta{font-size:max(19rpx,10px)}

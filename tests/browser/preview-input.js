@@ -48,7 +48,7 @@ async function main() {
     }
     const base = 'http://127.0.0.1:' + server.address().port;
     await page.goto(base);
-    await page.getByRole('button', { name: '第一次玩？跟着做一遍' }).click();
+    await page.getByRole('button', { name: '新手试玩' }).click();
     await page.getByRole('button', { name: '读懂了，试着提问' }).click();
     await compose('xiaozhou', '小周', 'question', '小周');
     assert.match(await page.locator('.draft-heading').innerText(), /2\s*\/\s*200/);

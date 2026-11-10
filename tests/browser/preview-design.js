@@ -63,7 +63,7 @@ async function main() {
     assert.equal(await page.locator('.cover-brand').innerText(), '海龟汤');
     assert.equal(await page.locator('.entry-arrow').count(), 0);
     assert.equal(await page.locator('.cover-caption').count(), 0);
-    assert.equal(await page.locator('.cover-tutorial').innerText(), '第一次玩？跟着做一遍');
+    assert.equal(await page.locator('.cover-tutorial').innerText(), '新手试玩');
     for (const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:488,height:676},{width:700,height:600},{width:900,height:650},{width:1320,height:1000}]) {
       await page.setViewportSize(viewport); await layout('.hero-button'); await layout('.cover-tutorial'); await layout('.cover-privacy');
       assert.equal(await page.evaluate(() => {
@@ -83,7 +83,7 @@ async function main() {
     await page.locator('.hero-button').click(); await frame();
     assert.equal(await page.evaluate(()=>window.__preview.page.data.screen),'mode');
     assert.equal(await page.locator('.mode-main-title').innerText(),'今天，来一探究竟');
-    assert.equal(await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).count(),0);
+    assert.equal(await page.getByRole('button',{name:'新手试玩'}).count(),0);
     await page.setViewportSize({width:320,height:568});await layout('.route-bottom');await shot('mode-small');
     await page.getByRole('button',{name:'独自推理'}).click();await page.waitForFunction(()=>window.__preview.page.data.screen==='stories'&&!window.__preview.page.data.loading);await layout('.story-card');await shot('stories-small');
     assert.equal(await page.evaluate(()=>window.__preview.page.data.puzzles.length),13);
@@ -150,7 +150,7 @@ async function main() {
     await page.setViewportSize({width:320,height:568});await layout('.my-score');await layout('.rank-pagination');assert.equal(await page.locator('.rank-row').count(),3);await page.getByRole('button',{name:'下一页',exact:false}).click();assert.equal(await page.evaluate(()=>window.__preview.page.data.pageIndex),1);await shot('ranking-small');
     await page.getByRole('button',{name:'单人榜',exact:true}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);assert.equal(await page.locator('.rank-empty').count(),1);
     await page.locator('.rank-top button').click();await page.waitForFunction(()=>window.__preview.page.data.room);await page.getByRole('button',{name:'返回首页',exact:true}).click();await page.waitForFunction(()=>!window.__preview.page.data.loading);
-    await page.getByRole('button',{name:'第一次玩？跟着做一遍'}).click();await page.waitForFunction(()=>window.__preview.page.data.judgeReady);await layout('.tutorial-footer');await shot('tutorial-small');
+    await page.getByRole('button',{name:'新手试玩'}).click();await page.waitForFunction(()=>window.__preview.page.data.judgeReady);await layout('.tutorial-footer');await shot('tutorial-small');
     const practice=require('../../cloudfunctions/game/data/tutorial');
     await page.getByRole('button',{name:'读懂了，试着提问'}).click();await page.locator('.practice-input').fill(practice.testCases[0].text);await page.getByRole('button',{name:'确认提问'}).click();await page.waitForFunction(()=>window.__preview.page.data.questionResult==='no');
     await page.getByRole('button',{name:'下一步，试试提示'}).click();await page.getByRole('button',{name:'试着看一条提示'}).click();await page.getByRole('button',{name:'有想法了，试着猜底'}).click();

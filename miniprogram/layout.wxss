@@ -1,13 +1,16 @@
 /* Shared play sheet and compact utility navigation. */
 .paper-theme .cover-brand{font-size:49rpx;line-height:1.2;align-items:center}
 .paper-theme .cover-brand>.brush{font-family:SoupHand,"Kaiti SC",serif;line-height:1.2}
-.paper-theme .cover-title{font-size:75rpx}
+.paper-theme .cover-heading{top:10%;left:50%;right:auto;width:360rpx;transform:translateX(-50%)}
+.paper-theme .cover-title{font-size:67rpx;line-height:1.15;letter-spacing:5rpx}
+.paper-theme .cover-kicker{display:flex;justify-content:space-between;width:100%;font-size:27rpx;line-height:1.3;letter-spacing:0;margin:12rpx 0 0}
+.paper-theme .cover-kicker>text{white-space:pre}
 .paper-theme .route-header,.paper-theme .game-header,.paper-theme .room-header{display:grid;grid-template-columns:36px minmax(0,1fr) 132px;gap:8px;align-items:center;min-height:56px;height:auto}
 .paper-theme .route-header>view:not(.header-tools){min-width:0;gap:8rpx;white-space:nowrap}
 .paper-theme .route-header .mini-logo{width:36rpx;height:44rpx;flex-shrink:0}
 .paper-theme .header-tools{display:flex;align-items:center;justify-content:flex-end;gap:0;width:132px;letter-spacing:0}
 .paper-theme .header-tools .tool-button{display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:0;border-image:none;background:transparent;color:#e4d8bf}
-.paper-theme .tool-button image,.paper-theme .tool-button img{display:block;width:34px;height:34px;filter:saturate(.7)}
+.paper-theme .tool-button image,.paper-theme .tool-button img{display:block;width:27.2px;height:27.2px;filter:saturate(.7)}
 .paper-theme .game-title,.paper-theme .room-title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:34rpx;line-height:1.4;margin:0;overflow:hidden}
 .paper-theme .route-bottom{flex-direction:column;align-items:center;gap:8rpx}
 .paper-theme .route-bottom .mode-privacy{text-align:center;align-self:center}
@@ -62,4 +65,10 @@
 .paper-theme .room-modes button{font-size:24rpx}
 .paper-theme .conversation-paper .ending .primary,.paper-theme .conversation-paper .room-ending .primary{border:1px solid #ae9163;border-image:none;background:#d7c097}
 @media(max-width:360px){.paper-theme .route-header,.paper-theme .game-header,.paper-theme .room-header{grid-template-columns:28px minmax(0,1fr) 132px;gap:3px}.paper-theme .route-header .mini-logo{display:none}.paper-theme .game-title,.paper-theme .room-title{font-size:32rpx}.paper-theme .route-bottom .resume-link{font-size:22rpx}}
-@media(max-height:700px){.paper-theme .cover-brand{font-size:40rpx}.paper-theme .cover-title{font-size:66rpx}.paper-theme .conversation-paper{margin-top:4rpx;padding-top:28rpx;padding-bottom:18rpx}.paper-theme .host-voice-bar button{min-height:30px}.paper-theme .composer-toolbar{margin-bottom:5rpx}.paper-theme .room-members .member-avatar{width:38rpx;height:38rpx;font-size:20rpx}.paper-theme .room-members .member-label{font-size:20rpx}.paper-theme .room-code-line button{min-height:28px}.paper-theme .room-code-number{font-size:27rpx}.paper-theme .room-composer .room-draft{height:78rpx;min-height:78rpx}.paper-theme .room-bottom{padding-top:0;padding-bottom:0}.paper-theme .room-bottom button{min-height:28px}.paper-theme .composer-footer{margin-top:0}.paper-theme .input-actions{margin-top:4rpx}}
+@media(max-height:700px){.paper-theme .cover-brand{font-size:40rpx}.paper-theme .cover-heading{width:315rpx}.paper-theme .cover-title{font-size:58rpx}.paper-theme .cover-kicker{font-size:26rpx}.paper-theme .conversation-paper{margin-top:4rpx;padding-top:28rpx;padding-bottom:18rpx}.paper-theme .host-voice-bar button{min-height:30px}.paper-theme .composer-toolbar{margin-bottom:5rpx}.paper-theme .room-members .member-avatar{width:38rpx;height:38rpx;font-size:20rpx}.paper-theme .room-members .member-label{font-size:20rpx}.paper-theme .room-code-line button{min-height:28px}.paper-theme .room-code-number{font-size:27rpx}.paper-theme .room-composer .room-draft{height:78rpx;min-height:78rpx}.paper-theme .room-bottom{padding-top:0;padding-bottom:0}.paper-theme .room-bottom button{min-height:28px}.paper-theme .composer-footer{margin-top:0}.paper-theme .input-actions{margin-top:4rpx}}
+
+/* Input examples are lighter and smaller than the player’s own text. */
+.paper-theme .draft-placeholder{color:rgba(119,101,75,.5);font-size:26rpx}
+.paper-theme .draft-input::placeholder,.paper-theme .room-draft::placeholder{color:rgba(119,101,75,.5);font-size:26rpx;opacity:1}
+.paper-theme .composer-footer>text,.paper-theme .composer-footer>span{font-family:SoupHand,"Kaiti SC",KaiTi,serif;font-weight:400}
+@media(max-height:700px){.paper-theme .draft-placeholder,.paper-theme .draft-input::placeholder,.paper-theme .room-draft::placeholder{font-size:24rpx}}
