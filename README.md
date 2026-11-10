@@ -11,6 +11,12 @@ GitHub `main` 连接 Vercel 项目 `haiguitang1106`。`npm run build:h5` 只将�
 
 当前视觉以代码为准：米白细花边剧本卡、欧式古典配图；图标顺序为排行榜、设置、我的。首页中英文上下排列，新手试玩单独入口。汤面、对话、提问/猜底切换和草稿合并于一个纸面中。后续旧日期的验证段落是历史记录。
 
+## 产品文档
+
+- [产品需求文档 PRD](docs/product/PRD.html) · [在线阅读](https://haiguitang1106.vercel.app/product/PRD.html)
+- [项目一页纸](docs/product/one-page.html) · [在线阅读](https://haiguitang1106.vercel.app/product/one-page.html)
+- [H5 试玩](https://haiguitang1106.vercel.app/)；上述文档可在浏览器打印或保存为 PDF。
+
 ## 第一版范围
 
 - 十篇分级原创剧本（六篇悬疑、两篇温情、两篇无厘头）和三道原有题，每题都有固定事实、三级提示及独立猜底标准；难度等级待玩家盲测校准。
