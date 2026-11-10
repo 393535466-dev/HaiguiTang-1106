@@ -11,7 +11,7 @@ async function main(){
   const p=await browser.newPage({viewport:{width:466,height:676}}), errors=[];p.on('pageerror',e=>errors.push(e.message));
   const base='http://127.0.0.1:'+server.address().port;
   await p.goto(base+'/#/pages/home/index?screen=stories');await p.waitForFunction(()=>!window.__preview.page.data.loading);await p.evaluate(()=>document.fonts.ready);
-  async function selected(key,index){await p.waitForFunction(({key,index,title})=>window.__preview.page.data[key]===index&&document.querySelector('.story-leaf.active .book-title')?.textContent===title,{key,index,title:puzzles[index].title});}
+  async function selected(key,index){await p.waitForFunction(({key,index,title})=>window.__preview.page.data[key]===index&&document.querySelector('.story-leaf.active .book-title')?.textContent===title,{key,index,title:puzzles[index].title});await p.waitForFunction(()=>document.querySelector('.story-leaf.active .book-art')?.naturalWidth>0);}
   async function swipe(dx,dy=0){const b=await p.locator('.story-leaf.active').boundingBox(),x=b.x+b.width/2,y=b.y+b.height*.35;await p.mouse.move(x,y);await p.mouse.down();await p.mouse.move(x+dx,y+dy,{steps:7});await p.mouse.up();}
   await swipe(-95);await selected('storyIndex',1);
   await swipe(8,85);await selected('storyIndex',1);

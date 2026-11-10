@@ -1,0 +1,119 @@
+{
+  "generator": "Built-in image_gen",
+  "date": "2026-11-10",
+  "description": "13 European classical oil-painting covers and 3 transparent gold utility icons. CSS image-only saturation 0.595 = previous 0.7 × 0.85. Story facts unchanged. JPEG/PNG plus WebP exports. Decorative frame authored as SVG and rasterized for nine-slice use.",
+  "assets": [
+    {
+      "id": "rank-gold-v2",
+      "kind": "icon",
+      "file": "miniprogram/assets/brand/rank-gold-v2.png",
+      "webp": "miniprogram/assets/brand/rank-gold-v2.webp",
+      "prompt": "Use case: stylized-concept. Create a single premium mobile game UI icon: a small antique gold heraldic shield with a clean five-point star embossed in its center, two restrained wing-like side flourishes. Front-facing, symmetrical, sculpted beveled gold, warm pale highlights and restrained brown-gold recesses, simple strong silhouette clearly readable at 28px. Inspired by European ceremonial insignia. Square canvas, centered icon occupying 80 percent of canvas, generous transparent padding, genuine transparent alpha background, no disc, no square backdrop, no shadow extending outside icon, no text, no numbers, no watermark. This is the leaderboard icon in a coherent three-icon set. Refine the provided idea rather than adding complexity."
+    },
+    {
+      "id": "settings-gold-v2",
+      "kind": "icon",
+      "file": "miniprogram/assets/brand/settings-gold-v2.png",
+      "webp": "miniprogram/assets/brand/settings-gold-v2.webp",
+      "prompt": "Use case: stylized-concept. One premium mobile game UI icon, an eight-tooth symmetrical antique-gold gear with a circular raised hub and concentric beveled rim. Front-facing, refined sculpted gold metal, warm pale highlights, restrained brown-gold recesses. Simple strong silhouette readable at 28px, same European ceremonial gold as a heraldic shield icon. Square canvas, centered icon occupying 80 percent, generous transparent padding, genuine transparent alpha background, no disc behind gear, no square backdrop, no extending cast shadow, no text, no watermark."
+    },
+    {
+      "id": "profile-gold-v2",
+      "kind": "icon",
+      "file": "miniprogram/assets/brand/profile-gold-v2.png",
+      "webp": "miniprogram/assets/brand/profile-gold-v2.webp",
+      "prompt": "Use case: stylized-concept. One premium mobile game UI icon, an elegant front-facing classical European golden helmet with a modest angular central crest, clean brow ridge and two cheek guards framing a dark open visor. Refined sculpted antique-gold metal, warm pale highlights, restrained brown-gold recesses. Symmetrical and simple strong silhouette readable at 28px, matches a heraldic shield and gear set. Square canvas, centered icon occupying 80 percent, generous transparent padding, genuine transparent alpha background, no disc, no square backdrop, no extending cast shadow, no text or watermark. No face, no eyes, no horns."
+    },
+    {
+      "id": "clay-dinner",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/clay-dinner-v2.jpg",
+      "webp": "miniprogram/assets/stories/clay-dinner-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A Dutch Golden Age still life in an old European salon: a white porcelain plate holding convincing glazed red-brown pork-shaped pieces, beside a small competition cup and a plain cup of noodles, on dark linen. No person is eating; keep the physical material of the pork ambiguous. Do not show clay or tools or reveal the puzzle answer."
+    },
+    {
+      "id": "keep-the-cough",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/keep-the-cough-v2.jpg",
+      "webp": "miniprogram/assets/stories/keep-the-cough-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: An elderly European grandmother in a dark modest wool dress, seated beside a lace-curtained window in a quiet old townhouse, tenderly listening to a small audio recorder resting in her hand. A subdued room, worn armchair and soft window light. The recorder must remain recognizable. No ghost, portrait of deceased, or other explanation."
+    },
+    {
+      "id": "extra-camera",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/extra-camera-v2.jpg",
+      "webp": "miniprogram/assets/stories/extra-camera-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A mysterious lost-property office in a weathered European railway station: a brown backpack on a wood counter, an attendant behind it, an anxious adult man waiting across the counter, a locked cabinet in shadow. No camera visible anywhere. Evoke suspicion without revealing the scam."
+    },
+    {
+      "id": "midnight-bowl",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/midnight-bowl-v2.jpg",
+      "webp": "miniprogram/assets/stories/midnight-bowl-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A silent old European apartment corridor at midnight. A closed dark oak apartment door with a small doorbell button and one empty ceramic bowl on the stone floor, dramatic soft lamplight and long shadows. Absolutely no animal, no person or footprints; preserve the mystery."
+    },
+    {
+      "id": "picture-still-there",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/picture-still-there-v2.jpg",
+      "webp": "miniprogram/assets/stories/picture-still-there-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A hushed European picture gallery at closing time, one framed landscape painting still hanging prominently on a faded plaster wall. A distant museum attendant and a last visitor receding into shadow, oblique window light, uncertain atmosphere. Do not show theft, duplicate canvas or any hidden method."
+    },
+    {
+      "id": "letters-same-name",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/letters-same-name-v2.jpg",
+      "webp": "miniprogram/assets/stories/letters-same-name-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A young European adult seated at an old walnut desk, holding one timeworn envelope above an open wooden box filled with decades of letters, candlelight and a misty window. Letter markings indistinct and unreadable. Intimate, bittersweet, the identity behind the letters remains unknown."
+    },
+    {
+      "id": "only-paper",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/only-paper-v2.jpg",
+      "webp": "miniprogram/assets/stories/only-paper-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A restrained still life in an old European museum registry: several papers on an oak writing desk, a closed archival parcel and a modest commemorative medal visible behind glass in the far background. A gloved hand reaches toward one sheet. No readable text, no arrows, no indication how the paperwork changes ownership."
+    },
+    {
+      "id": "empty-ransom",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/empty-ransom-v2.jpg",
+      "webp": "miniprogram/assets/stories/empty-ransom-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: An adult European figure in a dark coat carrying a plain closed travel case through an empty cobblestone street toward a distant archway, twilight, worn ochre facades and quiet tension. Case interior never visible. No violence, captor, tracking device or solution clue."
+    },
+    {
+      "id": "eleventh-page",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/eleventh-page-v2.jpg",
+      "webp": "miniprogram/assets/stories/eleventh-page-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A solitary European novelist in a dark waistcoat at an antique writing desk, studying loose manuscript sheets, one separate sheet on the near edge, dramatic window light, ink pot and books. The page count cannot be read; no legible writing or computer-sharing interface. Literary mystery, no culprit revealed."
+    },
+    {
+      "id": "third-envelope",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/third-envelope-v2.jpg",
+      "webp": "miniprogram/assets/stories/third-envelope-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A candlelit European dinner room after the guests have left, three closed cream envelopes on a dark polished side table, half-empty wine glasses, folded linen and chairs fading into darkness. No readable names, no opened letters or explanation of the switch."
+    },
+    {
+      "id": "parking-ticket",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/parking-ticket-v2.jpg",
+      "webp": "miniprogram/assets/stories/parking-ticket-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A European woman in a dark coat outside a grand vintage cinema foyer, holding one small blank ticket, poster frames and a deep red velvet entrance behind her. Gently puzzling and contemplative, no parked vehicle or parking signs, no readable text or explanation."
+    },
+    {
+      "id": "library-shout",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/library-shout-v2.jpg",
+      "webp": "miniprogram/assets/stories/library-shout-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: A scholarly European library with high timber bookshelves and a small gathering of fully clothed adult listeners, one adult person standing with an expressive open mouth, others beginning to applaud. Do not show stage signs or any text that explains why shouting is permitted. Restrained oil-painted drama."
+    },
+    {
+      "id": "shadow-photo",
+      "kind": "cover",
+      "file": "miniprogram/assets/stories/shadow-photo-v2.jpg",
+      "webp": "miniprogram/assets/stories/shadow-photo-v2.webp",
+      "prompt": "Use case: illustration-story. Create one finished landscape 3:2 game story-cover painting, edge-to-edge art only, no card border, no UI, no letters, captions or watermark. European classical oil painting, 19th-century Symbolist and Dutch-master atmosphere, tangible dry brush and aged canvas grain, restrained chiaroscuro, believable anatomy, earth browns, muted olive, ivory and slate, softly luminous highlights, deep but readable shadows. More painterly and antique than photorealistic, not glossy fantasy or cartoon. Western European architecture, people and dress, with plot-required objects retained even when more modern; do not add supernatural explanations. Quiet mystery. Detailed principal subject composed within center 80% so a mobile card crop stays meaningful. Keep saturation restrained; software will apply the final measured saturation reduction. Scene: An old European walled garden in late afternoon, a group of fully clothed friends preparing for a group photograph beside a tripod camera. Keep all the people plainly visible in this cover illustration, with ordinary indistinct ambient shadows, no printed resulting photo, no focus on shadows or mirror tricks and no answer revealed."
+    }
+  ]
+}

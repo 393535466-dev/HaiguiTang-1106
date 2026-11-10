@@ -14,6 +14,8 @@ const puzzles = require('../cloudfunctions/game/data/puzzles');
 const root = path.resolve(__dirname, '..');
 const webpAssets = Object.freeze({
   ...Object.fromEntries(require('../miniprogram/data/catalog').map(p => ['/assets/stories/' + p.id + '-v1.jpg', '/assets/stories/' + p.id + '-v1.webp'])),
+  ...Object.fromEntries(require('../miniprogram/data/catalog').map(p => ['/assets/stories/' + p.id + '-v2.jpg', '/assets/stories/' + p.id + '-v2.webp'])),
+  ...Object.fromEntries(['rank-gold-v2', 'settings-gold-v2', 'profile-gold-v2'].map(id => ['/assets/brand/' + id + '.png', '/assets/brand/' + id + '.webp'])),
   '/assets/brand/ranking-coin-v1.png': '/assets/brand/ranking-coin-v1.webp',
   '/assets/brand/story-paper-v1.png': '/assets/brand/story-paper-v1.webp',
   '/assets/brand/black-paper-v1.jpg': '/assets/brand/black-paper-v1.webp',

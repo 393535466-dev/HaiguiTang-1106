@@ -3,6 +3,8 @@
 module.exports = Object.freeze({
   ...require('./font-assets-manifest.json'),
   ...Object.fromEntries(require('../miniprogram/data/catalog').map(p => ['/assets/stories/' + p.id + '-v1.jpg', 'image/jpeg'])),
+  ...Object.fromEntries(require('../miniprogram/data/catalog').map(p => ['/assets/stories/' + p.id + '-v2.jpg', 'image/jpeg'])),
+  ...Object.fromEntries(['classical-frame-v1', 'rank-gold-v2', 'settings-gold-v2', 'profile-gold-v2'].map(id => ['/assets/brand/' + id + '.png', 'image/png'])),
   '/assets/brand/ranking-coin-v1.png': 'image/png',
   '/assets/brand/story-paper-v1.png': 'image/png',
   '/assets/brand/logo-red-cyan-v6.png': 'image/png',

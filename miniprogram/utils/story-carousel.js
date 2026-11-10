@@ -2,7 +2,7 @@
 function cards(puzzles, current) {
   return puzzles.map((p, index) => ({ id: p.id, title: p.title, teaser: p.teaser,
     difficulty: p.difficulty, genre: p.genre || '轻推理', index,
-    art: '/assets/stories/' + p.id + '-v1.jpg',
+    art: '/assets/stories/' + p.id + '-v2.jpg',
     position: index === current ? 'active' : (index < current ? 'left-' : 'right-') + Math.abs(index - current)
   })).filter(p => Math.abs(p.index - current) <= 2)
 }
