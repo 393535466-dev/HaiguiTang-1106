@@ -20,6 +20,7 @@
     "test:browser-design": "node tests/browser/preview-design.js",
     "test:browser-carousel": "node tests/browser/preview-carousel.js",
     "test:browser-sheet": "node tests/browser/preview-sheet.js",
-    "test:browser-invite": "node tests/browser/preview-invite.js"
+    "test:browser-invite": "node tests/browser/preview-invite.js",
+    "build:h5": "node scripts/build-h5.js"
   }
 }

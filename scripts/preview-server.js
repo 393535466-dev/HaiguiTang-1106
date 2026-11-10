@@ -147,4 +147,4 @@ if (require.main === module) {
   });
   server.on('error', error => { process.stderr.write('预览启动失败：' + error.code + '\n'); process.exitCode = 1; });
 }
-module.exports = { createPreviewServer };
+module.exports = { createPreviewServer, bundle };

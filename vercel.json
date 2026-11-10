@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build:h5",
+  "outputDirectory": "dist",
+  "framework": null,
+  "functions": { "api/bridge.js": { "maxDuration": 60 } },
+  "rewrites": [
+    { "source": "/api", "destination": "/api/bridge?operation=game" },
+    { "source": "/audio", "destination": "/api/bridge?operation=audio" },
+    { "source": "/preview-player", "destination": "/api/bridge?operation=player" },
+    { "source": "/preview-status", "destination": "/api/bridge?operation=status" }
+  ],
+  "headers": [{ "source": "/(.*)", "headers": [
+    { "key": "X-Content-Type-Options", "value": "nosniff" },
+    { "key": "Referrer-Policy", "value": "no-referrer" },
+    { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+    { "key": "Permissions-Policy", "value": "microphone=(self), camera=()" }
+  ] }]
+}
